@@ -6,7 +6,7 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Debug 的时间与错误的愚蠢程度成正比</title>
+  <title>お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
@@ -15,17 +15,17 @@
     <meta name="description" content=""> -->
   
   <meta property="og:type" content="website">
-<meta property="og:title" content="Debug 的时间与错误的愚蠢程度成正比">
+<meta property="og:title" content="お可愛いこと">
 <meta property="og:url" content="http://divinerapier.github.io/index.html">
-<meta property="og:site_name" content="Debug 的时间与错误的愚蠢程度成正比">
+<meta property="og:site_name" content="お可愛いこと">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="divinerapier">
 <meta name="twitter:card" content="summary">
   
-    <link rel="alternative" href="/atom.xml" title="Debug 的时间与错误的愚蠢程度成正比" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
   
   
-    <link rel="icon" href="https://avatars0.githubusercontent.com/u/21213088?s=400&u=800616a6b7f95747e0ffa2cba2f74e3266967b8b&v=4">
+    <link rel="icon" href="/img/kawaii.jpg">
   
   
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png">
@@ -63,7 +63,7 @@
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
-			<img src="https://avatars0.githubusercontent.com/u/21213088?s=400&u=800616a6b7f95747e0ffa2cba2f74e3266967b8b&v=4" class="js-avatar">
+			<img src="/img/avatars.ico" class="js-avatar">
 		</a>
 		<hgroup>
 			<h1 class="header-author"><a href="/">divinerapier</a></h1>
@@ -97,7 +97,7 @@
 		<nav class="header-nav">
 			<div class="social">
 				
-					<a class="github" href="#" title="GitHub" target="_blank"><i class="icon-github"></i></a>
+					<a class="github" href="https://github.com/divinerapier" title="GitHub" target="_blank"><i class="icon-github"></i></a>
 				
 			</div>
 		
@@ -110,7 +110,7 @@
       
       
       <a class="forkMe" style="position:absolute;z-index:999;top:0;right:0.5em;" 
-        href="https://github.com/divinerapier" target="_blank">
+        href="https://github.com/divinerapier/divinerapier.github.io" target="_blank">
         <img src="/img/forkme.png"
           class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
       
@@ -124,7 +124,7 @@
 		<header id="header" class="inner">
 			<div class="profilepic">
 				<a href="/">
-					<img src="https://avatars0.githubusercontent.com/u/21213088?s=400&u=800616a6b7f95747e0ffa2cba2f74e3266967b8b&v=4" class="js-avatar">
+					<img src="/img/avatars.ico" class="js-avatar">
 				</a>
 			</div>
 			<hgroup>
@@ -142,7 +142,7 @@
 			<nav class="header-nav">
 				<div class="social">
 					
-						<a class="github" target="_blank" href="#" title="GitHub"><i class="icon-github"></i></a>
+						<a class="github" target="_blank" href="https://github.com/divinerapier" title="GitHub"><i class="icon-github"></i></a>
 			        
 				</div>
 			</nav>
@@ -438,7 +438,7 @@
             <li class="search-li">
               <a href="https://github.com/divinerapier" target="_blank" class="search-title" >
                 
-                  <img src="https://avatars0.githubusercontent.com/u/21213088?s=400&u=800616a6b7f95747e0ffa2cba2f74e3266967b8b&v=4">
+                  <img src="/img/avatars.ico">
                 
                 GitHub
               </a>
@@ -541,6 +541,66 @@
   <!-- <script async type="text/javascript" size="90" alpha="0.2" zIndex="0" src="/plugins/ribbon.js/ribbon.min.js"></script> -->
   
   
+    <script type="text/javascript" src="/plugins/live2d-widget.js/L2Dwidget.min.js"></script>
+<script type="text/javascript">
+  /**
+   * 完整配置请参考：https://l2dwidget.js.org/docs/class/src/index.js~L2Dwidget.html#instance-method-init
+   */
+  var pluginModelPath = "assets/", // 模型的文件路径，无需更改
+    pluginRootPath = "/live2d_models/"; // 插件的路径，无需更改
+  //特定的模型json文件名称
+  var modelPathJson = {
+    "epsilon2_1": "Epsilon2.1",
+    "gf": "Gantzert_Felixander",
+    "haru/01": "haru01",
+    "haru/02": "haru02",
+    "nietzsche": "nietzche"
+  }
+
+  
+    var modelName = "hibiki";
+  
+
+  var modelJsonPath = "";
+  if (modelPathJson[modelName]) {
+    modelJsonPath = pluginRootPath + modelName + "/" + pluginModelPath + modelPathJson[modelName] +
+      ".model.json";
+  } else {
+    modelJsonPath = pluginRootPath + modelName + "/" + pluginModelPath + modelName + ".model.json";
+  }
+  L2Dwidget.init({
+    model: {
+      jsonPath: modelJsonPath
+    },
+    display: {
+       position: "right", 
+       width: 145, 
+       height: 315, 
+       hOffset: 50, 
+      
+    },
+    mobile: {
+       show: false, 
+       scale: 0.6 
+    },
+    react: {
+       opacity: 0.8 
+    }
+  })
+
+</script>
+
+  
+  
+  <script type="text/javascript" src="/lib/snow.js"></script>
+  <script type="text/javascript" src="/lib/jquery-2.1.4.min.js"></script>
+  <script>
+    snow.down();
+    $(window).resize(function() {
+      $("canvas").css("z-index","500").remove();
+      snow.down();
+    });
+  </script>
   
 </body>
 
