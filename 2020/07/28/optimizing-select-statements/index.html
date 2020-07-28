@@ -6,16 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Tag: MySQL | お可愛いこと</title>
+  <title>优化 SELECT 语句 | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="お可愛いこと">
-<meta property="og:url" content="http://divinerapier.github.io/tags/MySQL/index.html">
+  <meta name="description" content="WHERE Clause Optimization Range Optimization Index Merge Optimization Hash Join Optimization Engine Condition Pushdown Optimization Index Condition Pushdown Optimization Nested-Loop Join Algorithms N">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优化 SELECT 语句">
+<meta property="og:url" content="http://divinerapier.github.io/2020/07/28/optimizing-select-statements/index.html">
 <meta property="og:site_name" content="お可愛いこと">
+<meta property="og:description" content="WHERE Clause Optimization Range Optimization Index Merge Optimization Hash Join Optimization Engine Condition Pushdown Optimization Index Condition Pushdown Optimization Nested-Loop Join Algorithms N">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-28T13:45:48.000Z">
+<meta property="article:modified_time" content="2020-07-28T13:52:19.146Z">
 <meta property="article:author" content="divinerapier">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="optimization">
+<meta property="article:tag" content="select statements">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -165,69 +172,296 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-optimizing-select-statements" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/07/28/optimizing-sql-statements/" class="archive-article-date">
-        <time datetime="2020-07-28T11:41:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/07/28/optimizing-sql-statements/" target="_blank">优化SQL语句</a>
   
+    <h1 class="article-title" itemprop="name">
+      优化 SELECT 语句
     </h1>
   
 
 
-        <div class="article-info info-on-right">
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2020/07/28/optimizing-select-statements/" class="archive-article-date">
+        <time datetime="2020-07-28T13:45:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">974字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">3分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <ol>
+<li>WHERE Clause Optimization</li>
+<li>Range Optimization</li>
+<li>Index Merge Optimization</li>
+<li>Hash Join Optimization</li>
+<li>Engine Condition Pushdown Optimization</li>
+<li>Index Condition Pushdown Optimization</li>
+<li>Nested-Loop Join Algorithms</li>
+<li>Nested Join Optimization</li>
+<li>Outer Join Optimization</li>
+<li>Outer Join Simplification</li>
+<li>Multi-Range Read Optimization</li>
+<li>Block Nested-Loop and Batched Key Access Joins</li>
+<li>Condition Filtering</li>
+<li>Constant-Folding Optimization</li>
+<li>IS NULL Optimization</li>
+<li>ORDER BY Optimization</li>
+<li>GROUP BY Optimization</li>
+<li>DISTINCT Optimization</li>
+<li>LIMIT Query Optimization</li>
+<li>Function Call Optimization</li>
+<li>Window Function Optimization</li>
+<li>Row Constructor Expression Optimization</li>
+<li>Avoiding Full Table Scans</li>
+</ol>
+<p>数据库中所有查找操作，均以 <code>SELECT</code> 语句的形式执行。无论是实现网站秒级以内的响应时间，还是期望在生成大量的隔夜报告是缩短数小时的执行时间，调试这类语句都是重中之重。</p>
+<p>除了 <code>SELECT</code> 语句外，相同的技术还适用于诸如 <code>CREATE TABLE ... AS SELECT</code>，<code>INSERT INTO ... SELECT</code> 和 <code>DELETE</code> 语句中的 <code>WHERE</code> 子句。但由于这些语句同时会涉及到读写两种操作，因此还需要考虑其他方面的性能问题。</p>
+<p>多节点集群支持 <strong><code>JOIN</code> 查询下推优化(<code>join pushdown optimization</code>)</strong>，能将符合条件的 <code>JOIN</code> 完整地发送到集群的数据节点，让这个查询请求被分发到这些节点上并行执行。有关此优化的更多信息，请参见<a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-cluster-options-variables.html#ndb_join_pushdown-conditions" target="_blank" rel="noopener">Conditions for NDB pushdown joins</a>。</p>
+<p>优化查询的核心因素：</p>
+<ul>
+<li><p>如何查询语句 <code>SELECT ... WHERE</code> 执行的非常之慢，首选提速方法就是检查是否可以添加<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_index" target="_blank" rel="noopener">索引</a>。在 <code>WHERE</code> 子句中使用的列上设置索引，以加快执行，过滤，检索结果等操作的速度。同时，索引信息需要占用一定的磁盘空间，请尽可能在有一定关联性的查询中复用索引。</p>
+<p>  在执行 <code>JOIN</code> 查询，外键关联等需要多个表参与的查询语句时，索引尤为重要。此时，可以通过 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 语句来确定，执行 <code>SELECT</code> 语句时，实际有哪些索引真正被使用了。参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html" target="_blank" rel="noopener">Section 8.3.1, “How MySQL Uses Indexes”</a> and <a href="https://dev.mysql.com/doc/refman/8.0/en/using-explain.html" target="_blank" rel="noopener">Section 8.8.1, “Optimizing Queries with EXPLAIN”</a>。</p>
+</li>
+<li><p>隔离和调整查询中花费时间过多的任何部分，例如函数调用。 根据查询的结构方式，可以对结果集中的每一行调用一次函数，甚至可以对表中的每一行调用一次函数，从而极大地提高了效率。</p>
+</li>
+<li><p>最小化查询中<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_full_table_scan" target="_blank" rel="noopener">全表扫描</a>的次数，特别是对于大表。</p>
+</li>
+<li><p>通过定期使用 <a href="https://dev.mysql.com/doc/refman/8.0/en/analyze-table.html" target="_blank" rel="noopener"><code>ANALYZE TABLE</code></a> 语句使表统计信息保持最新状态，让优化器具有充足的信息构造有效执行计划。</p>
+</li>
+<li><p>了解每种存储引擎的调整技术，索引技术和配置参数。无论是 <code>InnoDB</code> 还是 <code>MyISAM</code>，都各自具有一套保持查询高性能的准则。参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-queries.html" target="_blank" rel="noopener">Section 8.5.6, “Optimizing InnoDB Queries”</a> 和 <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-queries-myisam.html" target="_blank" rel="noopener">Section 8.6.1, “Optimizing MyISAM Queries”</a>。</p>
+</li>
+<li><p>使用 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-ro-txn.html" target="_blank" rel="noopener">Section 8.5.3, “Optimizing InnoDB Read-Only Transactions”</a> 中的技术优化 <code>InnoDB</code> 表的单查询事务。</p>
+</li>
+<li><p>避免以难以理解的方式转换查询，特别是在优化器自动执行某些相同转换的情况下。</p>
+</li>
+<li><p>当使用基本准则不能轻松解决性能问题时，可以通过阅读 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 计划并调整索引，<code>WHERE</code>，<code>JOIN</code> 等子句来调查特定查询的内部详细信息。(有一定经验之后，阅读 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 计划可能是每个查询的第一步。)</p>
+</li>
+<li><p>调整 <code>MySQL</code> 用于缓存的内存区域的大小和属性。合理使用 InnoDB 的<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_buffer_pool" target="_blank" rel="noopener">buffer pool</a>，<code>MyISAM</code> 的 <code>key cache</code> 和 <code>MySQL</code> 的 <code>query cache</code>，可以让重复查询的运行速度更快。</p>
+</li>
+<li><p>即使查询已经使用了内存缓存，也依然可能对其进一步优化，使其需要更少的内存，从而使应用程序更具可伸缩性。比如，应用程序可以同时处理更多的用户，更大的请求量，而不会导致性能大幅下降。</p>
+</li>
+<li><p>锁定问题，多个会话同时访问同一张表可能会影响查询速度。</p>
+</li>
+</ul>
+
+    
+
+    
+    <div class="page-reward">
+      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
+        <div class="tooltip tooltip-east">
+          <span class="tooltip-item">
+            赏
+          </span>
+          <span class="tooltip-content">
+            <span class="tooltip-text">
+              <span class="tooltip-inner">
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
+                    class="icon icon-quo-right"></i></p>
+                <div class="reward-box">
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/alipay.jpg">
+                    <span class="reward-type">支付宝</span>
+                  </div>
+                  
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/wechatpay.png">
+                    <span class="reward-type">微信</span>
+                  </div>
+                  
+                </div>
+              </span>
+            </span>
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          divinerapier
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="http://divinerapier.github.io/2020/07/28/optimizing-select-statements/" title="优化 SELECT 语句" target="_blank">http://divinerapier.github.io/2020/07/28/optimizing-select-statements/</a>
+        </li>
+        
+        <li>
+          <strong>版权声明： </strong>
           
+          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Optimizing</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">select statements</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+    
 
     
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/07/28/optimizing-select-statements/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+
+<nav id="article-nav">
+  
+  
+    <a href="/2020/07/28/optimizing-sql-statements/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">优化SQL语句</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
           </div>
@@ -268,9 +502,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
@@ -368,11 +602,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Optimizing</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
             
             <div class="clearfix"></div>
