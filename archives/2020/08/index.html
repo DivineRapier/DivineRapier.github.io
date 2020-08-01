@@ -6,21 +6,16 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>signing-git-commits-with-gpg | お可愛いこと</title>
+  <title>Archives: 2020/8 | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="Install GPGMacOS123brew install pinentry-mac gpg2touch  ~&#x2F;.gnupg&#x2F;gpg-agent.confecho &quot;pinentry-program &#x2F;usr&#x2F;local&#x2F;bin&#x2F;pinentry-mac&quot; &gt;&gt; ~&#x2F;.gnupg&#x2F;gpg-agent.conf  Archlinux1yay -S gunpg  ConfigureGe">
-<meta property="og:type" content="article">
-<meta property="og:title" content="signing-git-commits-with-gpg">
-<meta property="og:url" content="http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="お可愛いこと">
+<meta property="og:url" content="http://divinerapier.github.io/archives/2020/08/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="Install GPGMacOS123brew install pinentry-mac gpg2touch  ~&#x2F;.gnupg&#x2F;gpg-agent.confecho &quot;pinentry-program &#x2F;usr&#x2F;local&#x2F;bin&#x2F;pinentry-mac&quot; &gt;&gt; ~&#x2F;.gnupg&#x2F;gpg-agent.conf  Archlinux1yay -S gunpg  ConfigureGe">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-07-26T01:43:46.000Z">
-<meta property="article:modified_time" content="2020-07-26T02:18:08.522Z">
 <meta property="article:author" content="divinerapier">
-<meta property="article:tag" content="git">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -170,273 +165,73 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-signing-git-commits-with-gpg" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
+            
+  
+  
     
-      <header class="article-header">
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2020" class="archive-year">2020</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	
+<a href="/2020/08/01/where-clause-optimization/" class="archive-article-date">
+        <time datetime="2020-08-01T07:26:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
+</a>
+
+        </div>
+    	 
   
+    <h1 itemprop="name">
+	
+	  <a class="archive-article-title" href="/2020/08/01/where-clause-optimization/" target="_blank">优化 WHERE 子句</a>
   
-    <h1 class="article-title" itemprop="name">
-      signing-git-commits-with-gpg
     </h1>
   
 
 
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2020/07/26/signing-git-commits-with-gpg/" class="archive-article-date">
-        <time datetime="2020-07-26T01:43:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">194字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">1分</span>
-    </span>
-  </span>
-</div>
-
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="Install-GPG"><a href="#Install-GPG" class="headerlink" title="Install GPG"></a>Install GPG</h2><h3 id="MacOS"><a href="#MacOS" class="headerlink" title="MacOS"></a>MacOS</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install pinentry-mac gpg2</span><br><span class="line">touch  ~/.gnupg/gpg-agent.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"pinentry-program /usr/local/bin/pinentry-mac"</span> &gt;&gt; ~/.gnupg/gpg-agent.conf</span><br></pre></td></tr></table></figure>
-
-<h3 id="Archlinux"><a href="#Archlinux" class="headerlink" title="Archlinux"></a>Archlinux</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yay -S gunpg</span><br></pre></td></tr></table></figure>
-
-<h2 id="Configure"><a href="#Configure" class="headerlink" title="Configure"></a>Configure</h2><h3 id="Generate-key"><a href="#Generate-key" class="headerlink" title="Generate key"></a>Generate key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpg --full-gen-key</span><br></pre></td></tr></table></figure>
-
-<h3 id="List-keys"><a href="#List-keys" class="headerlink" title="List keys"></a>List keys</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">gpg --list-secret-keys --keyid-format LONG</span><br><span class="line"></span><br><span class="line"><span class="comment"># /home/username/.gnupg/pubring.kbx</span></span><br><span class="line"><span class="comment"># -------------------------------------</span></span><br><span class="line"><span class="comment"># sec   rsa4096/1111111111111111 2019-08-07 [SC]</span></span><br><span class="line"><span class="comment">#       2222222222222222222222221111111111111111</span></span><br><span class="line"><span class="comment"># uid                 [ultimate] realname (comment) &lt;example@gmail.com&gt;</span></span><br><span class="line"><span class="comment"># ssb   rsa4096/3333333333333333 2019-08-07 [E]</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Export-public-key"><a href="#Export-public-key" class="headerlink" title="Export public key"></a>Export public key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gpg --armor --<span class="built_in">export</span> 1111111111111111</span><br><span class="line"></span><br><span class="line"><span class="comment"># -----BEGIN PGP PUBLIC KEY BLOCK-----</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># CONTENT</span></span><br><span class="line"><span class="comment"># -----END PGP PUBLIC KEY BLOCK-----</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Register-public-key"><a href="#Register-public-key" class="headerlink" title="Register public key"></a>Register public key</h3><p>将上面的 <code>public key</code> 拷贝到 <a href="https://github.com/settings/keys" target="_blank" rel="noopener">github settings</a></p>
-<h2 id="Associating-your-GPG-key-with-Git"><a href="#Associating-your-GPG-key-with-Git" class="headerlink" title="Associating your GPG key with Git"></a>Associating your GPG key with Git</h2><h3 id="Set-gpg-key"><a href="#Set-gpg-key" class="headerlink" title="Set gpg key"></a>Set gpg key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --<span class="built_in">local</span> user.signingKey 1111111111111111</span><br></pre></td></tr></table></figure>
-
-<h3 id="Signing-commits"><a href="#Signing-commits" class="headerlink" title="Signing commits"></a>Signing commits</h3><p>在提交时，使用 <code>-S</code> 标志</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -S -m <span class="string">'commit message'</span></span><br></pre></td></tr></table></figure>
-
-<p>或者通过配置避免每次都要输入 <code>-S</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global commit.gpgsign <span class="literal">true</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="FQA"><a href="#FQA" class="headerlink" title="FQA"></a>FQA</h2><ol>
-<li><p>gpg: signing failed: Inappropriate ioctl for device</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"export GPG_TTY=<span class="variable">$(tty)</span>"</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>GPG Hangs When Private Keys are Accessed</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpgconf --<span class="built_in">kill</span> gpg-agent</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>secret key not available</code> or <code>gpg: signing failed: secret key not available</code></p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global gpg.program gpg2</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-
-    
-
-    
-    <div class="page-reward">
-      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
-        <div class="tooltip tooltip-east">
-          <span class="tooltip-item">
-            赏
-          </span>
-          <span class="tooltip-content">
-            <span class="tooltip-text">
-              <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
-                    class="icon icon-quo-right"></i></p>
-                <div class="reward-box">
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/alipay.jpg">
-                    <span class="reward-type">支付宝</span>
-                  </div>
-                  
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/wechatpay.png">
-                    <span class="reward-type">微信</span>
-                  </div>
-                  
-                </div>
-              </span>
-            </span>
-          </span>
-        </div>
-      </a>
-    </div>
-    
-
-    
-    <div class="declare"> 
-      <ul class="post-copyright">
-        <li>
-          <strong>本文作者：</strong>
-          divinerapier
-        </li>
-        <li>
-          <strong>本文链接：</strong>
-          <a href="http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/" title="signing-git-commits-with-gpg" target="_blank">http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/</a>
-        </li>
-        
-        <li>
-          <strong>版权声明： </strong>
+        <div class="article-info info-on-right">
           
-          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
-        </li>
-        
-      </ul>
-    </div>
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">where clause</a>
         		</li>
       		
 		</ul>
 	</div>
 
-    
+          
 
-    
-
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/" alt="微信分享二维码"> -->
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
-    <div class="clearfix"></div>
-  </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-
-<nav id="article-nav">
-  
-    <a href="/2020/07/27/mysql-optimization-overview/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          MySQL 性能优化概述
-        
-      </div>
-    </a>
   
   
-    <a href="/2020/07/13/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Hello World</div>
-      <i class="icon-circle-right"></i>
-    </a>
+    </div></section>
   
-</nav>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
           </div>
@@ -477,8 +272,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
-		isArchive: false,
+		isPost: false,
+		isArchive: true,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,

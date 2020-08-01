@@ -6,21 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>signing-git-commits-with-gpg | お可愛いこと</title>
+  <title>优化 WHERE 子句 | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="Install GPGMacOS123brew install pinentry-mac gpg2touch  ~&#x2F;.gnupg&#x2F;gpg-agent.confecho &quot;pinentry-program &#x2F;usr&#x2F;local&#x2F;bin&#x2F;pinentry-mac&quot; &gt;&gt; ~&#x2F;.gnupg&#x2F;gpg-agent.conf  Archlinux1yay -S gunpg  ConfigureGe">
+  <meta name="description" content="以 SELECT 语句为例，介绍如何优化 WHERE 子句。这些优化方法同样适用于 DELETE 和 UPDATE 语句中的 WHERE 子句。 在编写 SQL 时，开发者在主观上为了使语句执行的更快而去做一些所谓的“优化”。但实际上，这些“优化”要么会使 SQL 失去了可读性，要么是在重复 MySQL 做的事情。 下面列举一些 MySQL 会做的优化:  删除不必要的括号   12((a AND">
 <meta property="og:type" content="article">
-<meta property="og:title" content="signing-git-commits-with-gpg">
-<meta property="og:url" content="http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/index.html">
+<meta property="og:title" content="优化 WHERE 子句">
+<meta property="og:url" content="http://divinerapier.github.io/2020/08/01/where-clause-optimization/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="Install GPGMacOS123brew install pinentry-mac gpg2touch  ~&#x2F;.gnupg&#x2F;gpg-agent.confecho &quot;pinentry-program &#x2F;usr&#x2F;local&#x2F;bin&#x2F;pinentry-mac&quot; &gt;&gt; ~&#x2F;.gnupg&#x2F;gpg-agent.conf  Archlinux1yay -S gunpg  ConfigureGe">
+<meta property="og:description" content="以 SELECT 语句为例，介绍如何优化 WHERE 子句。这些优化方法同样适用于 DELETE 和 UPDATE 语句中的 WHERE 子句。 在编写 SQL 时，开发者在主观上为了使语句执行的更快而去做一些所谓的“优化”。但实际上，这些“优化”要么会使 SQL 失去了可读性，要么是在重复 MySQL 做的事情。 下面列举一些 MySQL 会做的优化:  删除不必要的括号   12((a AND">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-07-26T01:43:46.000Z">
-<meta property="article:modified_time" content="2020-07-26T02:18:08.522Z">
+<meta property="article:published_time" content="2020-08-01T07:26:44.000Z">
+<meta property="article:modified_time" content="2020-08-01T09:38:50.046Z">
 <meta property="article:author" content="divinerapier">
-<meta property="article:tag" content="git">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="optimization">
+<meta property="article:tag" content="where clause">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -170,14 +172,14 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-signing-git-commits-with-gpg" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-where-clause-optimization" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
   
   
     <h1 class="article-title" itemprop="name">
-      signing-git-commits-with-gpg
+      优化 WHERE 子句
     </h1>
   
 
@@ -189,8 +191,8 @@
               <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
         </span>
 
-<a href="/2020/07/26/signing-git-commits-with-gpg/" class="archive-article-date">
-        <time datetime="2020-07-26T01:43:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
+<a href="/2020/08/01/where-clause-optimization/" class="archive-article-date">
+        <time datetime="2020-08-01T07:26:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
 </a>
 
   
@@ -203,7 +205,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">194字</span>
+      <span class="post-count">988字</span>
     </span>
   </span>
 
@@ -212,7 +214,7 @@
     <span class="post-meta-item-icon">
       <i class="icon-book icon"></i>
       <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">1分</span>
+      <span class="post-count">4分</span>
     </span>
   </span>
 </div>
@@ -223,36 +225,63 @@
   
   <div class="article-entry" itemprop="articleBody">
     
-    <h2 id="Install-GPG"><a href="#Install-GPG" class="headerlink" title="Install GPG"></a>Install GPG</h2><h3 id="MacOS"><a href="#MacOS" class="headerlink" title="MacOS"></a>MacOS</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install pinentry-mac gpg2</span><br><span class="line">touch  ~/.gnupg/gpg-agent.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"pinentry-program /usr/local/bin/pinentry-mac"</span> &gt;&gt; ~/.gnupg/gpg-agent.conf</span><br></pre></td></tr></table></figure>
-
-<h3 id="Archlinux"><a href="#Archlinux" class="headerlink" title="Archlinux"></a>Archlinux</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yay -S gunpg</span><br></pre></td></tr></table></figure>
-
-<h2 id="Configure"><a href="#Configure" class="headerlink" title="Configure"></a>Configure</h2><h3 id="Generate-key"><a href="#Generate-key" class="headerlink" title="Generate key"></a>Generate key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpg --full-gen-key</span><br></pre></td></tr></table></figure>
-
-<h3 id="List-keys"><a href="#List-keys" class="headerlink" title="List keys"></a>List keys</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">gpg --list-secret-keys --keyid-format LONG</span><br><span class="line"></span><br><span class="line"><span class="comment"># /home/username/.gnupg/pubring.kbx</span></span><br><span class="line"><span class="comment"># -------------------------------------</span></span><br><span class="line"><span class="comment"># sec   rsa4096/1111111111111111 2019-08-07 [SC]</span></span><br><span class="line"><span class="comment">#       2222222222222222222222221111111111111111</span></span><br><span class="line"><span class="comment"># uid                 [ultimate] realname (comment) &lt;example@gmail.com&gt;</span></span><br><span class="line"><span class="comment"># ssb   rsa4096/3333333333333333 2019-08-07 [E]</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Export-public-key"><a href="#Export-public-key" class="headerlink" title="Export public key"></a>Export public key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gpg --armor --<span class="built_in">export</span> 1111111111111111</span><br><span class="line"></span><br><span class="line"><span class="comment"># -----BEGIN PGP PUBLIC KEY BLOCK-----</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># CONTENT</span></span><br><span class="line"><span class="comment"># -----END PGP PUBLIC KEY BLOCK-----</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Register-public-key"><a href="#Register-public-key" class="headerlink" title="Register public key"></a>Register public key</h3><p>将上面的 <code>public key</code> 拷贝到 <a href="https://github.com/settings/keys" target="_blank" rel="noopener">github settings</a></p>
-<h2 id="Associating-your-GPG-key-with-Git"><a href="#Associating-your-GPG-key-with-Git" class="headerlink" title="Associating your GPG key with Git"></a>Associating your GPG key with Git</h2><h3 id="Set-gpg-key"><a href="#Set-gpg-key" class="headerlink" title="Set gpg key"></a>Set gpg key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --<span class="built_in">local</span> user.signingKey 1111111111111111</span><br></pre></td></tr></table></figure>
-
-<h3 id="Signing-commits"><a href="#Signing-commits" class="headerlink" title="Signing commits"></a>Signing commits</h3><p>在提交时，使用 <code>-S</code> 标志</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -S -m <span class="string">'commit message'</span></span><br></pre></td></tr></table></figure>
-
-<p>或者通过配置避免每次都要输入 <code>-S</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global commit.gpgsign <span class="literal">true</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="FQA"><a href="#FQA" class="headerlink" title="FQA"></a>FQA</h2><ol>
-<li><p>gpg: signing failed: Inappropriate ioctl for device</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"export GPG_TTY=<span class="variable">$(tty)</span>"</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+    <p>以 <code>SELECT</code> 语句为例，介绍如何优化 <code>WHERE</code> 子句。这些优化方法同样适用于 <code>DELETE</code> 和 <code>UPDATE</code> 语句中的 <code>WHERE</code> 子句。</p>
+<p>在编写 <code>SQL</code> 时，开发者在主观上为了使语句执行的更快而去做一些所谓的“优化”。但实际上，这些“优化”要么会使 <code>SQL</code> 失去了可读性，要么是在重复 <code>MySQL</code> 做的事情。</p>
+<p>下面列举一些 <code>MySQL</code> 会做的优化:</p>
+<ul>
+<li><p>删除不必要的括号</p>
+  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">((a AND b) AND c OR (((a AND b) AND (c AND d))))</span><br><span class="line">-&gt; (a AND b AND c) OR (a AND b AND c AND d)</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>GPG Hangs When Private Keys are Accessed</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpgconf --<span class="built_in">kill</span> gpg-agent</span><br></pre></td></tr></table></figure>
+<li><p>常量替换(Constant folding)</p>
+  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(a&lt;b AND b=c) AND a=5</span><br><span class="line">-&gt; b&gt;5 AND b=c AND a=5</span><br></pre></td></tr></table></figure>
 </li>
-<li><p><code>secret key not available</code> or <code>gpg: signing failed: secret key not available</code></p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global gpg.program gpg2</span><br></pre></td></tr></table></figure>
+<li><p>删除恒定条件</p>
+  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(b&gt;=5 AND b=5) OR (b=6 AND 5=5) OR (b=7 AND 5=6)</span><br><span class="line">-&gt; b=5 OR b=6</span><br></pre></td></tr></table></figure>
+
+<p>  在 <code>MySQL 8.0.14</code> 和更高版本中，这是在准备过程中发生的，而不是在优化阶段发生的，这有助于简化联接。 有关更多信息和示例，请参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/outer-join-optimization.html" target="_blank" rel="noopener">Section 8.2.1.9, “Outer Join Optimization”</a>。</p>
 </li>
-</ol>
+<li><p>索引使用的常量表达式仅计算一次。</p>
+</li>
+<li><p>从 <code>MySQL 8.0.16</code> 开始，数值类型的列与常数比较时，折叠(folded)或删除无效或越界的值：</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- CREATE TABLE t (c TINYINT UNSIGNED NOT NULL);</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> c ≪ <span class="number">256</span>;</span><br><span class="line">-≫ <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对于使用<code>MyISAM</code> 和 <code>MEMORY</code>存储引擎的表，在单一表上执行 <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_count" target="_blank" rel="noopener"><code>COUNT(*)</code></a> 操作时，如果没有 <code>WHERE</code> 子句，或者 <code>WHERE</code> 子句的表达式 <code>NOT NULL</code>，都将直接从表信息中读取。</p>
+<blockquote>
+<p>COUNT(*) on a single table without a WHERE is retrieved directly from the table information for MyISAM and MEMORY tables. This is also done for any NOT NULL expression when used with only one table.</p>
+</blockquote>
+</li>
+<li><p>尽早检测无效的常量表达式。<code>MySQL</code> 检测到无效 <code>SELECT</code> 语句时，直接返回无结果。</p>
+</li>
+<li><p>不使用 <code>GROUP BY</code> 或聚合函数(<code>COUNT()，MIN()</code>)时，会把 <code>HAVING</code> 与 <code>WHERE</code> 合并。</p>
+</li>
+<li><p>对于联接查询中的每个表，构造一个简单的 <code>WHERE</code> 实现快速 <code>WHERE</code> 评估，尽快跳过行的目的。</p>
+</li>
+<li><p>优先读取常量表。满足以下任意一个即为常量表：</p>
+<ul>
+<li>空表或具有一行的表。</li>
+<li>使用 <code>WHERE</code> 语句构建得到的表，且 <code>WHERE</code> 子句中的所有列只能是 <code>PRIMARY KEY</code> 或 <code>NOT NULL UNIQUE</code> 索引与常量表达式比较。</li>
+</ul>
+<p>以下所有表均用作常量表：</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">WHERE primary_key=1;</span><br><span class="line"></span><br><span class="line">WHERE t1.primary_key=1 AND t2.primary_key=t1.id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- PRIMARY KEY (column1,column2)</span></span><br><span class="line">WHERE column1=5 AND column2=7</span><br><span class="line"></span><br><span class="line"><span class="comment">-- unique_not_null_column INT NOT NULL UNIQUE</span></span><br><span class="line">WHERE unique_not_null_column=5</span><br></pre></td></tr></table></figure>
+
+<p>参考 <a href="https://dev.mysql.com/doc/internals/en/optimizer-constants-constant-tables.html" target="_blank" rel="noopener">7.2.1.4 Constants and Constant Tables</a> 了解更多有关常量与常量表。</p>
+</li>
+<li><p>通过尝试所有可能的方法，找到用于联接表的最佳联接组合。如果 <code>ORDER BY</code> 和 <code>GROUP BY</code> 子句中的所有列都来自同一表，则在连接时优先使用该表。</p>
+</li>
+<li><p>如果 <code>ORDER BY</code> 子句和 <code>GROUP BY</code> 子句使用不同的列，或者 <code>ORDER BY</code>/<code>GROUP BY</code> 使用的列不属于联接队列中第一个表，则会创建一个临时表。</p>
+<blockquote>
+<p>If there is an ORDER BY clause and a different GROUP BY clause, or if the ORDER BY or GROUP BY contains columns from tables other than the first table in the join queue, a temporary table is created.</p>
+</blockquote>
+</li>
+<li><p>如果使用 <code>SQL_SMALL_RESULT</code> 修饰符，<code>MySQL</code> 将使用内存临时表。</p>
+</li>
+<li><p>从表的所有索引中选择一个最佳索引使用。或者，优化器认为全表扫描更有效时，会选择全表扫描。曾经，当使用最佳索引仍然会跨越表的 <code>30%</code>(<code>spanned more than 30% of the table</code>)时，就会选择使用全表扫描。但现在，使用索引还是全表扫描不再只取决于固定百分比，同时还要考虑其他因素，例如表大小，行数和 <code>I/O</code> 块大小。</p>
+</li>
+<li><p>在某些情况下，<code>MySQL</code> 可以从索引中读取数据行，而无需查询数据文件。如果索引中使用的所有列都是数字列，则仅使用索引树解析查询。</p>
+</li>
+<li><p>在输出每一行之前，将跳过与 <code>HAVING</code> 子句不匹配的行。</p>
+</li>
+</ul>
 
     
 
@@ -299,7 +328,7 @@
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/" title="signing-git-commits-with-gpg" target="_blank">http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/</a>
+          <a href="http://divinerapier.github.io/2020/08/01/where-clause-optimization/" title="优化 WHERE 子句" target="_blank">http://divinerapier.github.io/2020/08/01/where-clause-optimization/</a>
         </li>
         
         <li>
@@ -321,7 +350,15 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">where clause</a>
         		</li>
       		
 		</ul>
@@ -377,7 +414,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/" alt="微信分享二维码"> -->
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/08/01/where-clause-optimization/" alt="微信分享二维码"> -->
     </div>
 </div>
 
@@ -392,18 +429,9 @@
 
 <nav id="article-nav">
   
-    <a href="/2020/07/27/mysql-optimization-overview/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          MySQL 性能优化概述
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/07/13/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Hello World</div>
+    <a href="/2020/07/28/optimizing-select-statements/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">优化 SELECT 语句</div>
       <i class="icon-circle-right"></i>
     </a>
   
