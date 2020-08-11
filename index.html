@@ -439,32 +439,7 @@
   
   <div class="article-entry" itemprop="articleBody">
     
-    <ol>
-<li>WHERE Clause Optimization</li>
-<li>Range Optimization</li>
-<li>Index Merge Optimization</li>
-<li>Hash Join Optimization</li>
-<li>Engine Condition Pushdown Optimization</li>
-<li>Index Condition Pushdown Optimization</li>
-<li>Nested-Loop Join Algorithms</li>
-<li>Nested Join Optimization</li>
-<li>Outer Join Optimization</li>
-<li>Outer Join Simplification</li>
-<li>Multi-Range Read Optimization</li>
-<li>Block Nested-Loop and Batched Key Access Joins</li>
-<li>Condition Filtering</li>
-<li>Constant-Folding Optimization</li>
-<li>IS NULL Optimization</li>
-<li>ORDER BY Optimization</li>
-<li>GROUP BY Optimization</li>
-<li>DISTINCT Optimization</li>
-<li>LIMIT Query Optimization</li>
-<li>Function Call Optimization</li>
-<li>Window Function Optimization</li>
-<li>Row Constructor Expression Optimization</li>
-<li>Avoiding Full Table Scans</li>
-</ol>
-<p>数据库中所有查找操作，均以 <code>SELECT</code> 语句的形式执行。无论是实现网站秒级以内的响应时间，还是期望在生成大量的隔夜报告是缩短数小时的执行时间，调试这类语句都是重中之重。</p>
+    <p>数据库中所有查找操作，均以 <code>SELECT</code> 语句的形式执行。无论是实现网站秒级以内的响应时间，还是期望在生成大量的隔夜报告是缩短数小时的执行时间，调试这类语句都是重中之重。</p>
 <p>除了 <code>SELECT</code> 语句外，相同的技术还适用于诸如 <code>CREATE TABLE ... AS SELECT</code>，<code>INSERT INTO ... SELECT</code> 和 <code>DELETE</code> 语句中的 <code>WHERE</code> 子句。但由于这些语句同时会涉及到读写两种操作，因此还需要考虑其他方面的性能问题。</p>
 <p>多节点集群支持 <strong><code>JOIN</code> 查询下推优化(<code>join pushdown optimization</code>)</strong>，能将符合条件的 <code>JOIN</code> 完整地发送到集群的数据节点，让这个查询请求被分发到这些节点上并行执行。有关此优化的更多信息，请参见<a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-cluster-options-variables.html#ndb_join_pushdown-conditions" target="_blank" rel="noopener">Conditions for NDB pushdown joins</a>。</p>
 <p>优化查询的核心因素：</p>
@@ -492,6 +467,31 @@
 </li>
 <li><p>锁定问题，多个会话同时访问同一张表可能会影响查询速度。</p>
 </li>
+</ul>
+<h3 id="更多优化策略"><a href="#更多优化策略" class="headerlink" title="更多优化策略"></a>更多优化策略</h3><ul>
+<li><a href="https://blog.divinerapier.cn/2020/08/01/where-clause-optimization/" target="_blank" rel="noopener">WHERE Clause Optimization</a></li>
+<li>Range Optimization</li>
+<li>Index Merge Optimization</li>
+<li>Hash Join Optimization</li>
+<li>Engine Condition Pushdown Optimization</li>
+<li>Index Condition Pushdown Optimization</li>
+<li>Nested-Loop Join Algorithms</li>
+<li>Nested Join Optimization</li>
+<li>Outer Join Optimization</li>
+<li>Outer Join Simplification</li>
+<li>Multi-Range Read Optimization</li>
+<li>Block Nested-Loop and Batched Key Access Joins</li>
+<li>Condition Filtering</li>
+<li>Constant-Folding Optimization</li>
+<li>IS NULL Optimization</li>
+<li>ORDER BY Optimization</li>
+<li>GROUP BY Optimization</li>
+<li>DISTINCT Optimization</li>
+<li>LIMIT Query Optimization</li>
+<li>Function Call Optimization</li>
+<li>Window Function Optimization</li>
+<li>Row Constructor Expression Optimization</li>
+<li>Avoiding Full Table Scans</li>
 </ul>
 
     
@@ -1105,14 +1105,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
@@ -1121,15 +1113,23 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
             
             <div class="clearfix"></div>
