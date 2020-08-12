@@ -203,7 +203,7 @@
 <p>控制器卡上有一些连接器，用途是允许通过线缆连接到设备上，大部分控制器卡支持两个，四个甚至八个设备。控制器和设备之间的接口可以是标准接口，比如 <code>ANSI</code>，<code>IEEE</code> 或 <code>ISO</code> 标准，也可以是事实上的标准，例如，<code>SATA</code>，<code>SCSI</code>，<code>USB</code>，<code>Thunderbolt</code> 或 <code>FireWire(IEEE 1394)</code>。</p>
 <p>控制器和设备之间的接口属于非常底层的接口。例如，磁盘可能被格式化为<code>2,000,000</code> 个扇区，每个磁道 <code>512</code> 字节。但是，实际上从驱动器中出来的是一个串行位流，始于前导码 <code>(preamble)</code>，然后是一个扇区中的 <code>4096</code> 位，最后是一个校验和或纠错码 <code>(ECC)</code>。格式化磁盘后，将写入包含柱面号和扇区号，扇区大小，类似数据以及同步信息的前导码。</p>
 <p>控制器的职责是将串行位流转换为字节块，并执行必要的纠错。首先，控制器在其内部缓冲区中，逐位组装成字节块。在确认校验和无误，且该块无错误后，可以将数据块复制到主存储器中。</p>
-<p><code>LCD</code> 显示器的控制器还可以用作低电平的位串行设备。它从存储器中读取包含要显示的字符的字节，并生成修改相应像素的背光偏振的信号，来写入到屏幕上。试想，如果没有显示控制器，则需要操作系统开发者通过显式地编程的方式，控制所有像素的电场，这将是一件痛苦的事情。正是因为使用了控制器，操作系统只需通过少量参数来初始化控制器，例如每行的字符数或像素数以及每屏的行数，之后就可以让控制器来负责实际驱动电场。</p>
+<p><code>LCD</code> 显示器的控制器在低电平时，可以用作位串行设备。它从存储器中读取包含要显示的字符的字节后，生成修改相应像素背光偏振的信号，实现将字符写入到屏幕上。试想，如果没有显示控制器，则需要操作系统开发者通过显式编程的方式，控制所有像素的电场，这将是一件多么可怕的事情。正是因为使用了控制器，操作系统只需通过少量参数来初始化控制器，例如每行的字符数，像素数以及每屏的行数，之后就可以让控制器来负责实际驱动电场。</p>
 
     
 
@@ -1219,15 +1219,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
             
             <div class="clearfix"></div>
