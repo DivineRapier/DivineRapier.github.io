@@ -6,22 +6,16 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>I/O 设备 | お可愛いこと</title>
+  <title>Tag: https | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="I&#x2F;O 设备大致可分为两类：块设备和字符设备。 块设备将信息存储在固定大小的块中。通常情况，数据块的大小在 512 Bytes 到 32768 Bytes 之间。所有传输过程均以块为单位，每次传输一个或多个完整且连续的块。对每个块的读或写操作是互相独立的，这是块设备的基本属性。常见的块设备有硬盘、蓝光光盘等。每个设备块都有各自的地址，因此块设备支持寻址操作，可以使用 seek 指令任意指定偏移位置">
-<meta property="og:type" content="article">
-<meta property="og:title" content="I&#x2F;O 设备">
-<meta property="og:url" content="http://divinerapier.github.io/2020/08/11/io-devices/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="お可愛いこと">
+<meta property="og:url" content="http://divinerapier.github.io/tags/https/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="I&#x2F;O 设备大致可分为两类：块设备和字符设备。 块设备将信息存储在固定大小的块中。通常情况，数据块的大小在 512 Bytes 到 32768 Bytes 之间。所有传输过程均以块为单位，每次传输一个或多个完整且连续的块。对每个块的读或写操作是互相独立的，这是块设备的基本属性。常见的块设备有硬盘、蓝光光盘等。每个设备块都有各自的地址，因此块设备支持寻址操作，可以使用 seek 指令任意指定偏移位置">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-08-11T04:33:35.000Z">
-<meta property="article:modified_time" content="2020-08-11T13:50:38.083Z">
 <meta property="article:author" content="divinerapier">
-<meta property="article:tag" content="I&#x2F;O">
-<meta property="article:tag" content="principles of i&#x2F;o hardware">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -165,252 +159,77 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-io-devices" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
+            
+  
+  
     
-      <header class="article-header">
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2020" class="archive-year">2020</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	
+<a href="/2020/08/15/https-mutual-authentication/" class="archive-article-date">
+        <time datetime="2020-08-15T06:04:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
+</a>
+
+        </div>
+    	 
   
+    <h1 itemprop="name">
+	
+	  <a class="archive-article-title" href="/2020/08/15/https-mutual-authentication/" target="_blank">HTTPS 双向认证</a>
   
-    <h1 class="article-title" itemprop="name">
-      I/O 设备
     </h1>
   
 
 
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2020/08/11/io-devices/" class="archive-article-date">
-        <time datetime="2020-08-11T04:33:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-11</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">465字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">1分</span>
-    </span>
-  </span>
-</div>
-
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><code>I/O</code> 设备大致可分为两类：块设备和字符设备。</p>
-<p>块设备将信息存储在固定大小的块中。通常情况，数据块的大小在 <code>512 Bytes</code> 到 <code>32768 Bytes</code> 之间。所有传输过程均以<strong>块</strong>为单位，每次传输一个或多个完整且连续的块。对每个块的读或写操作是互相独立的，这是块设备的基本属性。常见的块设备有硬盘、蓝光光盘等。每个设备块都有各自的地址，因此块设备支持寻址操作，可以使用 <code>seek</code> 指令任意指定偏移位置。比如，磁盘接收到该指令后，通过旋转机械臂及磁头的方式完成寻址操作。</p>
-<p>字符设备在传输数据时使用流式传输的方式，为不可寻址设备，因此也不支持 <code>seek</code> 操作。常见的字符设备有鼠标，网卡等。</p>
-<p>但事实上，这种分类方案并不是完美无缺的。因为，还有一些设备无法适用于这个分类方案。</p>
-<p>比如，时钟是一种按照预定义时间间隔产生中断信息的一种设备，它既不是可寻址的块设备，也不是字符流设备。除此之外，还有内存映射、屏幕、触摸屏等各类设备。但换一个角度分析，由于计算机使用到的大部分 <code>I/O</code> 设备，要么是块设备，要么是字符设备，这个分类模型足够通用。因此，可以用来作为独立于设备的基础操作系统基础模块。例如，文件系统就是用于处理经过抽象处理之后的块设备，而具体到设备层面的交互则交给更底层的软件处理，比如设备驱动程序。</p>
-
-    
-
-    
-    <div class="page-reward">
-      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
-        <div class="tooltip tooltip-east">
-          <span class="tooltip-item">
-            赏
-          </span>
-          <span class="tooltip-content">
-            <span class="tooltip-text">
-              <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
-                    class="icon icon-quo-right"></i></p>
-                <div class="reward-box">
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/alipay.jpg">
-                    <span class="reward-type">支付宝</span>
-                  </div>
-                  
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/wechatpay.png">
-                    <span class="reward-type">微信</span>
-                  </div>
-                  
-                </div>
-              </span>
-            </span>
-          </span>
-        </div>
-      </a>
-    </div>
-    
-
-    
-    <div class="declare"> 
-      <ul class="post-copyright">
-        <li>
-          <strong>本文作者：</strong>
-          divinerapier
-        </li>
-        <li>
-          <strong>本文链接：</strong>
-          <a href="http://divinerapier.github.io/2020/08/11/io-devices/" title="I/O 设备" target="_blank">http://divinerapier.github.io/2020/08/11/io-devices/</a>
-        </li>
-        
-        <li>
-          <strong>版权声明： </strong>
+        <div class="article-info info-on-right">
           
-          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
-        </li>
-        
-      </ul>
-    </div>
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">I/O</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">tls</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">principles of i/o hardware</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ssl</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">https</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">mutual authentication</a>
         		</li>
       		
 		</ul>
 	</div>
 
-    
+          
 
-    
-
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/08/11/io-devices/" alt="微信分享二维码"> -->
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
-    <div class="clearfix"></div>
-  </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-
-<nav id="article-nav">
-  
-    <a href="/2020/08/12/device-controllers/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          设备控制器
-        
-      </div>
-    </a>
   
   
-    <a href="/2020/08/01/where-clause-optimization/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">优化 WHERE 子句</div>
-      <i class="icon-circle-right"></i>
-    </a>
+    </div></section>
   
-</nav>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
           </div>
@@ -451,9 +270,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
+		isPost: false,
 		isArchive: false,
-		isTag: false,
+		isTag: true,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
