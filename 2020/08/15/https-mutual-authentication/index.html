@@ -17,18 +17,18 @@
 <meta property="og:site_name" content="お可愛いこと">
 <meta property="og:description" content="TLS 协议传输层安全性协议 (TLS: Transport Layer Security) 及其前身安全套接层 (SSL: Secure Sockets Layer) 是一种安全协议，目的是为互联网通信提供安全及数据完整性保障。 SSL 包含记录层 (Record Layer) 和传输层，记录层协议确定传输层数据的封装格式。传输层安全协议使用 X.509 认证，然后利用非对称加密演算来对通信方做">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://divinerapier.github.io/2020/08/15/images/https-mutual-authentication/01-one-way-authentication.png">
-<meta property="og:image" content="http://divinerapier.github.io/2020/08/15/images/https-mutual-authentication/02-mutual-anthentication.png">
-<meta property="og:image" content="http://divinerapier.github.io/2020/08/15/images/https-mutual-authentication/03-self-signed-sertificate.png">
+<meta property="og:image" content="http://divinerapier.github.io/images/https-mutual-authentication/01-one-way-authentication.png">
+<meta property="og:image" content="http://divinerapier.github.io/images/https-mutual-authentication/02-mutual-anthentication.png">
+<meta property="og:image" content="http://divinerapier.github.io/images/https-mutual-authentication/03-self-signed-sertificate.png">
 <meta property="article:published_time" content="2020-08-15T06:04:21.000Z">
-<meta property="article:modified_time" content="2020-08-15T07:26:14.735Z">
+<meta property="article:modified_time" content="2020-08-15T07:40:51.775Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="tls">
 <meta property="article:tag" content="ssl">
 <meta property="article:tag" content="https">
 <meta property="article:tag" content="mutual authentication">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://divinerapier.github.io/2020/08/15/images/https-mutual-authentication/01-one-way-authentication.png">
+<meta name="twitter:image" content="http://divinerapier.github.io/images/https-mutual-authentication/01-one-way-authentication.png">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
   
@@ -228,7 +228,7 @@
 <p><code>SSL</code> 包含记录层 <code>(Record Layer)</code> 和传输层，记录层协议确定传输层数据的封装格式。传输层安全协议使用 <code>X.509</code> 认证，然后利用非对称加密演算来对通信方做身份认证，之后交换对称密钥作为会谈密钥 <code>(Session key)</code>。这个会谈密钥是用来将通信两方交换的数据做加密，保证两个应用间通信的保密性和可靠性，使客户与服务器应用之间的通信不被攻击者窃听。</p>
 <h2 id="HTTPS-协议"><a href="#HTTPS-协议" class="headerlink" title="HTTPS 协议"></a>HTTPS 协议</h2><p>超文本传输安全协议 <code>(HTTPS: HyperText Transfer Protocol Secure，常称为HTTP over TLS、HTTP over SSL或HTTP Secure)</code> 是一种通过计算机网络进行安全通信的传输协议。<code>HTTPS</code> 经由 <code>HTTP</code> 进行通信，但利用 <code>SSL/TLS</code> 来加密数据包。<code>HTTPS</code> 开发的主要目的，是提供对网站服务器的身份认证，保护交换数据的隐私与完整性。</p>
 <h2 id="认证过程"><a href="#认证过程" class="headerlink" title="认证过程"></a>认证过程</h2><h3 id="单向认证"><a href="#单向认证" class="headerlink" title="单向认证"></a>单向认证</h3><p>在访问大多数网站 <code>(google, facebook)</code> 时，会使用单向认证的方式。客户端(浏览器)会验证服务端证书的合法性，过程如下：</p>
-<p><img src="../images/https-mutual-authentication/01-one-way-authentication.png" alt="01-one-way-authentication"></p>
+<p><img src="/images/https-mutual-authentication/01-one-way-authentication.png" alt="01-one-way-authentication"></p>
 <ol>
 <li>客户端发起建立 <code>HTTPS</code> 连接请求，将 <code>SSL</code> 协议版本的信息发送给服务器端</li>
 <li>服务器端将本机的公钥证书 <code>(server.crt)</code> 发送给客户端</li>
@@ -238,7 +238,7 @@
 <li>双方使用随机密钥 <code>R</code> 通信的对称加密密钥</li>
 </ol>
 <h3 id="双向认证"><a href="#双向认证" class="headerlink" title="双向认证"></a>双向认证</h3><p>而在某些有较高安全性要求，或需要验证访问者身份的场景，则可能会需要用到双向认证的方式：</p>
-<p><img src="../images/https-mutual-authentication/02-mutual-anthentication.png" alt="02-mutual-anthentication"></p>
+<p><img src="/images/https-mutual-authentication/02-mutual-anthentication.png" alt="02-mutual-anthentication"></p>
 <ol>
 <li>客户端发起建立 <code>HTTPS</code> 连接请求，将 <code>SSL</code> 协议版本的信息发送给服务端；</li>
 <li>服务器端将本机的公钥证书 <code>(server.crt)</code> 发送给客户端</li>
@@ -252,7 +252,7 @@
 <li>双方使用随机密钥 <code>R</code> 通信的对称加密密钥</li>
 </ol>
 <h2 id="生成自签名证书"><a href="#生成自签名证书" class="headerlink" title="生成自签名证书"></a>生成自签名证书</h2><p>生成这一些列证书之前，我们需要先生成一个 <code>CA</code> 根证书，然后由这个 <code>CA</code> 根证书颁发服务器公钥证书和客户端公钥证书。为了验证根证书颁发与验证客户端证书这个逻辑，我们使用根证书生成两套不同的客户端证书，然后同时用两个客户端证书来发送请求，看服务器端是否都能识别。下面是证书生成的内在逻辑示意图：</p>
-<p><img src="../images/https-mutual-authentication/03-self-signed-sertificate.png" alt="03-self-signed-sertificate"></p>
+<p><img src="/images/https-mutual-authentication/03-self-signed-sertificate.png" alt="03-self-signed-sertificate"></p>
 <h3 id="生成根证书"><a href="#生成根证书" class="headerlink" title="生成根证书"></a>生成根证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建根证书私钥：</span></span><br><span class="line">$ openssl genrsa -out root.key 1024</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建根证书请求文件：</span></span><br><span class="line">$ openssl req -new -out root.csr -key root.key</span><br><span class="line"><span class="comment"># 后续参数请自行填写，下面是一个例子：</span></span><br><span class="line"><span class="comment"># Country Name (2 letter code) [XX]:cn</span></span><br><span class="line"><span class="comment"># State or Province Name (full name) []:bj</span></span><br><span class="line"><span class="comment"># Locality Name (eg, city) [Default City]:bj</span></span><br><span class="line"><span class="comment"># Organization Name (eg, company) [Default Company Ltd]:alibaba</span></span><br><span class="line"><span class="comment"># Organizational Unit Name (eg, section) []:test</span></span><br><span class="line"><span class="comment"># Common Name (eg, your name or your servers hostname) []:root</span></span><br><span class="line"><span class="comment"># Email Address []: a.divinerapier.cn</span></span><br><span class="line"><span class="comment"># A challenge password []:</span></span><br><span class="line"><span class="comment"># An optional company name []:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建根证书：</span></span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> root.csr -out root.crt -signkey root.key -CAcreateserial -days 3650</span><br></pre></td></tr></table></figure>
 
 <p>可以得到</p>
