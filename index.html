@@ -166,6 +166,100 @@
             
 
   
+    <article id="post-what-is-a-linux-container" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/16/what-is-a-linux-container/" target="_blank">Linux 容器 - 概述</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/16/what-is-a-linux-container/" class="archive-article-date">
+        <time datetime="2020-08-16T12:49:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-16</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>Linux 容器是一种具有沙盒属性的特殊进程。其运行时所需要的文件可以完全独立于其他进程，这意味着从开发到测试再到生产的整个过程中，Linux 容器都具有可移植性和一致性。因而，相对于依赖重复传统测试环境的开发渠道，容器的运行速度要快得多。</p>
+<h2 id="为什么要使用容器"><a href="#为什么要使用容器" class="headerlink" title="为什么要使用容器"></a>为什么要使用容器</h2><p>相信对于大多数开发者而言，软件开发过程中，配置环境与部署一定是最痛苦的步骤之一(另一个可能是测试吧)。每一个项目都需要有开发环境，多种测试环境，生产环境。在多人协作的项目，每个开发者都需要配置自己的环境。在计算机这个及其崇尚 <strong>复用</strong> 的领域而言，这种重复的工作是绝对无法容忍的。</p>
+<p>在容器技术大火之前，<code>PaaS</code> 项目被大家接纳的一个主要原因，就是它提供了一种名叫 <strong>应用托管</strong> 的能力。在当时，虚拟机和云计算已经是比较普遍的技术和服务了，那时主流用户的普遍用法，就是租一批 <code>AWS</code> 或者 <code>OpenStack</code> 的虚拟机，然后像以前管理物理服务器那样，用脚本或者手工的方式在这些机器上部署应用。</p>
+<p>但事实上，部署过程依旧难免碰到各种环境不一致的问题。</p>
+<p>容器则可以确保应用拥有极强的可移植性，可以在开发、生产中自如地迁移这些应用，无需担心会出现任何负面影响。</p>
+<h2 id="容器与虚拟化"><a href="#容器与虚拟化" class="headerlink" title="容器与虚拟化"></a>容器与虚拟化</h2><p>虚拟化允许多个操作系统 <code>(Windows/Linux)</code> 同时在单个硬件系统上运行。</p>
+<p>容器可共享同一个操作系统内核，将应用进程与系统其他部分隔离开。例如：<code>ARM Linux</code> 系统运行 <code>ARM Linux</code> 容器，<code>x86 Linux</code> 系统运行 <code>x86 Linux</code> 容器，<code>x86 Windows</code> 系统运行 <code>x86 Windows</code> 容器。<code>Linux</code> 容器具有极佳的可移植性，但前提是它们必须与底层系统兼容。</p>
+<p><img src="/images/what-is-a-linux-container/virtualization-vs-containers.png" alt="virtualization-vs-containers"></p>
+<p>这意味着，虚拟化会使用虚拟机监控程序模拟硬件，从而使多个操作系统能够并行运行。但这不如容器轻便。<code>Linux</code> 容器在本机操作系统上运行，与所有容器共享该操作系统，因此应用和服务能够保持轻巧，并行化快速运行。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">container</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/16/what-is-a-linux-container/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-https-mutual-authentication" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1397,6 +1491,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">container</a>
               </li>
              
               <li class="article-tag-list-item">
