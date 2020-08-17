@@ -6,16 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Tag: https | お可愛いこと</title>
+  <title>容器 - 隔离与限制 | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="お可愛いこと">
-<meta property="og:url" content="http://divinerapier.github.io/tags/https/index.html">
+  <meta name="description" content="之前提到过，容器技术就是一种沙盒技术，可以将应用及相关配置、脚本 装 到一个 箱子 中，这样，应用与应用之间就会因为有了边界而不至于相互干扰。而应用被装进箱子后，也可以被方便地搬来搬去。 但是，Talk is cheap, show me the code! 进程如果要实现一个程序，从一个文件读取两个整数，将计算结果写入到另一个文件，则至少需要有三个文件  可执行文件 输入文件 输出文件  由于计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="容器 - 隔离与限制">
+<meta property="og:url" content="http://divinerapier.github.io/2020/08/17/namespace-and-cgroup/index.html">
 <meta property="og:site_name" content="お可愛いこと">
+<meta property="og:description" content="之前提到过，容器技术就是一种沙盒技术，可以将应用及相关配置、脚本 装 到一个 箱子 中，这样，应用与应用之间就会因为有了边界而不至于相互干扰。而应用被装进箱子后，也可以被方便地搬来搬去。 但是，Talk is cheap, show me the code! 进程如果要实现一个程序，从一个文件读取两个整数，将计算结果写入到另一个文件，则至少需要有三个文件  可执行文件 输入文件 输出文件  由于计">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-08-17T12:25:09.000Z">
+<meta property="article:modified_time" content="2020-08-17T14:18:27.326Z">
 <meta property="article:author" content="divinerapier">
+<meta property="article:tag" content="container">
+<meta property="article:tag" content="namespace">
+<meta property="article:tag" content="cgroup">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -159,77 +166,269 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-namespace-and-cgroup" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/15/https-mutual-authentication/" class="archive-article-date">
-        <time datetime="2020-08-15T06:04:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/15/https-mutual-authentication/" target="_blank">HTTPS 双向认证</a>
   
+    <h1 class="article-title" itemprop="name">
+      容器 - 隔离与限制
     </h1>
   
 
 
-        <div class="article-info info-on-right">
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2020/08/17/namespace-and-cgroup/" class="archive-article-date">
+        <time datetime="2020-08-17T12:25:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-17</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">738字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">2分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>之前提到过，容器技术就是一种沙盒技术，可以将应用及相关配置、脚本 <strong>装</strong> 到一个 <strong>箱子</strong> 中，这样，应用与应用之间就会因为有了边界而不至于相互干扰。而应用被装进箱子后，也可以被方便地搬来搬去。</p>
+<p>但是，<code>Talk is cheap, show me the code!</code></p>
+<h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><p>如果要实现一个程序，从一个文件读取两个整数，将计算结果写入到另一个文件，则至少需要有三个文件</p>
+<ul>
+<li>可执行文件</li>
+<li>输入文件</li>
+<li>输出文件</li>
+</ul>
+<p>由于计算机只认识 <code>0</code> 和 <code>1</code>，因此无论用哪种语言编写这段代码，最后这三个文件都需要通过某种方式翻译成二进制文件，才能在计算机操作系统中运行与使用。初始状态时，三个文件都存放在磁盘上。可执行文件被称作程序，剩余两个文件是数据。</p>
+<p>要完成功能，需要在计算机上执行这个程序。</p>
+<p>首先，操作系统将 <strong>程序</strong> 载入到内存中，表现为指令序列。在执行过程中，当执行到从文件加载输入数据的指令时，操作系统控制存储控制器完成将数据从磁盘载入到内存。之后，操作系统读取到计算加法的指令时，通过 <code>CPU</code>、寄存器与内存的共同协作完成加法计算将计算结果暂存在内存中。最后，执行将结果保存到文件的指令时，操作系统会通过存储控制器，将内存中的结果写入到磁盘上。同时，操作系统中还需要维护其他状态，辅助这一过程顺利进行。</p>
+<p>在操作系统中，将上述过程所涉及到的总和称作：进程。</p>
+<p>而容器技术的核心功能，就是通过约束和修改进程的动态表现，从而为其创造出一个 <strong>边界</strong>。</p>
+<p>对于 <code>Docker</code> 等大多数 <code>Linux</code> 容器来说，使用 <code>cgroups</code> 技术来制造约束，使用 <code>namespace</code> 技术来修改进程视图。</p>
+<h2 id="从创建一个容器开始"><a href="#从创建一个容器开始" class="headerlink" title="从创建一个容器开始"></a>从创建一个容器开始</h2><p>首先创建一个容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ docker run --<span class="built_in">help</span></span><br><span class="line">Usage:  docker run [OPTIONS] IMAGE [COMMAND] [ARG...]</span><br><span class="line"></span><br><span class="line">$ docker run -it busybox /bin/sh</span><br><span class="line">Unable to find image <span class="string">'busybox:latest'</span> locally</span><br><span class="line">latest: Pulling from library/busybox</span><br><span class="line">91f30d776fb2: Pull complete</span><br><span class="line">Digest: sha256:9ddee63a712cea977267342e8750ecbc60d3aab25f04ceacfa795e6fce341793</span><br><span class="line">Status: Downloaded newer image <span class="keyword">for</span> busybox:latest</span><br><span class="line">/ <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>参数 <code>-it</code> 的含义是</p>
+<ul>
+<li>-i: –interactive     Keep STDIN open even if not attached</li>
+<li>-t, –tty             Allocate a pseudo-TTY</li>
+</ul>
+<p>结果就是，在操作系统中创建了一个容器，该容器中执行的程序为 <code>/bin/sh</code>。并且，在容器启动之后，申请了一个随机的 <code>tty</code>，使用交互方式访问这个容器。</p>
+<p>此时，如果执行 <code>ps</code> 指令，会发现很有趣</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># ps</span></span><br><span class="line">PID   USER     TIME  COMMAND</span><br><span class="line">    1 root      0:00 /bin/sh</span><br><span class="line">    6 root      0:00 ps</span><br></pre></td></tr></table></figure>
+
+<p>在创建容器时指定的 <code>/bin/sh</code> 进程，竟然就是容器内部的第一个进程<code>(pid=1)</code>。</p>
+
+    
+
+    
+    <div class="page-reward">
+      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
+        <div class="tooltip tooltip-east">
+          <span class="tooltip-item">
+            赏
+          </span>
+          <span class="tooltip-content">
+            <span class="tooltip-text">
+              <span class="tooltip-inner">
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
+                    class="icon icon-quo-right"></i></p>
+                <div class="reward-box">
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/alipay.jpg">
+                    <span class="reward-type">支付宝</span>
+                  </div>
+                  
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/wechatpay.png">
+                    <span class="reward-type">微信</span>
+                  </div>
+                  
+                </div>
+              </span>
+            </span>
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          divinerapier
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="http://divinerapier.github.io/2020/08/17/namespace-and-cgroup/" title="容器 - 隔离与限制" target="_blank">http://divinerapier.github.io/2020/08/17/namespace-and-cgroup/</a>
+        </li>
+        
+        <li>
+          <strong>版权声明： </strong>
           
+          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">tls</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">container</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ssl</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">namespace</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">https</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">mutual authentication</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">cgroup</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+    
 
     
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/08/17/namespace-and-cgroup/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/16/what-is-the-docker/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Docker - 概述</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
           </div>
@@ -270,9 +469,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
