@@ -218,10 +218,92 @@
 <li>-t, –tty             Allocate a pseudo-TTY</li>
 </ul>
 <p>结果就是，在操作系统中创建了一个容器，该容器中执行的程序为 <code>/bin/sh</code>。并且，在容器启动之后，申请了一个随机的 <code>tty</code>，使用交互方式访问这个容器。</p>
-<p>此时，如果执行 <code>ps</code> 指令，会发现很有趣</p>
+<p>现在，执行 <code>ps</code> 指令，会发现很有趣</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># ps</span></span><br><span class="line">PID   USER     TIME  COMMAND</span><br><span class="line">    1 root      0:00 /bin/sh</span><br><span class="line">    6 root      0:00 ps</span><br></pre></td></tr></table></figure>
 
-<p>在创建容器时指定的 <code>/bin/sh</code> 进程，竟然就是容器内部的第一个进程<code>(pid=1)</code>。</p>
+<p>在创建容器时指定的 <code>/bin/sh</code> 进程，竟然就是容器内部的第一个进程<code>(pid=1)</code>，并且，这个容器内只有两个进程正在运行中，另一个进程是正在执行的 <code>ps</code> 指令。</p>
+<p>其实，这种现象就是通过 <code>namespace</code> 技术实现的。</p>
+<h2 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h2><p>首先，通过 <code>manpages</code> 对 <code>namespace</code> 有一个初步的了解:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">$ man namespaces</span><br><span class="line">NAMESPACES(7)                       Linux Programmer<span class="string">'s Manual                       NAMESPACES(7)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME</span></span><br><span class="line"><span class="string">       namespaces - overview of Linux namespaces</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">DESCRIPTION</span></span><br><span class="line"><span class="string">       A namespace wraps a global system resource in an abstraction that makes it appear to the processes</span></span><br><span class="line"><span class="string">       within the namespace that they have their own isolated instance of the global resource. Changes to</span></span><br><span class="line"><span class="string">       the global resource are visible to other processes that are members of the namespace, but are</span></span><br><span class="line"><span class="string">       invisible to other processes. One use of namespaces is to implement containers.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       This page provides pointers to information on the various namespace types, describes the associated</span></span><br><span class="line"><span class="string">      /proc files, and summarizes the APIs for working with namespaces.</span></span><br><span class="line"><span class="string">       ...</span></span><br></pre></td></tr></table></figure>
+
+<p>总的来说，<code>Linux Namespace</code> 提供了一种内核级别隔离系统资源的方法，通过将系统的全局资源放在不同的 <code>Namespace</code> 中，来实现资源隔离的目的。不同 <code>Namespace</code> 的程序，可以享有一份独立的系统资源。目前 <code>Linux</code> 中提供了以下几种系统资源的隔离机制：</p>
+<table>
+<thead>
+<tr>
+<th align="left">Namespace</th>
+<th align="left">Flag</th>
+<th align="left">Page</th>
+<th align="left">Isolates</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Cgroup</td>
+<td align="left">CLONE_NEWCGROUP</td>
+<td align="left">cgroup_namespaces(7)</td>
+<td align="left">Cgroup root directory</td>
+</tr>
+<tr>
+<td align="left">IPC</td>
+<td align="left">CLONE_NEWIPC</td>
+<td align="left">ipc_namespaces(7)</td>
+<td align="left">System V IPC, POSIX message queues</td>
+</tr>
+<tr>
+<td align="left">Network</td>
+<td align="left">CLONE_NEWNET</td>
+<td align="left">network_namespaces(7)</td>
+<td align="left">Network devices, stacks, ports, etc.</td>
+</tr>
+<tr>
+<td align="left">Mount</td>
+<td align="left">CLONE_NEWNS</td>
+<td align="left">mount_namespaces(7)</td>
+<td align="left">Mount points</td>
+</tr>
+<tr>
+<td align="left">PID</td>
+<td align="left">CLONE_NEWPID</td>
+<td align="left">pid_namespaces(7)</td>
+<td align="left">Process IDs</td>
+</tr>
+<tr>
+<td align="left">Time</td>
+<td align="left">CLONE_NEWTIME</td>
+<td align="left">time_namespaces(7)</td>
+<td align="left">Boot and monotonic clocks</td>
+</tr>
+<tr>
+<td align="left">User</td>
+<td align="left">CLONE_NEWUSER</td>
+<td align="left">user_namespaces(7)</td>
+<td align="left">User and group IDs</td>
+</tr>
+<tr>
+<td align="left">UTS</td>
+<td align="left">CLONE_NEWUTS</td>
+<td align="left">uts_namespaces(7)</td>
+<td align="left">Hostname and NIS domain name</td>
+</tr>
+</tbody></table>
+<h3 id="如何使用-Namespace-技术"><a href="#如何使用-Namespace-技术" class="headerlink" title="如何使用 Namespace 技术"></a>如何使用 Namespace 技术</h3><p>以 <code>PID Namespace</code> 为例，简单说明如何在编程中使用这种技术。</p>
+<p><code>Linux</code> 实现 <code>Namespace</code> 机制的方式，就是在创建进程的时候，传入特定的选项即。更具体一些，就是在调用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ man 2 <span class="built_in">clone</span></span><br><span class="line">CLONE(2)                            Linux Programmer<span class="string">'s Manual                           CLONE(2)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME</span></span><br><span class="line"><span class="string">       clone, __clone2, clone3 - create a child process</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">SYNOPSIS</span></span><br><span class="line"><span class="string">       /* Prototype for the glibc wrapper function */</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       #define _GNU_SOURCE</span></span><br><span class="line"><span class="string">       #include &lt;sched.h&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       int clone(int (*fn)(void *), void *stack, int flags, void *arg, ...</span></span><br><span class="line"><span class="string">                 /* pid_t *parent_tid, void *tls, pid_t *child_tid */ );</span></span><br></pre></td></tr></table></figure>
+
+<p>系统调用时，传入对应的 <code>Flag</code> 作为参数 <code>flag</code> 的值。比如:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> pid = clone(main_function, stack_size, SIGCHLD, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<p>就会创建一个新的进程，并且返回它的进程号 <code>pid</code>。</p>
+<p>如果，同时指定 <code>CLONE_NEWPID</code> 参数:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> pid = clone(main_function, stack_size, CLONE_NEWPID | SIGCHLD, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<p>新创建进程将会 <strong>看到</strong> 一个全新的进程空间，在这个进程空间里，它的 <code>pid</code> 是 <code>1</code>。之所以说 <strong>看到</strong>，是因为这只是一个 <strong>障眼法</strong>，在宿主机真实的进程空间里，这个进程的 <code>pid</code> 还是真实的数值，比如 <code>404</code>。</p>
+<p>如果多次执行上面的 <code>clone()</code> 调用，就会创建多个 <code>PID Namespace</code>，而每个 <code>Namespace</code> 里的应用进程都会认为自己是当前容器里的 <strong>第 1 号进程</strong>，它们既看不到宿主机里真正的进程空间，也看不到其他 <code>PID Namespace</code> 里的具体情况。</p>
+<p>而其他的几种 <code>Namespace</code>，在写法上与 <code>PID Namespace</code> 是相同的，区别只在于目的不同。</p>
+<p>所以，<code>Docker</code> 容器这个听起来玄而又玄的概念，实际上是在创建容器进程时，指定了这个进程所需要启用的一组 <code>Namespace</code> 参数。这样，容器就只能 <strong>看到</strong> 当前 <code>Namespace</code> 所限定的资源、文件、设备、状态，或者配置。而对于宿主机以及其他不相关的程序，它就完全看不到了。</p>
+<p>本质仍旧是进程。因此，在之前出现过的虚拟机对比容器的图片中，才没有出现 <code>Docker</code> 的位置。因为，容器只是通过 <code>Namespace</code> 技术被隔离的进程，与其他进程一样，也是直接运行在宿主机操作系统之上的。<code>Docker</code> 只是充当了一个管理者的身份。</p>
+<p><img src="/images/what-is-the-docker/virtualization-vs-containers.png" alt="virtualization-vs-containers"></p>
+<h2 id="Cgroup"><a href="#Cgroup" class="headerlink" title="Cgroup"></a>Cgroup</h2><p>既然，虚拟机与容器是两种不同的技术，那么二者之间就应该有一些区别。下面以容器技术作为比较的主体来对比二者。</p>
+<p>先来说一下容器的优势。</p>
 
     
 
