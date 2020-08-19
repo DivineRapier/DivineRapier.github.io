@@ -321,7 +321,52 @@
 </ul>
 <h5 id="有限的隔离"><a href="#有限的隔离" class="headerlink" title="有限的隔离"></a>有限的隔离</h5><p>部分资源无法被隔离，比如 <strong>时间</strong>。</p>
 <p>如果在容器中调用 <code>settimeofday(2)</code> 系统调用修改系统时间，会导致宿主机系统的时间被修改，这显然是一个很可怕的事情。因此，在使用容器的时候必须要了解 <strong>什么能做，什么不能做</strong>。</p>
-<h2 id="Cgroup"><a href="#Cgroup" class="headerlink" title="Cgroup"></a>Cgroup</h2><h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><ul>
+<h2 id="Cgroup"><a href="#Cgroup" class="headerlink" title="Cgroup"></a>Cgroup</h2><p><code>Namespace</code> 技术的作用是隔离进程，但只有隔离是不够的。虽然，容器内的进程无法感知到其他运行在宿主机上的进程或容器，但从操作系统的角度而言，所有的进程与容器都是平等的地位。这就意味着，虽然容器是一个独立的小空间，但其可用的资源仍旧与其他进程之间有着竞争的关系。</p>
+<p>因此，就需要用到 <code>Cgroup</code> 技术的帮助了。</p>
+<p><code>Cgroup</code> 全称为 <code>Control Group</code>，用途是限制一个进程组能够使用的资源上限，包括 <code>CPU</code>、<code>MEM</code>、<code>DISK</code>、<code>NETWORK</code> 等。</p>
+<h3 id="Cgroup-In-Action"><a href="#Cgroup-In-Action" class="headerlink" title="Cgroup In Action"></a>Cgroup In Action</h3><p>在 <code>Linux</code> 中 <code>Everything is a file</code>，因此，操作 <code>Cgroup</code> 的途径也是通过文件系统。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ mount -t cgroup</span><br><span class="line">cgroup on /sys/fs/cgroup/cpuset <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,cpuset)</span><br><span class="line">cgroup on /sys/fs/cgroup/cpu <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,cpu)</span><br><span class="line">cgroup on /sys/fs/cgroup/cpuacct <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,cpuacct)</span><br><span class="line">cgroup on /sys/fs/cgroup/blkio <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,blkio)</span><br><span class="line">cgroup on /sys/fs/cgroup/memory <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,memory)</span><br><span class="line">cgroup on /sys/fs/cgroup/devices <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,devices)</span><br><span class="line">cgroup on /sys/fs/cgroup/freezer <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,freezer)</span><br><span class="line">cgroup on /sys/fs/cgroup/net_cls <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,net_cls)</span><br><span class="line">cgroup on /sys/fs/cgroup/perf_event <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,perf_event)</span><br><span class="line">cgroup on /sys/fs/cgroup/net_prio <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,net_prio)</span><br><span class="line">cgroup on /sys/fs/cgroup/hugetlb <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,hugetlb)</span><br><span class="line">cgroup on /sys/fs/cgroup/pids <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,pids)</span><br><span class="line">cgroup on /sys/fs/cgroup/rdma <span class="built_in">type</span> cgroup (rw,nosuid,nodev,noexec,relatime,rdma)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，<code>Cgroup</code> 是一系列定义在 <code>/sys/fs/cgroup/</code> 目录下的各种文件或文件夹。每一个文件夹都被用来限制某一种特定的资源。以 <code>cpu</code> 资源为例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ls /sys/fs/cgroup/cpu</span><br><span class="line">000-metadata  cgroup.clone_children  cpu.cfs_period_us  cpu.rt_runtime_us  docker    notify_on_release  systemreserved</span><br><span class="line">001-binfmt    cgroup.procs           cpu.cfs_quota_us   cpu.shares         kmsg      podruntime         tasks</span><br><span class="line">002-bridge    cgroup.sane_behavior   cpu.rt_period_us   cpu.stat           kubepods  release_agent</span><br></pre></td></tr></table></figure>
+
+<p>列举了限制 <code>cpu</code> 资源的各种参数选项。</p>
+<p>使用 <code>Cgroup</code> 的方式非常简单，在对应的资源目录下面创建一个目录，比如:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkdir -p /sys/fs/cgroup/cpu/container</span><br><span class="line"></span><br><span class="line">$ ls /sys/fs/cgroup/cpu/container</span><br><span class="line">cgroup.clone_children  cpu.cfs_period_us  cpu.rt_period_us   cpu.shares  notify_on_release</span><br><span class="line">cgroup.procs           cpu.cfs_quota_us   cpu.rt_runtime_us  cpu.stat    tasks</span><br></pre></td></tr></table></figure>
+
+<p>这个目录被称作 <strong>控制组</strong>，<code>Linux</code> 会在控制组下自动创建各种资源限制文件。</p>
+<p>然后，在后台执行脚本:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="keyword">while</span> : ; <span class="keyword">do</span> : ; <span class="keyword">done</span> &amp;</span><br><span class="line">[1] 12555</span><br></pre></td></tr></table></figure>
+
+<p>显然，这是一个死循环进程，会占用 <code>100%</code> 的 <code>CPU</code>。使用 <code>top</code> 指令，也可以确认确实使用了 <code>100%</code> 的 <code>CPU</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ top -p 12555</span><br><span class="line">top - 21:00:26 up  4:43,  0 users,  load average: 0.66, 0.66, 0.56</span><br><span class="line">Tasks:   1 total,   1 running,   0 sleeping,   0 stopped,   0 zombie</span><br><span class="line">%Cpu(s):  0.0 us,  2.5 sy,  3.7 ni, 93.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st</span><br><span class="line">MiB Mem :   7958.1 total,   5885.9 free,    539.2 used,   1533.0 buff/cache</span><br><span class="line">MiB Swap:  16384.0 total,  16384.0 free,      0.0 used.   7183.5 avail Mem</span><br><span class="line"></span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</span><br><span class="line">12555 diviner+  25   5   13576   4816      0 R 100.0   0.1   0:46.30 zsh</span><br></pre></td></tr></table></figure>
+
+<p>接下来，是时候展现 <code>Cgroup</code> 的魔法了。首先，查看两个接下来要使用的关键文件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cat /sys/fs/cgroup/cpu/container/cpu.cfs_quota_us</span><br><span class="line">-1</span><br><span class="line">$ cat /sys/fs/cgroup/cpu/container/cpu.cfs_period_us</span><br><span class="line">100000</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>cfs_period_us</strong>: 资源组获取资源的时间周期，单位微妙</li>
+<li><strong>cfs_quota_us</strong>: 在获取资源时间周期内获得资源的时间，单位微妙</li>
+</ul>
+<p>所以 <code>usage = cfs_quota_us / cfs_period_us</code>。</p>
+<p>为了验证这一点，尝试将进程的 <code>CPU</code> 使用率控制在 <code>20%</code>。</p>
+<p>首先，根据上面推测的公式，因为 <code>cfs_period_us = 100000</code>，所以应该修改 <code>cfs_quota_us</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> 20000 | sudo tee /sys/fs/cgroup/cpu/container/cpu.cfs_quota_us</span><br></pre></td></tr></table></figure>
+
+<p>但这还不够，还需要将被限制的进程的 <code>PID</code> 写入到 <strong>控制组</strong> <code>container</code> 的 <code>tasks</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> 12555 | sudo tee /sys/fs/cgroup/cpu/container/tasks</span><br></pre></td></tr></table></figure>
+
+<p>然后使用 <code>top</code> 查看:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">top - 21:09:11 up  4:52,  0 users,  load average: 0.41, 0.76, 0.70</span><br><span class="line">Tasks:   1 total,   1 running,   0 sleeping,   0 stopped,   0 zombie</span><br><span class="line">%Cpu(s):  0.0 us,  0.8 sy,  0.9 ni, 98.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st</span><br><span class="line">MiB Mem :   7958.1 total,   5883.8 free,    541.1 used,   1533.1 buff/cache</span><br><span class="line">MiB Swap:  16384.0 total,  16384.0 free,      0.0 used.   7181.6 avail Mem</span><br><span class="line"></span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</span><br><span class="line">12555 diviner+  25   5   13576   4816      0 R  20.0   0.1   8:17.25 zsh</span><br></pre></td></tr></table></figure>
+
+<p><code>Linux Cgroups</code> 的设计还是比较易用的，可以简单地理解为，一个子系统目录加上一组资源限制文件的组合。而对于 <code>Docker</code> 等 <code>Linux</code> 容器项目来说，它们只需要在每个子系统下面，为每个容器创建一个<strong>控制组</strong> (即创建一个新目录)，然后在启动容器进程之后，把这个进程的 <code>PID</code> 填写到对应控制组的 <code>tasks</code> 文件中就可以了。</p>
+<h2 id="Cgroup-in-Docker"><a href="#Cgroup-in-Docker" class="headerlink" title="Cgroup in Docker"></a>Cgroup in Docker</h2><p>在通过 <code>Docker</code> 启动容器的时候，也可以限制 <code>cpu</code> 使用率:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -it --cpu-period=100000 --cpu-quota=20000 ubuntu /bin/bash</span><br><span class="line">611f8f2c0c7613c2f3f3964e7dc3dbe407c74689e376736e34d7fe4735ec95d4</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cat /sys/fs/cgroup/cpu/docker/611f8f2c0c7613c2f3f3964e7dc3dbe407c74689e376736e34d7fe4735ec95d4/cpu.cfs_period_us</span><br><span class="line">100000</span><br><span class="line"></span><br><span class="line">$ cat /sys/fs/cgroup/cpu/docker/611f8f2c0c7613c2f3f3964e7dc3dbe407c74689e376736e34d7fe4735ec95d4/cpu.cfs_quota_us</span><br><span class="line">20000</span><br></pre></td></tr></table></figure>
+
+<p>此时，这个容器最多只能使用 <code>20%</code> 的 <code>CPU</code>。</p>
+<h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><ul>
 <li><a href="https://dominoweb.draco.res.ibm.com/reports/rc25482.pdf" target="_blank" rel="noopener">An Updated Performance Comparison of Virtual Machines and Linux Containers</a></li>
 </ul>
 
@@ -1620,22 +1665,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">tls</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">https</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
@@ -1657,6 +1686,22 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">select statements</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">tls</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
               </li>
              
               <li class="article-tag-list-item">
