@@ -166,6 +166,130 @@
             
 
   
+    <article id="post-load-average" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/22/load-average/" target="_blank">CPU 平均工作负责</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/22/load-average/" class="archive-article-date">
+        <time datetime="2020-08-22T14:48:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-22</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>当程序的性能未达到预期时，大多数开发者会选择使用 <code>top</code> 指令查看指标 <code>CPU</code> 使用率。其实，还有另一个有关 <code>CPU</code> 的重要指标: 平均负责 <code>(load average)</code>。</p>
+<p>可以使用 <code>top</code> 指令，或者 <code>uptime</code> 指令查看:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$top</span></span><br><span class="line"></span><br><span class="line">top - 23:11:02 up 19 days, 12:05,  1 user,  load average: 1.25, 1.42, 1.29</span><br><span class="line">Tasks: 258 total,   2 running, 197 sleeping,   0 stopped,   0 zombie</span><br><span class="line">%Cpu(s):  9.1 us,  6.8 sy,  0.3 ni, 78.1 id,  5.2 wa,  0.0 hi,  0.5 si,  0.0 st</span><br><span class="line">KiB Mem : 15871204 total,   508880 free,  1675924 used, 13686400 buff/cache</span><br><span class="line">KiB Swap:  2097148 total,  2096112 free,     1036 used. 14133480 avail Mem</span><br><span class="line"></span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND</span><br><span class="line"> 4812 root      20   0  271208 155208  36668 S  14.6  1.0   1078:57 rancher</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ uptime</span><br><span class="line"> 23:10:12 up 19 days, 12:05,  1 user,  load average: 1.65, 1.50, 1.31</span><br></pre></td></tr></table></figure>
+
+<p>可以发现，<code>uptime</code> 指令的输出与 <code>top</code> 指令输出的第一行几乎一致。具体每一部分的含义为:</p>
+<ul>
+<li><strong>当前时间</strong>: 23:10:12</li>
+<li><strong>运行时间</strong>: up 19 days, 12:05</li>
+<li><strong>登录用户数量</strong>: 1 user</li>
+<li><strong>平均负载</strong>: 过去 <strong>1min</strong>，<strong>3min</strong>，<strong>5min</strong> 的平均负载</li>
+</ul>
+<h2 id="什么是平均负载"><a href="#什么是平均负载" class="headerlink" title="什么是平均负载"></a>什么是平均负载</h2><p>首先，需要强调:</p>
+<ul>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+</ul>
+<p>而是，系统处于 <strong>可运行状态</strong> 和 <strong>不可中断状态</strong> 的平均进程数，即 <strong>平均活跃进程数</strong>。与 <code>CPU</code> 使用率没有直接关系。</p>
+<ul>
+<li><strong>可运行状态</strong>: 正在使用 <code>CPU</code> 或者正在等待 <code>CPU</code> 的进程。即 <code>ps</code> 指令显示为 <code>R</code> 状态 <code>(Running/Runable)</code> 的进程。</li>
+<li><strong>不可中断状态</strong>: 处于内核态关键流程中的进程，且不可打断。比如最常见的是等待硬件设备的 <code>I/O</code> 响应，即 <code>ps</code> 指令中中看到的 <code>D</code> 状态 <code>(Uninterruptible Sleep/Disk Sleep)</code> 的进程。</li>
+</ul>
+<p>比如，当一个进程向磁盘读写数据时，为了保证数据的一致性，在得到磁盘回复前，它是不能被其他 <strong>进程</strong> 或者 <strong>中断</strong> 打断的，这个时候的进程就处于不可中断状态。如果此时的进程被打断了，就容易出现磁盘数据与进程数据不一致的问题。</p>
+<p>所以，<strong>不可中断状态实际上是系统对进程和硬件设备的一种保护机制</strong>。</p>
+<h2 id="评估平均负载"><a href="#评估平均负载" class="headerlink" title="评估平均负载"></a>评估平均负载</h2><p>可以简单的认为，平均负载就是活跃的进程数。所以，最理想的场景是每个 <code>CPU</code> 都只需要处理一个进程，即 <code>CPU</code> 数量等于平均负载值。</p>
+<p>因此，在分析系统平均负载是否合理时，首先应该知道当前系统的 <code>CPU</code> 数量。</p>
+<p>平均负载可以简单的认为是活跃进程数:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat /proc/cpuinfo | grep -i <span class="string">'model name'</span> | wc -l</span><br><span class="line">16</span><br></pre></td></tr></table></figure>
+
+<p>之后，就可以通过比较 <code>CPU</code> 的数量与平均负载大小关系，确认系统是否过载。</p>
+<p>同时，结合过去 <code>1min</code>，<code>5min</code>，<code>15min</code> 的系统负载，就可以推测出系统负载的变化趋势。</p>
+<p>当平均负载超过 <code>CPU</code> <code>50%</code> 时，可以认为负载较高；当超过 <code>70%</code> 时，就应该开发分析导致高负载的原因。同时，也应该将平均负载作为一项监控指标。只有结合历史数据来分析才更有意义。</p>
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pacman -S stress sysstat</span><br></pre></td></tr></table></figure>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">linux performance</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">cpu performance</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/22/load-average/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-linux-performance-guide" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1503,105 +1627,6 @@
 
 
   
-    <article id="post-optimizing-sql-statements" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/07/28/optimizing-sql-statements/" target="_blank">优化SQL语句</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/07/28/optimizing-sql-statements/" class="archive-article-date">
-        <time datetime="2020-07-28T11:41:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <ol>
-<li>Optimizing SELECT Statements</li>
-<li>Optimizing Subqueries, Derived Tables, View References, and Common Table Expressions</li>
-<li>Optimizing INFORMATION_SCHEMA Queries</li>
-<li>Optimizing Performance Schema Queries</li>
-<li>Optimizing Data Change Statements</li>
-<li>Optimizing Database Privileges</li>
-<li>Other Optimization Tips</li>
-</ol>
-<p>数据库应用程序的核心逻辑是通过 <code>SQL</code> 语句执行的，无论这些 <code>SQL</code> 语句是通过解释程序直接发出还是通过调用 <code>API</code> 提交。之后提到的调整准则有助于加快各种使用到 <code>MySQL</code> 应用程序的速度。指南涵盖了读写数据的 <code>SQL</code> 操作，通用 <code>SQL</code> 操作的底层开销以及在特定方案（例如数据库监视）中使用的操作。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/07/28/optimizing-sql-statements/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
@@ -1776,6 +1801,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
