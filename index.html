@@ -166,6 +166,145 @@
             
 
   
+    <article id="post-container-orchestration-and-kubernetes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/24/container-orchestration-and-kubernetes/" target="_blank">容器编排与 Kubernetes</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/24/container-orchestration-and-kubernetes/" class="archive-article-date">
+        <time datetime="2020-08-24T12:58:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-24</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p><code>Docker</code> 容器依托于 <code>Linux Namespace</code>、<code>Cgroup</code>、<code>rootfs</code> 三方面，在宿主机之上为用户构建出互相隔离的进程运行环境。</p>
+<ul>
+<li><code>rootfs</code> 作为容器镜像，是静态视图；</li>
+<li><code>Namespace</code> + <code>Cgroup</code> 提供运行时隔离环境，是动态视图。</li>
+</ul>
+<p>显而易见，对于开发者而言，他们更关注于容器镜像。容器镜像，可以看做是以前的应用程序，它由开发者负责构建，并在开发、测试、发布等各个环节之间作为最核心的组件。</p>
+<p>在这种前提之下，云服务提供商的职责就从原来的 <strong>将用户提交的应用在虚拟机上运行起来</strong>，转变为 <strong>将用户提交的镜像以容器的方式运行起来</strong>。</p>
+<p>因此，整个生态必将以容器镜像为核心连接点，在生态链路的各个节点，如 <code>CI/CD</code>、监控、安全、网络、存储等，都需要转变为以容器镜像为根本。这将是一次云服务平台的结构化升级。</p>
+<p>容器从一个开发者手里的小工具，一跃成为了云计算领域的绝对主角；而能够定义容器组织和管理规范的 <strong>容器编排</strong> 技术，则当仁不让地坐上了容器技术领域的 <strong>头把交椅</strong>。这其中，其中翘楚当属 <code>Docker</code> 公司的 <code>Compose+Swarm</code> 组合，以及 <code>Google</code> 与 <code>RedHat</code> 公司共同主导的 <code>Kubernetes</code> 项目。</p>
+<h2 id="Kubernetes"><a href="#Kubernetes" class="headerlink" title="Kubernetes"></a>Kubernetes</h2><p><code>Kubernetes</code> 项目脱胎于 <code>Google</code> 的核心系统 <code>Borg</code>，在项目初期有有着很强的技术理论指导。</p>
+<p><code>Borg</code> 系统，一直以来都被誉为 <code>Google</code> 公司内部最强大的 <strong>秘密武器</strong>。虽然略显夸张，但这个说法倒不算是吹牛。因为，相比于 <code>Spanner</code>、<code>BigTable</code> 等相对上层的项目，<code>Borg</code> 要承担的责任，是承载 <code>Google</code> 公司整个基础设施的核心依赖。在 <code>Google</code> 公司已经公开发表的基础设施体系论文中，<code>Borg</code> 项目当仁不让地位居整个基础设施技术栈的最底层。</p>
+<p><a href="/images/container-orchestration-and-kubernetes/google-stack.png">google-stack</a></p>
+<p>上图，来自于 <code>Google Omega</code> 论文的第一作者的博士毕业论文。它描绘了当时 <code>Google</code> 已经公开发表的整个基础设施栈。在这个图里，你既可以找到 <code>MapReduce</code>、<code>BigTable</code> 等知名项目，也能看到 <code>Borg</code> 和它的继任者 <code>Omega</code> 位于整个技术栈的最底层。</p>
+<p>正是由于这样的定位，<code>Borg</code> 可以说是 <code>Google</code> 最不可能开源的一个项目。而幸运的是，得益于 <code>Docker</code> 项目和容器技术的风靡，它终于得以以另一种方式与开源社区见面，这个方式就是 <code>Kubernetes</code> 项目。</p>
+<p>所以，相比于 <strong>小打小闹</strong> 的 <code>Docker</code> 公司、<strong>旧瓶装新酒</strong> 的 <code>Mesos</code> 社区，<strong><code>Kubernetes</code> 项目从一开始就比较幸运地站上了一个他人难以企及的高度</strong>: 在它的成长阶段，这个项目每一个核心特性的提出，几乎都脱胎于 <code>Borg/Omega</code> 系统的设计与经验。更重要的是，这些特性在开源社区落地的过程中，又在整个社区的合力之下得到了极大的改进，修复了很多当年遗留在 <code>Borg</code> 体系中的缺陷和问题。</p>
+<p>所以，尽管在发布之初被批评是 <strong>曲高和寡</strong>，但是在逐渐觉察到 <code>Docker</code> 技术栈的 <strong>稚嫩</strong> 和 <code>Mesos</code> 社区的 <strong>老迈</strong> 之后，这个社区很快就明白了: <code>Kubernetes</code> 项目在 <code>Borg</code> 体系的指导下，体现出了一种独有的 <strong>先进性</strong> 与 <strong>完备性</strong>，而这些特质才是一个基础设施领域开源项目赖以生存的核心价值。</p>
+<h2 id="Kubernetes-解决了什么问题"><a href="#Kubernetes-解决了什么问题" class="headerlink" title="Kubernetes 解决了什么问题"></a>Kubernetes 解决了什么问题</h2><p>在说明 <code>Kubernetes</code> 解决了什么问题之前，先来讨论一下，用户期望 <code>Kubernetes</code> 有什么样的功能。</p>
+<p>对于大多数用户来说，他们希望 <code>Kubernetes</code> 项目带来的体验是确定的: 现在我有了应用的容器镜像，请帮我在一个给定的集群上把这个应用运行起来。</p>
+<p>更进一步地说，还希望 <code>Kubernetes</code> 能给我提供路由 <strong>网关</strong>、<strong>水平扩展</strong>、<strong>监控</strong>、<strong>备份</strong>、<strong>灾难恢复</strong> 等一系列运维能力。</p>
+<p>解决发现，这就是对于 <code>PaaS(Cloud Foundry)</code> 同等的诉求。</p>
+<p>但是，这些功能完全可以通过 <code>Docker</code> 及其生态圈 <code>Docker Compose</code> + <code>Docker Swarm</code> 自行实现，完全不知道实现一个 <strong>百万行代码量级</strong> 的 <code>Kubernetes</code></p>
+<p>所以说，如果 <code>Kubernetes</code> 项目只是停留在拉取用户镜像、运行容器，以及提供常见的运维功能的话，那么别说跟 <strong>原生</strong> 的 <code>Docker Swarm</code> 项目竞争了，哪怕跟经典的 <code>PaaS</code> 项目相比也难有什么优势可言。</p>
+<p>而实际上，在定义核心功能的过程中，<code>Kubernetes</code> 项目是站在巨人 <code>Borg</code> 项目的肩膀之上，凭借 <code>Borg</code> 超前的理论优势，在短短几个月内迅速站稳了脚跟，进而确定了一个如下图所示的全局架构:</p>
+<p><a href="/images/container-orchestration-and-kubernetes/k8s-architecture.png">k8s-architecture</a></p>
+<p>可以看到，<code>Kubernetes</code> 项目的架构与原型项目 <code>Borg</code> 非常类似，都由 <code>Master</code> 和 <code>Node</code> 两种节点组成，分别用作控制节点和计算节点。</p>
+<p>其中，控制节点，即 <code>Master</code> 节点，由 <strong>三个</strong> 紧密协作的独立组件组合而成，它们分别是<strong>负责 <code>API</code> 服务的 <code>kube-apiserver</code></strong>、<strong>负责调度的 <code>kube-scheduler</code></strong>，以及 <strong>负责容器编排的 <code>kube-controller-manager</code></strong>。整个集群的持久化数据，由 <code>kube-apiserver</code> 处理后保存在 <code>ETCD</code> 中。</p>
+<p>而计算节点上最核心的部分，则是一个叫作 <code>kubelet</code> 的组件。</p>
+<p>在 <code>Kubernetes</code> 项目中，<code>kubelet</code> 主要负责同容器运行时(比如 <code>Docker</code> 项目)打交道。而这个交互所依赖的，是一个称作 <code>CRI(Container Runtime Interface)</code> 的远程调用接口，这个接口定义了容器运行时的各项核心操作，比如: 启动一个容器需要的所有参数。</p>
+<p>这也是为何，<code>Kubernetes</code> 项目并不关心你部署的是什么容器运行时、使用的什么技术实现，只要你的这个容器运行时能够运行标准的容器镜像，它就可以通过实现 <code>CRI</code> 接入到 <code>Kubernetes</code> 项目当中。</p>
+<p>而具体的容器运行时，比如 <code>Docker</code> 项目，则一般通过 <code>OCI</code> 这个容器运行时规范同底层的 <code>Linux</code> 操作系统进行交互，即: 把 <code>CRI</code> 请求翻译成对 <code>Linux</code> 操作系统的调用(操作 <code>Linux Namespace</code> 和 <code>Cgroups</code> 等)。</p>
+<p>此外，<code>kubelet</code> 还通过 <code>gRPC</code> 协议同一个叫作 <code>Device Plugin</code> 的插件进行交互。这个插件，是 <code>Kubernetes</code> 项目用来管理 <code>GPU</code> 等宿主机物理设备的主要组件，也是基于 <code>Kubernetes</code> 项目进行机器学习训练、高性能作业支持等工作必须关注的功能。</p>
+<p>而 <code>kubelet</code> 的另一个重要功能，则是调用网络插件和存储插件为容器配置网络和持久化存储。这两个插件与 <code>kubelet</code> 进行交互的接口，分别是 <code>CNI(Container Networking Interface)</code>和 <code>CSI(Container Storage Interface)</code>。</p>
+<p>实际上，<code>kubelet</code> 这个奇怪的名字，来自于 <code>Borg</code> 项目里的同源组件 <code>Borglet</code>。不过，如果你浏览过 <code>Borg</code> 论文的话，就会发现，这个命名方式可能是 <code>kubelet</code> 组件与 <code>Borglet</code> 组件的唯一相似之处。因为 <code>Borg</code> 项目，并不支持我们这里所讲的容器技术，而只是简单地使用了 <code>Linux Cgroups</code> 对进程进行限制。</p>
+<p>这就意味着，像 <code>Docker</code> 这样的“容器镜像”在 <code>Borg</code> 中是不存在的，<code>Borglet</code> 组件也自然不需要像 <code>kubelet</code> 这样考虑如何同 <code>Docker</code> 进行交互、如何对容器镜像进行管理的问题，也不需要支持 <code>CRI</code>、<code>CNI</code>、<code>CSI</code> 等诸多容器技术接口。</p>
+<p>可以说，<code>kubelet</code> 完全就是为了实现 <code>Kubernetes</code> 项目对容器的管理能力而重新实现的一个组件，与 <code>Borg</code> 之间并没有直接的传承关系。</p>
+<p>那么，<code>Borg</code> 对于 <code>Kubernetes</code> 项目的指导作用又体现在哪里呢？</p>
+<p>答案是，<code>Master</code> 节点。</p>
+<p>虽然在 <code>Master</code> 节点的实现细节上 <code>Borg</code> 项目与 <code>Kubernetes</code> 项目不尽相同，但它们的出发点却高度一致，即: <strong>如何编排、管理、调度用户提交的作业</strong>。</p>
+<p>所以，<code>Borg</code> 项目完全可以把 <code>Docker</code> 镜像看作一种新的应用打包方式。这样，<code>Borg</code> 团队过去在大规模作业管理与编排上的经验就可以直接 <strong>套</strong> 在 <code>Kubernetes</code> 项目上了。</p>
+<p>这些经验最主要的表现就是，从一开始，<code>Kubernetes</code> 项目就没有像同时期的各种 <strong>容器云</strong> 项目那样，把 <code>Docker</code> 作为整个架构的核心，而仅仅把它作为最底层的一个容器运行时实现。</p>
+<p>而 <code>Kubernetes</code> 项目要着重解决的问题，则来自于 <code>Borg</code> 的研究人员在论文中提到的一个非常重要的观点:</p>
+<blockquote>
+<p>运行在大规模集群中的各种任务之间，实际上存在着各种各样的关系。这些关系的处理，才是作业编排和管理系统最困难的地方。</p>
+</blockquote>
+<p>事实也正是如此。</p>
+<p>其实，这种任务与任务之间的关系，在我们平常的各种技术场景中随处可见。比如，一个 <code>Web</code> 应用与数据库之间的访问关系，一个负载均衡器和它的后端服务之间的代理关系，一个门户应用与授权组件之间的调用关系。</p>
+<p>更进一步地说，同属于一个服务单位的不同功能之间，也完全可能存在这样的关系。比如，一个 <code>Web</code> 应用与日志搜集组件之间的文件交换关系。</p>
+<h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><ul>
+<li><a href="http://malteschwarzkopf.de/research/assets/google-stack.pdf" target="_blank" rel="noopener">The Google Stack</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">container orchestration</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/24/container-orchestration-and-kubernetes/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-load-average" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1547,153 +1686,6 @@
 
 
   
-    <article id="post-optimizing-select-statements" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/07/28/optimizing-select-statements/" target="_blank">优化 SELECT 语句</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/07/28/optimizing-select-statements/" class="archive-article-date">
-        <time datetime="2020-07-28T13:45:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>数据库中所有查找操作，均以 <code>SELECT</code> 语句的形式执行。无论是实现网站秒级以内的响应时间，还是期望在生成大量的隔夜报告是缩短数小时的执行时间，调试这类语句都是重中之重。</p>
-<p>除了 <code>SELECT</code> 语句外，相同的技术还适用于诸如 <code>CREATE TABLE ... AS SELECT</code>，<code>INSERT INTO ... SELECT</code> 和 <code>DELETE</code> 语句中的 <code>WHERE</code> 子句。但由于这些语句同时会涉及到读写两种操作，因此还需要考虑其他方面的性能问题。</p>
-<p>多节点集群支持 <strong><code>JOIN</code> 查询下推优化(<code>join pushdown optimization</code>)</strong>，能将符合条件的 <code>JOIN</code> 完整地发送到集群的数据节点，让这个查询请求被分发到这些节点上并行执行。有关此优化的更多信息，请参见<a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-cluster-options-variables.html#ndb_join_pushdown-conditions" target="_blank" rel="noopener">Conditions for NDB pushdown joins</a>。</p>
-<p>优化查询的核心因素：</p>
-<ul>
-<li><p>如何查询语句 <code>SELECT ... WHERE</code> 执行的非常之慢，首选提速方法就是检查是否可以添加<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_index" target="_blank" rel="noopener">索引</a>。在 <code>WHERE</code> 子句中使用的列上设置索引，以加快执行，过滤，检索结果等操作的速度。同时，索引信息需要占用一定的磁盘空间，请尽可能在有一定关联性的查询中复用索引。</p>
-<p>  在执行 <code>JOIN</code> 查询，外键关联等需要多个表参与的查询语句时，索引尤为重要。此时，可以通过 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 语句来确定，执行 <code>SELECT</code> 语句时，实际有哪些索引真正被使用了。参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html" target="_blank" rel="noopener">Section 8.3.1, “How MySQL Uses Indexes”</a> and <a href="https://dev.mysql.com/doc/refman/8.0/en/using-explain.html" target="_blank" rel="noopener">Section 8.8.1, “Optimizing Queries with EXPLAIN”</a>。</p>
-</li>
-<li><p>隔离和调整查询中花费时间过多的任何部分，例如函数调用。 根据查询的结构方式，可以对结果集中的每一行调用一次函数，甚至可以对表中的每一行调用一次函数，从而极大地提高了效率。</p>
-</li>
-<li><p>最小化查询中<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_full_table_scan" target="_blank" rel="noopener">全表扫描</a>的次数，特别是对于大表。</p>
-</li>
-<li><p>通过定期使用 <a href="https://dev.mysql.com/doc/refman/8.0/en/analyze-table.html" target="_blank" rel="noopener"><code>ANALYZE TABLE</code></a> 语句使表统计信息保持最新状态，让优化器具有充足的信息构造有效执行计划。</p>
-</li>
-<li><p>了解每种存储引擎的调整技术，索引技术和配置参数。无论是 <code>InnoDB</code> 还是 <code>MyISAM</code>，都各自具有一套保持查询高性能的准则。参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-queries.html" target="_blank" rel="noopener">Section 8.5.6, “Optimizing InnoDB Queries”</a> 和 <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-queries-myisam.html" target="_blank" rel="noopener">Section 8.6.1, “Optimizing MyISAM Queries”</a>。</p>
-</li>
-<li><p>使用 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-ro-txn.html" target="_blank" rel="noopener">Section 8.5.3, “Optimizing InnoDB Read-Only Transactions”</a> 中的技术优化 <code>InnoDB</code> 表的单查询事务。</p>
-</li>
-<li><p>避免以难以理解的方式转换查询，特别是在优化器自动执行某些相同转换的情况下。</p>
-</li>
-<li><p>当使用基本准则不能轻松解决性能问题时，可以通过阅读 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 计划并调整索引，<code>WHERE</code>，<code>JOIN</code> 等子句来调查特定查询的内部详细信息。(有一定经验之后，阅读 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 计划可能是每个查询的第一步。)</p>
-</li>
-<li><p>调整 <code>MySQL</code> 用于缓存的内存区域的大小和属性。合理使用 InnoDB 的<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_buffer_pool" target="_blank" rel="noopener">buffer pool</a>，<code>MyISAM</code> 的 <code>key cache</code> 和 <code>MySQL</code> 的 <code>query cache</code>，可以让重复查询的运行速度更快。</p>
-</li>
-<li><p>即使查询已经使用了内存缓存，也依然可能对其进一步优化，使其需要更少的内存，从而使应用程序更具可伸缩性。比如，应用程序可以同时处理更多的用户，更大的请求量，而不会导致性能大幅下降。</p>
-</li>
-<li><p>锁定问题，多个会话同时访问同一张表可能会影响查询速度。</p>
-</li>
-</ul>
-<h3 id="更多优化策略"><a href="#更多优化策略" class="headerlink" title="更多优化策略"></a>更多优化策略</h3><ul>
-<li><a href="https://blog.divinerapier.cn/2020/08/01/where-clause-optimization/" target="_blank" rel="noopener">WHERE Clause Optimization</a></li>
-<li>Range Optimization</li>
-<li>Index Merge Optimization</li>
-<li>Hash Join Optimization</li>
-<li>Engine Condition Pushdown Optimization</li>
-<li>Index Condition Pushdown Optimization</li>
-<li>Nested-Loop Join Algorithms</li>
-<li>Nested Join Optimization</li>
-<li>Outer Join Optimization</li>
-<li>Outer Join Simplification</li>
-<li>Multi-Range Read Optimization</li>
-<li>Block Nested-Loop and Batched Key Access Joins</li>
-<li>Condition Filtering</li>
-<li>Constant-Folding Optimization</li>
-<li>IS NULL Optimization</li>
-<li>ORDER BY Optimization</li>
-<li>GROUP BY Optimization</li>
-<li>DISTINCT Optimization</li>
-<li>LIMIT Query Optimization</li>
-<li>Function Call Optimization</li>
-<li>Window Function Optimization</li>
-<li>Row Constructor Expression Optimization</li>
-<li>Avoiding Full Table Scans</li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">select statements</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/07/28/optimizing-select-statements/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
@@ -1827,11 +1819,11 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1848,6 +1840,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1871,10 +1871,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
@@ -1883,11 +1879,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">namespace</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">cgroup</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1896,6 +1888,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">namespace</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">cgroup</a>
               </li>
              
               <li class="article-tag-list-item">
