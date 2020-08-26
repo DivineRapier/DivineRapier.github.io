@@ -6,20 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>log-structured-merge-trees | お可愛いこと</title>
+  <title>Log Structured Merge Trees | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
   <meta name="description" content="LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb&#x2F;cassandra or a messaging system like pulsar which is backed by bookkeeper.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="log-structured-merge-trees">
+<meta property="og:title" content="Log Structured Merge Trees">
 <meta property="og:url" content="http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/index.html">
 <meta property="og:site_name" content="お可愛いこと">
 <meta property="og:description" content="LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb&#x2F;cassandra or a messaging system like pulsar which is backed by bookkeeper.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://divinerapier.github.io/images/log-structured-merge-trees/01.png">
 <meta property="article:published_time" content="2020-08-26T13:37:03.000Z">
-<meta property="article:modified_time" content="2020-08-26T13:45:30.455Z">
+<meta property="article:modified_time" content="2020-08-26T14:36:52.225Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="lsm tree">
 <meta property="article:tag" content="sstable">
@@ -174,7 +174,7 @@
   
   
     <h1 class="article-title" itemprop="name">
-      log-structured-merge-trees
+      Log Structured Merge Trees
     </h1>
   
 
@@ -223,7 +223,7 @@
     <p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
 <p>The various components of a typical LSM backed system are shown below.</p>
 <p><img src="/images/log-structured-merge-trees/01.png" alt="01"></p>
-<p>The main reason why LSM provides high write throughput is that every write request is actually performed only “in-memory” in contrast to traditional B-Tree based implementation where the updates are done to disk which can trigger an update to an index making it very expensive.</p>
+<p>The main reason why LSM provides high write throughput is that every write request is actually performed only <strong>in-memory</strong> in contrast to traditional B-Tree based implementation where the updates are done to disk which can trigger an update to an index making it very expensive.</p>
 <p>So the obvious question is, how does LSM achieve durability? that’s where WAL comes into the picture.</p>
 <h2 id="WAL"><a href="#WAL" class="headerlink" title="WAL"></a>WAL</h2><p>WAL is a write-ahead log that is used to provide the durability of data during system failures, what it means is that when a request for write comes in, the data is first added to a WAL file (sometimes called journal) and flushed to the disk (using <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/global_file_system/s1-manage-direct-io" target="_blank" rel="noopener">direct io</a>) before updating the in-memory data structure.</p>
 <p>This allows for systems to recover from the WAL if it crashes before persisting the in-memory data structure to disk.</p>
@@ -295,7 +295,7 @@
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/" title="log-structured-merge-trees" target="_blank">http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/</a>
+          <a href="http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/" title="Log Structured Merge Trees" target="_blank">http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/</a>
         </li>
         
         <li>
@@ -628,10 +628,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">namespace</a>
               </li>
              
@@ -640,15 +636,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
