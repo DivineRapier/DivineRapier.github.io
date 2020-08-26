@@ -6,26 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>容器编排与 Kubernetes | お可愛いこと</title>
+  <title>Tag: lsm tree | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="Docker 容器依托于 Linux Namespace、Cgroup、rootfs 三方面，在宿主机之上为用户构建出互相隔离的进程运行环境。  rootfs 作为容器镜像，是静态视图； Namespace + Cgroup 提供运行时隔离环境，是动态视图。  显而易见，对于开发者而言，他们更关注于容器镜像。容器镜像，可以看做是以前的应用程序，它由开发者负责构建，并在开发、测试、发布等各个环节之间">
-<meta property="og:type" content="article">
-<meta property="og:title" content="容器编排与 Kubernetes">
-<meta property="og:url" content="http://divinerapier.github.io/2020/08/24/container-orchestration-and-kubernetes/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="お可愛いこと">
+<meta property="og:url" content="http://divinerapier.github.io/tags/lsm-tree/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="Docker 容器依托于 Linux Namespace、Cgroup、rootfs 三方面，在宿主机之上为用户构建出互相隔离的进程运行环境。  rootfs 作为容器镜像，是静态视图； Namespace + Cgroup 提供运行时隔离环境，是动态视图。  显而易见，对于开发者而言，他们更关注于容器镜像。容器镜像，可以看做是以前的应用程序，它由开发者负责构建，并在开发、测试、发布等各个环节之间">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://divinerapier.github.io/images/container-orchestration-and-kubernetes/google-stack.png">
-<meta property="og:image" content="http://divinerapier.github.io/images/container-orchestration-and-kubernetes/k8s-architecture.png">
-<meta property="article:published_time" content="2020-08-24T12:58:07.000Z">
-<meta property="article:modified_time" content="2020-08-26T13:46:03.105Z">
 <meta property="article:author" content="divinerapier">
-<meta property="article:tag" content="container orchestration">
-<meta property="article:tag" content="kubernetes">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://divinerapier.github.io/images/container-orchestration-and-kubernetes/google-stack.png">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
   
@@ -168,297 +159,69 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-container-orchestration-and-kubernetes" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
+            
+  
+  
     
-      <header class="article-header">
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2020" class="archive-year">2020</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	
+<a href="/2020/08/26/log-structured-merge-trees/" class="archive-article-date">
+        <time datetime="2020-08-26T13:37:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-26</time>
+</a>
+
+        </div>
+    	 
   
+    <h1 itemprop="name">
+	
+	  <a class="archive-article-title" href="/2020/08/26/log-structured-merge-trees/" target="_blank">log-structured-merge-trees</a>
   
-    <h1 class="article-title" itemprop="name">
-      容器编排与 Kubernetes
     </h1>
   
 
 
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2020/08/24/container-orchestration-and-kubernetes/" class="archive-article-date">
-        <time datetime="2020-08-24T12:58:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-24</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">2.5k字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">8分</span>
-    </span>
-  </span>
-</div>
-
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><code>Docker</code> 容器依托于 <code>Linux Namespace</code>、<code>Cgroup</code>、<code>rootfs</code> 三方面，在宿主机之上为用户构建出互相隔离的进程运行环境。</p>
-<ul>
-<li><code>rootfs</code> 作为容器镜像，是静态视图；</li>
-<li><code>Namespace</code> + <code>Cgroup</code> 提供运行时隔离环境，是动态视图。</li>
-</ul>
-<p>显而易见，对于开发者而言，他们更关注于容器镜像。容器镜像，可以看做是以前的应用程序，它由开发者负责构建，并在开发、测试、发布等各个环节之间作为最核心的组件。</p>
-<p>在这种前提之下，云服务提供商的职责就从原来的 <strong>将用户提交的应用在虚拟机上运行起来</strong>，转变为 <strong>将用户提交的镜像以容器的方式运行起来</strong>。</p>
-<p>因此，整个生态必将以容器镜像为核心连接点，在生态链路的各个节点，如 <code>CI/CD</code>、监控、安全、网络、存储等，都需要转变为以容器镜像为根本。这将是一次云服务平台的结构化升级。</p>
-<p>容器从一个开发者手里的小工具，一跃成为了云计算领域的绝对主角；而能够定义容器组织和管理规范的 <strong>容器编排</strong> 技术，则当仁不让地坐上了容器技术领域的 <strong>头把交椅</strong>。这其中，其中翘楚当属 <code>Docker</code> 公司的 <code>Compose+Swarm</code> 组合，以及 <code>Google</code> 与 <code>RedHat</code> 公司共同主导的 <code>Kubernetes</code> 项目。</p>
-<h2 id="Kubernetes"><a href="#Kubernetes" class="headerlink" title="Kubernetes"></a>Kubernetes</h2><p><code>Kubernetes</code> 项目脱胎于 <code>Google</code> 的核心系统 <code>Borg</code>，在项目初期有有着很强的技术理论指导。</p>
-<p><code>Borg</code> 系统，一直以来都被誉为 <code>Google</code> 公司内部最强大的 <strong>秘密武器</strong>。虽然略显夸张，但这个说法倒不算是吹牛。因为，相比于 <code>Spanner</code>、<code>BigTable</code> 等相对上层的项目，<code>Borg</code> 要承担的责任，是承载 <code>Google</code> 公司整个基础设施的核心依赖。在 <code>Google</code> 公司已经公开发表的基础设施体系论文中，<code>Borg</code> 项目当仁不让地位居整个基础设施技术栈的最底层。</p>
-<p><img src="/images/container-orchestration-and-kubernetes/google-stack.png" alt="google-stack"></p>
-<p>上图，来自于 <code>Google Omega</code> 论文的第一作者的博士毕业论文。它描绘了当时 <code>Google</code> 已经公开发表的整个基础设施栈。在这个图里，你既可以找到 <code>MapReduce</code>、<code>BigTable</code> 等知名项目，也能看到 <code>Borg</code> 和它的继任者 <code>Omega</code> 位于整个技术栈的最底层。</p>
-<p>正是由于这样的定位，<code>Borg</code> 可以说是 <code>Google</code> 最不可能开源的一个项目。而幸运的是，得益于 <code>Docker</code> 项目和容器技术的风靡，它终于得以以另一种方式与开源社区见面，这个方式就是 <code>Kubernetes</code> 项目。</p>
-<p>所以，相比于 <strong>小打小闹</strong> 的 <code>Docker</code> 公司、<strong>旧瓶装新酒</strong> 的 <code>Mesos</code> 社区，<strong><code>Kubernetes</code> 项目从一开始就比较幸运地站上了一个他人难以企及的高度</strong>: 在它的成长阶段，这个项目每一个核心特性的提出，几乎都脱胎于 <code>Borg/Omega</code> 系统的设计与经验。更重要的是，这些特性在开源社区落地的过程中，又在整个社区的合力之下得到了极大的改进，修复了很多当年遗留在 <code>Borg</code> 体系中的缺陷和问题。</p>
-<p>所以，尽管在发布之初被批评是 <strong>曲高和寡</strong>，但是在逐渐觉察到 <code>Docker</code> 技术栈的 <strong>稚嫩</strong> 和 <code>Mesos</code> 社区的 <strong>老迈</strong> 之后，这个社区很快就明白了: <code>Kubernetes</code> 项目在 <code>Borg</code> 体系的指导下，体现出了一种独有的 <strong>先进性</strong> 与 <strong>完备性</strong>，而这些特质才是一个基础设施领域开源项目赖以生存的核心价值。</p>
-<h2 id="Kubernetes-解决了什么问题"><a href="#Kubernetes-解决了什么问题" class="headerlink" title="Kubernetes 解决了什么问题"></a>Kubernetes 解决了什么问题</h2><p>在说明 <code>Kubernetes</code> 解决了什么问题之前，先来讨论一下，用户期望 <code>Kubernetes</code> 有什么样的功能。</p>
-<p>对于大多数用户来说，他们希望 <code>Kubernetes</code> 项目带来的体验是确定的: 现在我有了应用的容器镜像，请帮我在一个给定的集群上把这个应用运行起来。</p>
-<p>更进一步地说，还希望 <code>Kubernetes</code> 能给我提供路由 <strong>网关</strong>、<strong>水平扩展</strong>、<strong>监控</strong>、<strong>备份</strong>、<strong>灾难恢复</strong> 等一系列运维能力。</p>
-<p>解决发现，这就是对于 <code>PaaS(Cloud Foundry)</code> 同等的诉求。</p>
-<p>但是，这些功能完全可以通过 <code>Docker</code> 及其生态圈 <code>Docker Compose</code> + <code>Docker Swarm</code> 自行实现，完全不知道实现一个 <strong>百万行代码量级</strong> 的 <code>Kubernetes</code></p>
-<p>所以说，如果 <code>Kubernetes</code> 项目只是停留在拉取用户镜像、运行容器，以及提供常见的运维功能的话，那么别说跟 <strong>原生</strong> 的 <code>Docker Swarm</code> 项目竞争了，哪怕跟经典的 <code>PaaS</code> 项目相比也难有什么优势可言。</p>
-<p>而实际上，在定义核心功能的过程中，<code>Kubernetes</code> 项目是站在巨人 <code>Borg</code> 项目的肩膀之上，凭借 <code>Borg</code> 超前的理论优势，在短短几个月内迅速站稳了脚跟，进而确定了一个如下图所示的全局架构:</p>
-<p><img src="/images/container-orchestration-and-kubernetes/k8s-architecture.png" alt="k8s-architecture"></p>
-<p>可以看到，<code>Kubernetes</code> 项目的架构与原型项目 <code>Borg</code> 非常类似，都由 <code>Master</code> 和 <code>Node</code> 两种节点组成，分别用作控制节点和计算节点。</p>
-<p>其中，控制节点，即 <code>Master</code> 节点，由 <strong>三个</strong> 紧密协作的独立组件组合而成，它们分别是<strong>负责 <code>API</code> 服务的 <code>kube-apiserver</code></strong>、<strong>负责调度的 <code>kube-scheduler</code></strong>，以及 <strong>负责容器编排的 <code>kube-controller-manager</code></strong>。整个集群的持久化数据，由 <code>kube-apiserver</code> 处理后保存在 <code>ETCD</code> 中。</p>
-<p>而计算节点上最核心的部分，则是一个叫作 <code>kubelet</code> 的组件。</p>
-<p>在 <code>Kubernetes</code> 项目中，<code>kubelet</code> 主要负责同容器运行时(比如 <code>Docker</code> 项目)打交道。而这个交互所依赖的，是一个称作 <code>CRI(Container Runtime Interface)</code> 的远程调用接口，这个接口定义了容器运行时的各项核心操作，比如: 启动一个容器需要的所有参数。</p>
-<p>这也是为何，<code>Kubernetes</code> 项目并不关心你部署的是什么容器运行时、使用的什么技术实现，只要你的这个容器运行时能够运行标准的容器镜像，它就可以通过实现 <code>CRI</code> 接入到 <code>Kubernetes</code> 项目当中。</p>
-<p>而具体的容器运行时，比如 <code>Docker</code> 项目，则一般通过 <code>OCI</code> 这个容器运行时规范同底层的 <code>Linux</code> 操作系统进行交互，即: 把 <code>CRI</code> 请求翻译成对 <code>Linux</code> 操作系统的调用(操作 <code>Linux Namespace</code> 和 <code>Cgroups</code> 等)。</p>
-<p>此外，<code>kubelet</code> 还通过 <code>gRPC</code> 协议同一个叫作 <code>Device Plugin</code> 的插件进行交互。这个插件，是 <code>Kubernetes</code> 项目用来管理 <code>GPU</code> 等宿主机物理设备的主要组件，也是基于 <code>Kubernetes</code> 项目进行机器学习训练、高性能作业支持等工作必须关注的功能。</p>
-<p>而 <code>kubelet</code> 的另一个重要功能，则是调用网络插件和存储插件为容器配置网络和持久化存储。这两个插件与 <code>kubelet</code> 进行交互的接口，分别是 <code>CNI(Container Networking Interface)</code>和 <code>CSI(Container Storage Interface)</code>。</p>
-<p>实际上，<code>kubelet</code> 这个奇怪的名字，来自于 <code>Borg</code> 项目里的同源组件 <code>Borglet</code>。不过，如果你浏览过 <code>Borg</code> 论文的话，就会发现，这个命名方式可能是 <code>kubelet</code> 组件与 <code>Borglet</code> 组件的唯一相似之处。因为 <code>Borg</code> 项目，并不支持我们这里所讲的容器技术，而只是简单地使用了 <code>Linux Cgroups</code> 对进程进行限制。</p>
-<p>这就意味着，像 <code>Docker</code> 这样的“容器镜像”在 <code>Borg</code> 中是不存在的，<code>Borglet</code> 组件也自然不需要像 <code>kubelet</code> 这样考虑如何同 <code>Docker</code> 进行交互、如何对容器镜像进行管理的问题，也不需要支持 <code>CRI</code>、<code>CNI</code>、<code>CSI</code> 等诸多容器技术接口。</p>
-<p>可以说，<code>kubelet</code> 完全就是为了实现 <code>Kubernetes</code> 项目对容器的管理能力而重新实现的一个组件，与 <code>Borg</code> 之间并没有直接的传承关系。</p>
-<p>那么，<code>Borg</code> 对于 <code>Kubernetes</code> 项目的指导作用又体现在哪里呢？</p>
-<p>答案是，<code>Master</code> 节点。</p>
-<p>虽然在 <code>Master</code> 节点的实现细节上 <code>Borg</code> 项目与 <code>Kubernetes</code> 项目不尽相同，但它们的出发点却高度一致，即: <strong>如何编排、管理、调度用户提交的作业</strong>。</p>
-<p>所以，<code>Borg</code> 项目完全可以把 <code>Docker</code> 镜像看作一种新的应用打包方式。这样，<code>Borg</code> 团队过去在大规模作业管理与编排上的经验就可以直接 <strong>套</strong> 在 <code>Kubernetes</code> 项目上了。</p>
-<p>这些经验最主要的表现就是，从一开始，<code>Kubernetes</code> 项目就没有像同时期的各种 <strong>容器云</strong> 项目那样，把 <code>Docker</code> 作为整个架构的核心，而仅仅把它作为最底层的一个容器运行时实现。</p>
-<p>而 <code>Kubernetes</code> 项目要着重解决的问题，则来自于 <code>Borg</code> 的研究人员在论文中提到的一个非常重要的观点:</p>
-<blockquote>
-<p>运行在大规模集群中的各种任务之间，实际上存在着各种各样的关系。这些关系的处理，才是作业编排和管理系统最困难的地方。</p>
-</blockquote>
-<p>事实也正是如此。</p>
-<p>其实，这种任务与任务之间的关系，在我们平常的各种技术场景中随处可见。比如，一个 <code>Web</code> 应用与数据库之间的访问关系，一个负载均衡器和它的后端服务之间的代理关系，一个门户应用与授权组件之间的调用关系。</p>
-<p>更进一步地说，同属于一个服务单位的不同功能之间，也完全可能存在这样的关系。比如，一个 <code>Web</code> 应用与日志搜集组件之间的文件交换关系。</p>
-<h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><ul>
-<li><a href="http://malteschwarzkopf.de/research/assets/google-stack.pdf" target="_blank" rel="noopener">The Google Stack</a></li>
-</ul>
-
-    
-
-    
-    <div class="page-reward">
-      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
-        <div class="tooltip tooltip-east">
-          <span class="tooltip-item">
-            赏
-          </span>
-          <span class="tooltip-content">
-            <span class="tooltip-text">
-              <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
-                    class="icon icon-quo-right"></i></p>
-                <div class="reward-box">
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/alipay.jpg">
-                    <span class="reward-type">支付宝</span>
-                  </div>
-                  
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/wechatpay.png">
-                    <span class="reward-type">微信</span>
-                  </div>
-                  
-                </div>
-              </span>
-            </span>
-          </span>
-        </div>
-      </a>
-    </div>
-    
-
-    
-    <div class="declare"> 
-      <ul class="post-copyright">
-        <li>
-          <strong>本文作者：</strong>
-          divinerapier
-        </li>
-        <li>
-          <strong>本文链接：</strong>
-          <a href="http://divinerapier.github.io/2020/08/24/container-orchestration-and-kubernetes/" title="容器编排与 Kubernetes" target="_blank">http://divinerapier.github.io/2020/08/24/container-orchestration-and-kubernetes/</a>
-        </li>
-        
-        <li>
-          <strong>版权声明： </strong>
+        <div class="article-info info-on-right">
           
-          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
-        </li>
-        
-      </ul>
-    </div>
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">container orchestration</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">lsm tree</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">sstable</a>
         		</li>
       		
 		</ul>
 	</div>
 
-    
+          
 
-    
-
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/08/24/container-orchestration-and-kubernetes/" alt="微信分享二维码"> -->
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
-    <div class="clearfix"></div>
-  </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-
-<nav id="article-nav">
-  
-    <a href="/2020/08/26/log-structured-merge-trees/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          log-structured-merge-trees
-        
-      </div>
-    </a>
   
   
-    <a href="/2020/08/22/load-average/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">CPU 平均工作负载</div>
-      <i class="icon-circle-right"></i>
-    </a>
+    </div></section>
   
-</nav>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
           </div>
@@ -499,9 +262,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
+		isPost: false,
 		isArchive: false,
-		isTag: false,
+		isTag: true,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
