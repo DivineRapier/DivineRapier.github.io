@@ -221,6 +221,13 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/cpu-performance/</loc>
+    <lastmod>2020-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/lsm-tree/</loc>
     <lastmod>2020-08-31</lastmod>
     <changefreq>daily</changefreq>
@@ -229,13 +236,6 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/sstable/</loc>
-    <lastmod>2020-08-31</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/cpu-performance/</loc>
     <lastmod>2020-08-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
