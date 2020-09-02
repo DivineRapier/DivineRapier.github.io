@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/</loc>
+    
+    <lastmod>2020-09-02</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/2020/09/02/enable-rss-on-hexo/</loc>
     
     <lastmod>2020-09-02</lastmod>
@@ -12,13 +19,6 @@
     <loc>http://divinerapier.github.io/2020/08/31/why-do-we-need-pods/</loc>
     
     <lastmod>2020-09-01</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/</loc>
-    
-    <lastmod>2020-08-26</lastmod>
     
   </url>
   

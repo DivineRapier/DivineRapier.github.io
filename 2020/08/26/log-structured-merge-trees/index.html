@@ -10,16 +10,16 @@
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb&#x2F;cassandra or a messaging system like pulsar which is backed by bookkeeper.">
+  <meta name="description" content="转自 Log Structured Merge Trees。 LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb&#x2F;cassandra or a messaging system like pulsar">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Log Structured Merge Trees">
 <meta property="og:url" content="http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb&#x2F;cassandra or a messaging system like pulsar which is backed by bookkeeper.">
+<meta property="og:description" content="转自 Log Structured Merge Trees。 LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb&#x2F;cassandra or a messaging system like pulsar">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://divinerapier.github.io/images/log-structured-merge-trees/01.png">
 <meta property="article:published_time" content="2020-08-26T13:37:03.000Z">
-<meta property="article:modified_time" content="2020-08-26T14:36:52.225Z">
+<meta property="article:modified_time" content="2020-09-02T12:57:56.927Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="lsm tree">
 <meta property="article:tag" content="sstable">
@@ -204,7 +204,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">900字</span>
+      <span class="post-count">906字</span>
     </span>
   </span>
 
@@ -224,7 +224,8 @@
   
   <div class="article-entry" itemprop="articleBody">
     
-    <p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
+    <p>转自 <a href="https://medium.com/swlh/log-structured-merge-trees-9c8e2bea89e8" target="_blank" rel="noopener">Log Structured Merge Trees</a>。</p>
+<p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
 <p>The various components of a typical LSM backed system are shown below.</p>
 <p><img src="/images/log-structured-merge-trees/01.png" alt="01"></p>
 <p>The main reason why LSM provides high write throughput is that every write request is actually performed only <strong>in-memory</strong> in contrast to traditional B-Tree based implementation where the updates are done to disk which can trigger an update to an index making it very expensive.</p>

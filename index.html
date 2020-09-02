@@ -472,7 +472,8 @@
   
   <div class="article-entry" itemprop="articleBody">
     
-    <p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
+    <p>转自 <a href="https://medium.com/swlh/log-structured-merge-trees-9c8e2bea89e8" target="_blank" rel="noopener">Log Structured Merge Trees</a>。</p>
+<p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
 <p>The various components of a typical LSM backed system are shown below.</p>
 <p><img src="/images/log-structured-merge-trees/01.png" alt="01"></p>
 <p>The main reason why LSM provides high write throughput is that every write request is actually performed only <strong>in-memory</strong> in contrast to traditional B-Tree based implementation where the updates are done to disk which can trigger an update to an index making it very expensive.</p>
