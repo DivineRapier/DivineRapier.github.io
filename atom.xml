@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-09-01T09:43:04.896Z</updated>
+  <updated>2020-09-02T12:46:10.477Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>让你的 Hexo 博客支持 RSS</title>
+    <link href="http://divinerapier.github.io/2020/09/02/enable-rss-on-hexo/"/>
+    <id>http://divinerapier.github.io/2020/09/02/enable-rss-on-hexo/</id>
+    <published>2020-09-02T12:37:46.000Z</published>
+    <updated>2020-09-02T12:46:10.477Z</updated>
+    
+    <content type="html"><![CDATA[<p>让博客支持 <code>RSS</code> 是一种美好的品德。</p><ul><li><p>安装 <code>RSS</code> 插件</p>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-feed</span><br></pre></td></tr></table></figure></li><li><p>配置博客 <code>_config.uml</code></p>  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Extensions</span></span><br><span class="line"><span class="attr">plugins:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">hexo-generator-feed</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Feed Atom</span></span><br><span class="line"><span class="attr">feed:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">atom</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">atom.xml</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">20</span></span><br></pre></td></tr></table></figure></li><li><p>配置主题 <code>_config.yml</code></p>  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># RSS订阅</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">/atom.xml</span></span><br></pre></td></tr></table></figure></li><li><p>客户端订阅</p><p>  使用 <code>RSS</code> 客户端订阅 <code>http(s)://${YOUR_BLOG_HOST}/atom.xml</code>。</p></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;让博客支持 &lt;code&gt;RSS&lt;/code&gt; 是一种美好的品德。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;安装 &lt;code&gt;RSS&lt;/code&gt; 插件&lt;/p&gt;
+  &lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter</summary>
+      
+    
+    
+    
+    
+    <category term="hexo" scheme="http://divinerapier.github.io/tags/hexo/"/>
+    
+    <category term="rss" scheme="http://divinerapier.github.io/tags/rss/"/>
+    
+  </entry>
   
   <entry>
     <title>Pod 的意义</title>
