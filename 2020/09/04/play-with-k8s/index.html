@@ -6,16 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Tag: container orchestration | お可愛いこと</title>
+  <title>Play with Kubernetes | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="お可愛いこと">
-<meta property="og:url" content="http://divinerapier.github.io/tags/container-orchestration/index.html">
+  <meta name="description" content="Play with Kubernetes 是一个可以在浏览器使用的 CentOS 虚拟机环境，允许用户通过 github 账号登录。在这里，用户可以部署，学习使用 k8s。 跳过前面一些很简单的操作。在左侧添加 4 台虚拟机。每一台新创建的虚拟机控制台界面会有如下的提示: 12345678910111213 1. Initializes cluster master node: kubeadm i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Play with Kubernetes">
+<meta property="og:url" content="http://divinerapier.github.io/2020/09/04/play-with-k8s/index.html">
 <meta property="og:site_name" content="お可愛いこと">
+<meta property="og:description" content="Play with Kubernetes 是一个可以在浏览器使用的 CentOS 虚拟机环境，允许用户通过 github 账号登录。在这里，用户可以部署，学习使用 k8s。 跳过前面一些很简单的操作。在左侧添加 4 台虚拟机。每一台新创建的虚拟机控制台界面会有如下的提示: 12345678910111213 1. Initializes cluster master node: kubeadm i">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-09-04T00:08:52.000Z">
+<meta property="article:modified_time" content="2020-09-04T05:21:29.179Z">
 <meta property="article:author" content="divinerapier">
+<meta property="article:tag" content="k8s">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -163,69 +168,260 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-play-with-k8s" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/24/container-orchestration-and-kubernetes/" class="archive-article-date">
-        <time datetime="2020-08-24T12:58:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-24</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/24/container-orchestration-and-kubernetes/" target="_blank">容器编排与 Kubernetes</a>
   
+    <h1 class="article-title" itemprop="name">
+      Play with Kubernetes
     </h1>
   
 
 
-        <div class="article-info info-on-right">
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2020/09/04/play-with-k8s/" class="archive-article-date">
+        <time datetime="2020-09-04T00:08:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-04</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">533字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">2分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p><a href="http://labs.play-with-k8s.com/" target="_blank" rel="noopener">Play with Kubernetes</a> 是一个可以在浏览器使用的 <code>CentOS</code> 虚拟机环境，允许用户通过 <code>github</code> 账号登录。在这里，用户可以部署，学习使用 <code>k8s</code>。</p>
+<p>跳过前面一些很简单的操作。在左侧添加 4 台虚拟机。每一台新创建的虚拟机控制台界面会有如下的提示:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> 1. Initializes cluster master node:</span><br><span class="line"></span><br><span class="line"> kubeadm init --apiserver-advertise-address $(hostname -i) --pod-network-cidr 10.5.0.0&#x2F;16</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> 2. Initialize cluster networking:</span><br><span class="line"></span><br><span class="line">kubectl apply -f https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;cloudnativelabs&#x2F;kube-router&#x2F;master&#x2F;daemonset&#x2F;kubeadm-kuberouter.yaml</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> 3. (Optional) Create an nginx deployment:</span><br><span class="line"></span><br><span class="line"> kubectl apply -f https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;kubernetes&#x2F;website&#x2F;master&#x2F;content&#x2F;en&#x2F;examples&#x2F;application&#x2F;nginx-app.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="搭建-Kubernetes-环境"><a href="#搭建-Kubernetes-环境" class="headerlink" title="搭建 Kubernetes 环境"></a>搭建 Kubernetes 环境</h2><p>在 <code>node-1</code> 中执行第一条命令，创建 <code>Master</code> 节点(虽然有 BLM 运动，但我不在乎)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ kubeadm init --apiserver-advertise-address $(hostname -i) --pod-network-cidr 10.5.0.0/16</span><br><span class="line">...</span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"></span><br><span class="line">  mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run <span class="string">"kubectl apply -f [podnetwork].yaml"</span> with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"></span><br><span class="line">kubeadm join 192.168.0.38:6443 --token xguam5.v5vgzeifjipno115 \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:6ea81a284c1b7a5aeec9eb01c8856602f1f3e6f2edd5593816c27224bbccb960</span><br><span class="line">Waiting <span class="keyword">for</span> api server to startup</span><br><span class="line">Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply</span><br><span class="line">daemonset.apps/kube-proxy configured</span><br><span class="line">No resources found</span><br></pre></td></tr></table></figure>
+
+<p>然后，从上述命令的输出中找到 <code>Worker</code> 节点加入 <code>Master</code> 节点的命令，在 <code>node[2-4]</code> 节点分别执行命令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join 192.168.0.38:6443 --token xguam5.v5vgzeifjipno115 \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:6ea81a284c1b7a5aeec9eb01c8856602f1f3e6f2edd5593816c27224bbccb960</span><br></pre></td></tr></table></figure>
+
+<p>执行完成之后，<code>node[2-4]</code> 就成功加入了 <code>Kubernetes</code> 集群中。在 <code>Master</code> 节点，即 <code>node-1</code> 上执行命令验证:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get nodes</span><br><span class="line">NAME    STATUS     ROLES    AGE   VERSION</span><br><span class="line">node1   Ready      master   14m   v1.18.4</span><br><span class="line">node2   Ready      &lt;none&gt;   12m   v1.18.4</span><br><span class="line">node3   NotReady   &lt;none&gt;   13s   v1.18.4</span><br><span class="line">node4   NotReady   &lt;none&gt;   5s    v1.18.4</span><br></pre></td></tr></table></figure>
+
+<p>最后部署网络插件 <code>kube-router</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter.yaml</span><br><span class="line">configmap/kube-router-cfg unchanged</span><br><span class="line">daemonset.apps/kube-router configured</span><br><span class="line">serviceaccount/kube-router unchanged</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/kube-router unchanged</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/kube-router unchanged</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>部署完了，用去吧。</p>
+
+    
+
+    
+    <div class="page-reward">
+      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
+        <div class="tooltip tooltip-east">
+          <span class="tooltip-item">
+            赏
+          </span>
+          <span class="tooltip-content">
+            <span class="tooltip-text">
+              <span class="tooltip-inner">
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
+                    class="icon icon-quo-right"></i></p>
+                <div class="reward-box">
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/alipay.jpg">
+                    <span class="reward-type">支付宝</span>
+                  </div>
+                  
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/wechatpay.png">
+                    <span class="reward-type">微信</span>
+                  </div>
+                  
+                </div>
+              </span>
+            </span>
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          divinerapier
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="http://divinerapier.github.io/2020/09/04/play-with-k8s/" title="Play with Kubernetes" target="_blank">http://divinerapier.github.io/2020/09/04/play-with-k8s/</a>
+        </li>
+        
+        <li>
+          <strong>版权声明： </strong>
           
+          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">container orchestration</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+    
 
     
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/09/04/play-with-k8s/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+
+<nav id="article-nav">
+  
+    <a href="/2020/09/04/projected-volumes/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          投射数据卷 (TBC)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/09/02/the-basics-of-pods/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Pod 的基本概念</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
           </div>
@@ -266,9 +462,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
