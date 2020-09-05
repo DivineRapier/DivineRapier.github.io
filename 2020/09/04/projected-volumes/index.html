@@ -18,7 +18,7 @@
 <meta property="og:description" content="投射数据卷 的官方名称为: projected volume。Project 在这里的意思为 投射。感谢 k8s 帮助我学习英语。 官方定义为:  A projected volume maps several existing volume sources into the same directory.  Projected Volumes 存在的意义不是为了存放容器里的数据，也不是用来进行容">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-09-04T00:39:17.000Z">
-<meta property="article:modified_time" content="2020-09-04T05:21:55.599Z">
+<meta property="article:modified_time" content="2020-09-04T11:37:43.223Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="pod">
@@ -202,7 +202,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">321字</span>
+      <span class="post-count">387字</span>
     </span>
   </span>
 
@@ -239,7 +239,13 @@
 
 <p>首先，可以看到 <code>volumes</code> 与 <code>containers</code> 是同级的属性字段，同属于 <code>pod</code> 的信息。其次，在上述示例中，使用了三种 <code>Projected Volume</code>。</p>
 <p>在有了初步认识之后，接下来对每一种 <code>Projected Volume</code> 做出更详细的说明。</p>
-<h2 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h2><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<h2 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h2><h3 id="通过命令行创建-Secret"><a href="#通过命令行创建-Secret" class="headerlink" title="通过命令行创建 Secret"></a>通过命令行创建 Secret</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">'admin'</span> &gt; ./user.txt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'password'</span> &gt; ./pass.txt</span><br><span class="line"></span><br><span class="line">kubectl create secret generic user --from-file=./user.txt</span><br><span class="line">kubectl create secret generic pass --from-file=./pass.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="通过-YAML-创建-Secret"><a href="#通过-YAML-创建-Secret" class="headerlink" title="通过 YAML 创建 Secret"></a>通过 YAML 创建 Secret</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Secret</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">mysecret</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">Opaque</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">YWRtaW4=</span></span><br><span class="line">  <span class="attr">pass:</span> <span class="string">cGFzc3dvcmQ=</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="列出集群中的-Secret"><a href="#列出集群中的-Secret" class="headerlink" title="列出集群中的 Secret"></a>列出集群中的 Secret</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get secrets</span><br><span class="line">NAME                  TYPE                                  DATA   AGE</span><br><span class="line">pass                  Opaque                                1      13s</span><br><span class="line">user                  Opaque                                1      18s</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
 <li><a href="https://kubernetes.io/docs/concepts/storage/volumes/#projected" target="_blank" rel="noopener">Projected Volumes</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-projected-volume-storage/" target="_blank" rel="noopener">Configure a Pod to Use a Projected Volume for Storage</a></li>
 </ul>
@@ -385,6 +391,15 @@
 
 
 <nav id="article-nav">
+  
+    <a href="/2020/09/05/windows-terminal/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          windows-terminal
+        
+      </div>
+    </a>
   
   
     <a href="/2020/09/04/play-with-k8s/" id="article-nav-older" class="article-nav-link-wrap">
@@ -610,6 +625,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
@@ -619,10 +638,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">storage engine</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -667,6 +682,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
             
             <div class="clearfix"></div>
