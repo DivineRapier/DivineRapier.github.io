@@ -18,7 +18,7 @@
 <meta property="og:description" content="投射数据卷 的官方名称为: projected volume。Project 在这里的意思为 投射。感谢 k8s 帮助我学习英语。 官方定义为:  A projected volume maps several existing volume sources into the same directory.  Projected Volumes 存在的意义不是为了存放容器里的数据，也不是用来进行容">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-09-04T00:39:17.000Z">
-<meta property="article:modified_time" content="2020-09-04T11:37:43.223Z">
+<meta property="article:modified_time" content="2020-09-09T15:02:46.783Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="k8s">
 <meta property="article:tag" content="pod">
@@ -202,7 +202,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">387字</span>
+      <span class="post-count">910字</span>
     </span>
   </span>
 
@@ -211,7 +211,7 @@
     <span class="post-meta-item-icon">
       <i class="icon-book icon"></i>
       <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">1分</span>
+      <span class="post-count">4分</span>
     </span>
   </span>
 </div>
@@ -239,12 +239,44 @@
 
 <p>首先，可以看到 <code>volumes</code> 与 <code>containers</code> 是同级的属性字段，同属于 <code>pod</code> 的信息。其次，在上述示例中，使用了三种 <code>Projected Volume</code>。</p>
 <p>在有了初步认识之后，接下来对每一种 <code>Projected Volume</code> 做出更详细的说明。</p>
-<h2 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h2><h3 id="通过命令行创建-Secret"><a href="#通过命令行创建-Secret" class="headerlink" title="通过命令行创建 Secret"></a>通过命令行创建 Secret</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">'admin'</span> &gt; ./user.txt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'password'</span> &gt; ./pass.txt</span><br><span class="line"></span><br><span class="line">kubectl create secret generic user --from-file=./user.txt</span><br><span class="line">kubectl create secret generic pass --from-file=./pass.txt</span><br></pre></td></tr></table></figure>
+<h2 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h2><p><code>Secret</code> 最常见的用法是保存认证信息，比如数据库等。这些数据会被保存在内部的 <code>ETCD</code> 中，可以通过将 <code>Secret</code> 以 <code>Volume</code> 的形式挂载到 <code>Pod</code> 上的方式，允许 <code>Pod</code> 使用 <code>Secret</code> 中的数据。</p>
+<p>接下来介绍两种创建 <code>Secret</code> 以及使用的方式。</p>
+<h3 id="命令行方式"><a href="#命令行方式" class="headerlink" title="命令行方式"></a>命令行方式</h3><h4 id="通过命令行创建-Secret"><a href="#通过命令行创建-Secret" class="headerlink" title="通过命令行创建 Secret"></a>通过命令行创建 Secret</h4><p>使用如下命令创建两个 <code>Secret</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">'admin'</span> &gt; ./user.txt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'password'</span> &gt; ./pass.txt</span><br><span class="line"></span><br><span class="line">kubectl create secret generic user --from-file=./user.txt</span><br><span class="line">kubectl create secret generic pass --from-file=./pass.txt</span><br></pre></td></tr></table></figure>
 
-<h3 id="通过-YAML-创建-Secret"><a href="#通过-YAML-创建-Secret" class="headerlink" title="通过 YAML 创建 Secret"></a>通过 YAML 创建 Secret</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Secret</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">mysecret</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">Opaque</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">YWRtaW4=</span></span><br><span class="line">  <span class="attr">pass:</span> <span class="string">cGFzc3dvcmQ=</span></span><br></pre></td></tr></table></figure>
+<h4 id="查询-Secret"><a href="#查询-Secret" class="headerlink" title="查询 Secret"></a>查询 Secret</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get secrets</span><br><span class="line">NAME                  TYPE                                  DATA   AGE</span><br><span class="line">pass                  Opaque                                1      13s</span><br><span class="line">user                  Opaque                                1      18s</span><br></pre></td></tr></table></figure>
 
-<h3 id="列出集群中的-Secret"><a href="#列出集群中的-Secret" class="headerlink" title="列出集群中的 Secret"></a>列出集群中的 Secret</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get secrets</span><br><span class="line">NAME                  TYPE                                  DATA   AGE</span><br><span class="line">pass                  Opaque                                1      13s</span><br><span class="line">user                  Opaque                                1      18s</span><br></pre></td></tr></table></figure>
+<h4 id="在-Pod-中使用-Secret"><a href="#在-Pod-中使用-Secret" class="headerlink" title="在 Pod 中使用 Secret"></a>在 Pod 中使用 Secret</h4><p>生成一个 <code>yaml</code> 文件，引用上面的 <code>Secret</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成 yaml，在 volumes.projected 中指定上面的 user 与 pass</span></span><br><span class="line">$ cat &lt;&lt; EOF &gt;&gt; busybox.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: <span class="built_in">test</span>-projected-volume</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: <span class="built_in">test</span>-secret-volume</span><br><span class="line">    image: busybox</span><br><span class="line">    args:</span><br><span class="line">    - sleep</span><br><span class="line">    - <span class="string">"86400"</span></span><br><span class="line">    volumeMounts:</span><br><span class="line">    - name: mysql-cred</span><br><span class="line">      mountPath: <span class="string">"/projected-volume"</span></span><br><span class="line">      readOnly: <span class="literal">true</span></span><br><span class="line">  volumes:</span><br><span class="line">  - name: mysql-cred</span><br><span class="line">    projected:</span><br><span class="line">      sources:</span><br><span class="line">      - secret:</span><br><span class="line">          name: user</span><br><span class="line">      - secret:</span><br><span class="line">          name: pass</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 pod</span></span><br><span class="line">$ kubectl apply -f ./busybox.yaml</span><br><span class="line">pod/<span class="built_in">test</span>-projected-volume created</span><br></pre></td></tr></table></figure>
 
+<h4 id="在-Pod-中查看-Secret-数据"><a href="#在-Pod-中查看-Secret-数据" class="headerlink" title="在 Pod 中查看 Secret 数据"></a>在 Pod 中查看 Secret 数据</h4><p>进入到 <code>Pod</code> 中:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl <span class="built_in">exec</span> -ti <span class="built_in">test</span>-projected-volume -- sh</span><br><span class="line">/ <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>查看 <code>Secret</code> 数据:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># ls /projected-volume/</span></span><br><span class="line">user.txt</span><br><span class="line">pass.txt</span><br><span class="line">/ <span class="comment"># cat /projected-volume/user.txt</span></span><br><span class="line">admin</span><br><span class="line">/ <span class="comment"># cat /projected-volume/pass.txt</span></span><br><span class="line">password</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，在 <code>mountPath</code> 指定的路径下面有预先定义好的 <code>Secret</code>，并且文件名就是 <code>--from-file</code> 指定的参数。</p>
+<h3 id="yaml-方式"><a href="#yaml-方式" class="headerlink" title="yaml 方式"></a>yaml 方式</h3><h4 id="通过-yaml-创建-Secret"><a href="#通过-yaml-创建-Secret" class="headerlink" title="通过 yaml 创建 Secret"></a>通过 yaml 创建 Secret</h4><p>创建 <code>Secret</code> 的配置文件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ cat &lt;&lt; EOF &gt;&gt; secret.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Secret</span><br><span class="line">metadata:</span><br><span class="line">  name: mysecret</span><br><span class="line"><span class="built_in">type</span>: Opaque</span><br><span class="line">data:</span><br><span class="line">  user: YWRtaW4=</span><br><span class="line">  pass: cGFzc3dvcmQ=</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>Kubernetes</code> 中创建 <code>Secret</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl apply -f ./secret.yml</span><br><span class="line">secret/mysecret created</span><br></pre></td></tr></table></figure>
+
+<h4 id="查询-Secret-1"><a href="#查询-Secret-1" class="headerlink" title="查询 Secret"></a>查询 Secret</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get secrets</span><br><span class="line">NAME                  TYPE                                  DATA   AGE</span><br><span class="line">mysecret              Opaque                                2      3m23s</span><br></pre></td></tr></table></figure>
+
+<p>结果与使用命令行的方式有一些区别。</p>
+<h4 id="在-Pod-中使用-Secret-1"><a href="#在-Pod-中使用-Secret-1" class="headerlink" title="在 Pod 中使用 Secret"></a>在 Pod 中使用 Secret</h4><p>生成一个 <code>yaml</code> 文件，引用上面的 <code>Secret</code>，需要注意 <code>secret.name</code> 应使用 <code>mysecret</code>，同时，数量从刚才的 <strong>2个</strong> 变成了 <strong>1个</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ cat &lt;&lt; EOF &gt;&gt; busybox.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: <span class="built_in">test</span>-projected-volume</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: <span class="built_in">test</span>-secret-volume</span><br><span class="line">    image: busybox</span><br><span class="line">    args:</span><br><span class="line">    - sleep</span><br><span class="line">    - <span class="string">"86400"</span></span><br><span class="line">    volumeMounts:</span><br><span class="line">    - name: mysql-cred</span><br><span class="line">      mountPath: <span class="string">"/projected-volume"</span></span><br><span class="line">      readOnly: <span class="literal">true</span></span><br><span class="line">  volumes:</span><br><span class="line">  - name: mysql-cred</span><br><span class="line">    projected:</span><br><span class="line">      sources:</span><br><span class="line">      - secret:</span><br><span class="line">          name: mysecret</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 pod</span></span><br><span class="line">$ kubectl apply -f ./busybox.yaml</span><br><span class="line">pod/<span class="built_in">test</span>-projected-volume created</span><br></pre></td></tr></table></figure>
+
+<h4 id="在-Pod-中查看-Secret-数据-1"><a href="#在-Pod-中查看-Secret-数据-1" class="headerlink" title="在 Pod 中查看 Secret 数据"></a>在 Pod 中查看 Secret 数据</h4><p>进入到 <code>Pod</code> 中:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl <span class="built_in">exec</span> -ti <span class="built_in">test</span>-projected-volume -- sh</span><br><span class="line">/ <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>查看 <code>Secret</code> 数据:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># ls /projected-volume/</span></span><br><span class="line">pass  user</span><br><span class="line">/ <span class="comment"># cat /projected-volume/user</span></span><br><span class="line">admin</span><br><span class="line">/ <span class="comment"># cat /projected-volume/pass.txt</span></span><br><span class="line">password</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，在 <code>mountPath</code> 指定的路径下面有预先定义好的 <code>Secret</code>，并且文件名就是创建 <code>Secret</code> 的 <code>yaml</code> 文件中，<code>data</code> 字段的 <code>key</code>，内容为对应 <code>value</code> 经过 <code>base64</code> 解码之后的结果。</p>
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
 <li><a href="https://kubernetes.io/docs/concepts/storage/volumes/#projected" target="_blank" rel="noopener">Projected Volumes</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-projected-volume-storage/" target="_blank" rel="noopener">Configure a Pod to Use a Projected Volume for Storage</a></li>
@@ -581,6 +613,22 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">container</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">docker image</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mount namespace</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
@@ -602,22 +650,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">container</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">docker image</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mount namespace</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
               </li>
              
               <li class="article-tag-list-item">
