@@ -43,11 +43,11 @@
   </entry>
   
   <entry>
-    <title>挂载 NFS</title>
+    <title>使用 NFS</title>
     <link href="http://divinerapier.github.io/2020/10/02/how-to-use-nfs/"/>
     <id>http://divinerapier.github.io/2020/10/02/how-to-use-nfs/</id>
     <published>2020-10-02T08:18:20.000Z</published>
-    <updated>2020-10-06T06:36:22.574Z</updated>
+    <updated>2020-10-06T06:37:26.440Z</updated>
     
     <content type="html"><![CDATA[<p>查看被分享目录的属性:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">stat</span> /public</span><br><span class="line">  File: /public</span><br><span class="line">  Size: 4096            Blocks: 8          IO Block: 4096   directory</span><br><span class="line">Device: 802h/2050d      Inode: 58982401    Links: 2</span><br><span class="line">Access: (0777/drwxrwxrwx)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2020-10-02 16:25:03.129246127 +0800</span><br><span class="line">Modify: 2020-10-02 16:24:56.129203697 +0800</span><br><span class="line">Change: 2020-10-02 16:24:56.129203697 +0800</span><br><span class="line"> Birth: -</span><br></pre></td></tr></table></figure><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo exportfs -avrf</span><br><span class="line">exporting *:/public</span><br></pre></td></tr></table></figure><p>服务端 <strong>/etc/exports</strong> 配置如下:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;public *(rw,sync,no_subtree_check)</span><br></pre></td></tr></table></figure><p>确认被 NFS 导出的本地文件系统:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo exportfs -avrf</span><br><span class="line">exporting *:/public</span><br></pre></td></tr></table></figure><p>在客户端查看远端配置:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ showmount -e 192.168.50.5</span><br><span class="line">Export list <span class="keyword">for</span> 192.168.50.5:</span><br><span class="line">/public                               *</span><br></pre></td></tr></table></figure><p>客户端挂载 NFS 文件系统:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -o rw,nolock -t nfs 192.168.50.5:/public ./tmp</span><br></pre></td></tr></table></figure><p>当出现如下报错信息:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount.nfs: Operation not permitted</span><br></pre></td></tr></table></figure><p>请修改 <strong>/etc/exports</strong> 内容为:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;public *(rw,sync,all_squash,no_subtree_check,insecure)</span><br></pre></td></tr></table></figure><p>然后重新执行命令挂载。</p><p>如果希望指定 <code>user</code> 与 <code>group</code> 来操作文件，可以通过在 <strong>/etc/exports</strong> 中增加选项: <strong>anonuid=1026,anongid=100</strong>。</p><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul><li><a href="https://unix.stackexchange.com/questions/252812/user-permissions-in-nfs-mounted-directory" target="_blank" rel="noopener">User permissions in NFS mounted directory</a></li><li><a href="https://access.redhat.com/solutions/3773891" target="_blank" rel="noopener">Mount failed with mount: mount.nfs: access denied by server while mounting error</a></li></ul>]]></content>
     
@@ -62,6 +62,8 @@
     
     
     <category term="nfs" scheme="http://divinerapier.github.io/tags/nfs/"/>
+    
+    <category term="filesystem" scheme="http://divinerapier.github.io/tags/filesystem/"/>
     
   </entry>
   
