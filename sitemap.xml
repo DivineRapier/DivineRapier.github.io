@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://divinerapier.github.io/2020/10/02/how-to-use-nfs/</loc>
+    
+    <lastmod>2020-10-06</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/2020/10/06/kubernetes-controllers/</loc>
     
     <lastmod>2020-10-06</lastmod>
@@ -12,13 +19,6 @@
     <loc>http://divinerapier.github.io/2020/09/30/understanding-kubernetes-objects/</loc>
     
     <lastmod>2020-10-06</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/02/permission-denied-on-mounting-nfs/</loc>
-    
-    <lastmod>2020-10-02</lastmod>
     
   </url>
   
@@ -235,20 +235,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/I-O/</loc>
-    <lastmod>2020-10-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/principles-of-i-o-hardware/</loc>
-    <lastmod>2020-10-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/container/</loc>
     <lastmod>2020-10-06</lastmod>
     <changefreq>daily</changefreq>
@@ -277,6 +263,20 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/I-O/</loc>
+    <lastmod>2020-10-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/principles-of-i-o-hardware/</loc>
+    <lastmod>2020-10-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/hexo/</loc>
     <lastmod>2020-10-06</lastmod>
     <changefreq>daily</changefreq>
@@ -285,6 +285,13 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/rss/</loc>
+    <lastmod>2020-10-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/nfs/</loc>
     <lastmod>2020-10-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -383,13 +390,6 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/select-statements/</loc>
-    <lastmod>2020-10-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/nfs/</loc>
     <lastmod>2020-10-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
