@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-10-06T06:49:54.150Z</updated>
+  <updated>2020-10-07T12:30:22.280Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -15,6 +15,43 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Kubernetes 存储卷</title>
+    <link href="http://divinerapier.github.io/2020/10/07/kubernetes-volumes/"/>
+    <id>http://divinerapier.github.io/2020/10/07/kubernetes-volumes/</id>
+    <published>2020-10-07T09:37:14.000Z</published>
+    <updated>2020-10-07T12:30:22.280Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 <strong>Docker</strong> 中，<strong><a href="https://docs.docker.com/storage/" target="_blank" rel="noopener">Volume</a></strong> 概念表示磁盘上或者另外一个容器内的一个目录。 直到最近，Docker 才支持对基于本地磁盘的 Volume 的生存期进行管理。 虽然 Docker 现在也能提供 Volume 驱动程序，但是目前功能还非常有限 （例如，截至 Docker 1.7，每个容器只允许有一个 Volume 驱动程序，并且无法将参数传递给 Volume）。</p><p>而在 <strong>Kubernetes</strong> 中，<strong>Volume</strong> 具有明确的生命周期——与其所属 <strong>Pod</strong> 相同。 因此，<strong>Volume 比 Pod 中运行的任何容器的存活期都长</strong>，在容器重新启动时数据也会得到保留。 当然，<strong>当一个 Pod 不再存在时，卷也将不再存在</strong>。 更重要的是，<strong>Kubernetes 可以支持许多类型的卷，Pod 也能同时使用任意数量的卷</strong>。</p><p><strong>Volume</strong> 的核心是包含一些数据的目录，Pod 中的容器可以访问该目录。 特定的卷类型可以决定这个目录是如何形成的，并能决定它支持何种介质，以及目录中存放什么内容。</p><p>使用 <strong>Volume</strong> 时, Pod 声明中需要提供卷的类型 (<strong>.spec.volumes</strong> 字段) 和 <strong>Volume</strong> 挂载的位置 (<strong>.spec.containers.volumeMounts</strong> 字段).</p><p>容器中的进程能看到由它们的 Docker 镜像和卷组成的文件系统视图。 <a href="https://docs.docker.com/userguide/dockerimages/" target="_blank" rel="noopener">Docker 镜像</a> 位于文件系统层次结构的根部，并且任何 Volume 都挂载在镜像内的指定路径上。 卷不能挂载到其他卷，也不能与其他卷有硬链接。 Pod 中的每个容器必须独立地指定每个卷的挂载位置(<strong>Volumes</strong> 之间的挂载点应该相互独立)。</p><h2 id="Volume-的类型"><a href="#Volume-的类型" class="headerlink" title="Volume 的类型"></a>Volume 的类型</h2><p>Kubernetes 支持下列类型的卷:</p><ul><li><a href="#AwsElasticBlockStore">awsElasticBlockStore</a></li><li><a href="#AzureDisk">azureDisk</a></li><li><a href="#AzureFile">azureFile</a></li><li><a href="#Cephfs">cephfs</a></li><li><a href="#Cinder">cinder</a></li><li><a href="#ConfigMap">configMap</a></li><li><a href="#CSI">csi</a></li><li><a href="#DownwardAPI">downwardAPI</a></li><li><a href="#EmptyDir">emptyDir</a></li><li><a href="#Fc">fc (fibre channel)</a></li><li><a href="#FlexVolume">flexVolume</a></li><li><a href="#Flocker">flocker</a></li><li><a href="#GcePersistentDisk">gcePersistentDisk</a></li><li><a href="#GitRepo">gitRepo (deprecated)</a></li><li><a href="#Glusterfs">glusterfs</a></li><li><a href="#HostPath">hostPath</a></li><li><a href="#ISCSI">iscsi</a></li><li><a href="#Local">local</a></li><li><a href="#Nfs">nfs</a></li><li><a href="#PersistentVolumeClaim">persistentVolumeClaim</a></li><li><a href="#Projected">projected</a></li><li><a href="#PortworxVolume">portworxVolume</a></li><li><a href="#Quobyte">quobyte</a></li><li><a href="#Rbd">rbd</a></li><li><a href="#ScaleIO">scaleIO</a></li><li><a href="#Secret">secret</a></li><li><a href="#Storageos">storageos</a></li><li><a href="#VsphereVolume">vsphereVolume</a></li></ul><h3 id="AwsElasticBlockStore"><a href="#AwsElasticBlockStore" class="headerlink" title="AwsElasticBlockStore"></a>AwsElasticBlockStore</h3><h3 id="AzureDisk"><a href="#AzureDisk" class="headerlink" title="AzureDisk"></a>AzureDisk</h3><h3 id="AzureFile"><a href="#AzureFile" class="headerlink" title="AzureFile"></a>AzureFile</h3><h3 id="Cephfs"><a href="#Cephfs" class="headerlink" title="Cephfs"></a>Cephfs</h3><p><strong>cephfs</strong> 允许用户将现存的 <strong>CephFS</strong> 卷挂载到 <strong>Pod</strong> 中。 与 <strong><a href="#EmptyDir">emptyDir</a></strong> 不同的是，<strong>emptyDir</strong> 会在删除 Pod 的同时<strong>一并被删除</strong>，<strong>cephfs</strong> 卷的内容在删除 Pod 时会被保留，卷只是被卸载掉了。 这意味着 <strong>CephFS 卷可以被预先填充数据，并且这些数据可以在 Pod 之间”传递”</strong>。CephFS 卷可同时被多个写者挂载。</p><blockquote><p>注意： 在您使用 Ceph 卷之前，您的 Ceph 服务器必须正常运行并且要使用的 share 被导出（exported）。</p></blockquote><p>更多信息请参考 <a href="https://github.com/kubernetes/examples/tree/master/volumes/cephfs/" target="_blank" rel="noopener">CephFS 示例</a>。</p><h3 id="Cinder"><a href="#Cinder" class="headerlink" title="Cinder"></a>Cinder</h3><h3 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h3><p><strong>configMap</strong> 资源提供了向 Pod <strong>注入配置数据</strong>的方法。 ConfigMap 对象中存储的数据可以被 configMap 类型的卷引用，然后被应用到 Pod 中运行的容器化应用。</p><p>当引用 configMap 对象时，你可以简单的在 Volume 中通过它名称来引用。 还可以自定义 ConfigMap 中特定条目所要使用的路径。 例如，要将名为 log-config 的 ConfigMap 挂载到名为 configmap-pod 的 Pod 中，您可以使用下面的 YAML:</p><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">configmap-pod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/etc/config</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">      <span class="attr">configMap:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">log-config</span></span><br><span class="line">        <span class="attr">items:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">log_level</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">log_level</span></span><br></pre></td></tr></table></figure><h3 id="CSI"><a href="#CSI" class="headerlink" title="CSI"></a>CSI</h3><p><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">容器存储接口 (CSI)</a> 为容器编排系统（如 Kubernetes）定义标准接口，以将任意存储系统暴露给它们的容器工作负载。</p><p>更多详情请阅读 <a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/storage/container-storage-interface.md" target="_blank" rel="noopener">CSI 设计方案</a>。</p><p>CSI 的支持在 Kubernetes v1.9 中作为 alpha 特性引入，在 Kubernetes v1.10 中转为 beta 特性，并在 Kubernetes v1.13 正式 GA。</p><blockquote><p><strong>说明:</strong> CSI驱动程序可能并非在所有Kubernetes版本中都兼容。 请查看特定CSI驱动程序的文档，以获取每个 Kubernetes 版本所支持的部署步骤以及兼容性列表。</p></blockquote><p>一旦在 <strong>Kubernetes</strong> 集群上部署了 CSI 兼容卷驱动程序，用户就可以使用 <strong>csi</strong> 作为卷类型来关联、挂载 <strong>CSI Driver</strong> 暴露出来的卷。</p><p>允许如下三种方式，在 Pod 中使用 <strong>csi</strong> 类型的卷:</p><ul><li>通过 <strong>PersistentVolumeClaim</strong></li><li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes" target="_blank" rel="noopener">Generic ephemeral volumes</a></strong></li><li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#csi-ephemeral-volumes" target="_blank" rel="noopener">CSI ephemeral volumes</a></strong></li></ul><p>存储管理员可以使用以下字段来配置 CSI 持久卷(CSI persistent volume):</p><ul><li><p><strong>driver</strong>：指定要使用的卷 驱动程序(CSI Driver) 名称的字符串值。 这个值必须与 <strong>CSI Driver</strong> 的 <strong><a href="(https://github.com/container-storage-interface/spec/blob/master/spec.md#getplugininfo)">GetPluginInfoResponse</a></strong> 的 <strong>name</strong> 字段相同。 <strong>Kubernetes</strong> 使用所给的值来标识要调用的 <strong>CSI Driver</strong>；<strong>CSI Driver</strong> 也使用该值来<strong>辨识哪些 PV 对象属于该 CSI Driver</strong>。</p></li><li><p><strong>volumeHandle</strong>：唯一标识卷的字符串值。 该值必须与 <strong>CSI Driver</strong> 的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 的 <strong>volume.id</strong> 字段相同。 在所有对 <strong>CSI Driver</strong> 的调用中，引用该 <strong>Volume</strong> 时都使用此值作为 <strong>volume_id</strong> 参数。</p></li><li><p><strong>readOnly</strong>：一个可选的布尔值，指示通过 <strong>ControllerPublished</strong> 关联该卷时是否设置该卷为只读。 <strong>默认值是 false</strong>。 该值通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong> 中的 <strong>readonly</strong> 字段传递给 <strong>CSI Driver</strong>。</p></li><li><p><strong>fsType</strong>：如果 <strong>PV</strong> 的 <strong>VolumeMode</strong> 为 <strong>Filesystem</strong>，则该字段指定挂载卷时应该使用的文件系统。 倘若 <strong>Volume</strong> 尚未完成格式化，且支持格式化，则该值将被用于格式化。 可以通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 的 <strong>volume_capability</strong> 字段将该值传递给 <strong>CSI Driver</strong>。</p></li><li><p><strong>volumeAttributes</strong>：一个 <strong>map[string]string</strong> 类型的映射表，用来设置 <strong>Volume</strong> 的静态属性。 该映射表必须与 <strong>CSI Driver</strong> 返回的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 中的 volume.attributes 字段的映射相对应。 该映射表通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong>、和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 中的 <strong>volume_attributes</strong> 字段传递给 <strong>CSI Driver</strong>。</p><ul><li><strong>注意</strong>: 在 <a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">spec</a> 中只看到了 <strong>volume_context</strong>，并没有 <strong>attributes</strong>，根据注释与数据类型来分析，或许是指这个字段？</li></ul></li><li><p><strong>controllerPublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用；该敏感信息会被传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolume</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerunpublishvolume" target="_blank" rel="noopener">ControllerUnpublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p></li><li><p><strong>nodeStageSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p></li><li><p><strong>nodePublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p></li></ul><h3 id="DownwardAPI"><a href="#DownwardAPI" class="headerlink" title="DownwardAPI"></a>DownwardAPI</h3><h3 id="EmptyDir"><a href="#EmptyDir" class="headerlink" title="EmptyDir"></a>EmptyDir</h3><h3 id="Fc-光纤通道"><a href="#Fc-光纤通道" class="headerlink" title="Fc (光纤通道)"></a>Fc (光纤通道)</h3><h3 id="FlexVolume"><a href="#FlexVolume" class="headerlink" title="FlexVolume"></a>FlexVolume</h3><h3 id="Flocker"><a href="#Flocker" class="headerlink" title="Flocker"></a>Flocker</h3><h3 id="GcePersistentDisk"><a href="#GcePersistentDisk" class="headerlink" title="GcePersistentDisk"></a>GcePersistentDisk</h3><h3 id="GitRepo-已废弃"><a href="#GitRepo-已废弃" class="headerlink" title="GitRepo (已废弃)"></a>GitRepo (已废弃)</h3><h3 id="Glusterfs"><a href="#Glusterfs" class="headerlink" title="Glusterfs"></a>Glusterfs</h3><h3 id="HostPath"><a href="#HostPath" class="headerlink" title="HostPath"></a>HostPath</h3><h3 id="ISCSI"><a href="#ISCSI" class="headerlink" title="ISCSI"></a>ISCSI</h3><h3 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h3><h3 id="Nfs"><a href="#Nfs" class="headerlink" title="Nfs"></a>Nfs</h3><h3 id="PersistentVolumeClaim"><a href="#PersistentVolumeClaim" class="headerlink" title="PersistentVolumeClaim"></a>PersistentVolumeClaim</h3><h3 id="Projected"><a href="#Projected" class="headerlink" title="Projected"></a>Projected</h3><h3 id="PortworxVolume"><a href="#PortworxVolume" class="headerlink" title="PortworxVolume"></a>PortworxVolume</h3><h3 id="Quobyte"><a href="#Quobyte" class="headerlink" title="Quobyte"></a>Quobyte</h3><h3 id="Rbd"><a href="#Rbd" class="headerlink" title="Rbd"></a>Rbd</h3><h3 id="ScaleIO"><a href="#ScaleIO" class="headerlink" title="ScaleIO"></a>ScaleIO</h3><h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><h3 id="Storageos"><a href="#Storageos" class="headerlink" title="Storageos"></a>Storageos</h3><h3 id="VsphereVolume"><a href="#VsphereVolume" class="headerlink" title="VsphereVolume"></a>VsphereVolume</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul><li><a href="https://kubernetes.io/docs/concepts/storage/volumes/" target="_blank" rel="noopener">Volumes</a></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;在 &lt;strong&gt;Docker&lt;/strong&gt; 中，&lt;strong&gt;&lt;a href=&quot;https://docs.docker.com/s</summary>
+      
+    
+    
+    
+    
+    <category term="kubernetes" scheme="http://divinerapier.github.io/tags/kubernetes/"/>
+    
+    <category term="storage" scheme="http://divinerapier.github.io/tags/storage/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>kubernetes-persistent-volume</title>
+    <link href="http://divinerapier.github.io/2020/10/07/kubernetes-persistent-volume/"/>
+    <id>http://divinerapier.github.io/2020/10/07/kubernetes-persistent-volume/</id>
+    <published>2020-10-07T09:30:27.000Z</published>
+    <updated>2020-10-07T09:30:27.640Z</updated>
+    
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>Kubernetes 控制器</title>
@@ -470,56 +507,6 @@
     <category term="https" scheme="http://divinerapier.github.io/tags/https/"/>
     
     <category term="mutual authentication" scheme="http://divinerapier.github.io/tags/mutual-authentication/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>设备控制器</title>
-    <link href="http://divinerapier.github.io/2020/08/12/device-controllers/"/>
-    <id>http://divinerapier.github.io/2020/08/12/device-controllers/</id>
-    <published>2020-08-12T09:50:29.000Z</published>
-    <updated>2020-08-15T07:41:01.835Z</updated>
-    
-    <content type="html"><![CDATA[<p>从功能角度方面，一个 <code>I/O</code> 单元由机械组件和电子组件两部分组合而成。而从设计的角度出发，将二者分开，则可以提供一种更具模块化，且更具通用性的设计模式。</p><p>电子组件，可被称作设备控制器(<code>device controller</code>)，也可被称作适配器 <code>(adapter)</code>。在个人计算机上，常见的设备控制器要么是直接在母板上的芯片，要么是可插入扩展插槽的印刷电路板。</p><p>机械组件其实就是设备本身。</p><p>下图为这种模块化的设计的简易示意图。</p><p><img src="/images/device-controllers/01-devices-arrangement.PNG" alt="arrangement"></p><p>控制器卡上有一些连接器，用途是允许通过线缆连接到设备上，大部分控制器卡支持两个，四个甚至八个设备。控制器和设备之间的接口可以是标准接口，比如 <code>ANSI</code>，<code>IEEE</code> 或 <code>ISO</code> 标准，也可以是事实上的标准，例如，<code>SATA</code>，<code>SCSI</code>，<code>USB</code>，<code>Thunderbolt</code> 或 <code>FireWire(IEEE 1394)</code>。</p><p>控制器和设备之间的接口属于非常底层的接口。例如，磁盘可能被格式化为<code>2,000,000</code> 个扇区，每个磁道 <code>512</code> 字节。但是，实际上从驱动器中出来的是一个串行位流，始于前导码 <code>(preamble)</code>，然后是一个扇区中的 <code>4096</code> 位，最后是一个校验和或纠错码 <code>(ECC)</code>。格式化磁盘后，将写入包含柱面号和扇区号，扇区大小，类似数据以及同步信息的前导码。</p><p>控制器的职责是将串行位流转换为字节块，并执行必要的纠错。首先，控制器在其内部缓冲区中，逐位组装成字节块。在确认校验和无误，且该块无错误后，可以将数据块复制到主存储器中。</p><p><code>LCD</code> 显示器的控制器在低电平时，可以用作位串行设备。它从存储器中读取包含要显示的字符的字节后，生成修改相应像素背光偏振的信号，实现将字符写入到屏幕上。试想，如果没有显示控制器，则需要操作系统开发者通过显式编程的方式，控制所有像素的电场，这将是一件多么可怕的事情。正是因为使用了控制器，操作系统只需通过少量参数来初始化控制器，例如每行的字符数，像素数以及每屏的行数，之后就可以让控制器来负责实际驱动电场。</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;从功能角度方面，一个 &lt;code&gt;I/O&lt;/code&gt; 单元由机械组件和电子组件两部分组合而成。而从设计的角度出发，将二者分开，则可以提供一种更具模块化，且更具通用性的设计模式。&lt;/p&gt;
-&lt;p&gt;电子组件，可被称作设备控制器(&lt;code&gt;device controller&lt;/</summary>
-      
-    
-    
-    
-    
-    <category term="I/O" scheme="http://divinerapier.github.io/tags/I-O/"/>
-    
-    <category term="principles of i/o hardware" scheme="http://divinerapier.github.io/tags/principles-of-i-o-hardware/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>I/O 设备</title>
-    <link href="http://divinerapier.github.io/2020/08/11/io-devices/"/>
-    <id>http://divinerapier.github.io/2020/08/11/io-devices/</id>
-    <published>2020-08-11T04:33:35.000Z</published>
-    <updated>2020-08-11T13:50:38.083Z</updated>
-    
-    <content type="html"><![CDATA[<p><code>I/O</code> 设备大致可分为两类：块设备和字符设备。</p><p>块设备将信息存储在固定大小的块中。通常情况，数据块的大小在 <code>512 Bytes</code> 到 <code>32768 Bytes</code> 之间。所有传输过程均以<strong>块</strong>为单位，每次传输一个或多个完整且连续的块。对每个块的读或写操作是互相独立的，这是块设备的基本属性。常见的块设备有硬盘、蓝光光盘等。每个设备块都有各自的地址，因此块设备支持寻址操作，可以使用 <code>seek</code> 指令任意指定偏移位置。比如，磁盘接收到该指令后，通过旋转机械臂及磁头的方式完成寻址操作。</p><p>字符设备在传输数据时使用流式传输的方式，为不可寻址设备，因此也不支持 <code>seek</code> 操作。常见的字符设备有鼠标，网卡等。</p><p>但事实上，这种分类方案并不是完美无缺的。因为，还有一些设备无法适用于这个分类方案。</p><p>比如，时钟是一种按照预定义时间间隔产生中断信息的一种设备，它既不是可寻址的块设备，也不是字符流设备。除此之外，还有内存映射、屏幕、触摸屏等各类设备。但换一个角度分析，由于计算机使用到的大部分 <code>I/O</code> 设备，要么是块设备，要么是字符设备，这个分类模型足够通用。因此，可以用来作为独立于设备的基础操作系统基础模块。例如，文件系统就是用于处理经过抽象处理之后的块设备，而具体到设备层面的交互则交给更底层的软件处理，比如设备驱动程序。</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;&lt;code&gt;I/O&lt;/code&gt; 设备大致可分为两类：块设备和字符设备。&lt;/p&gt;
-&lt;p&gt;块设备将信息存储在固定大小的块中。通常情况，数据块的大小在 &lt;code&gt;512 Bytes&lt;/code&gt; 到 &lt;code&gt;32768 Bytes&lt;/code&gt; 之间。所有传输过程均以&lt;s</summary>
-      
-    
-    
-    
-    
-    <category term="I/O" scheme="http://divinerapier.github.io/tags/I-O/"/>
-    
-    <category term="principles of i/o hardware" scheme="http://divinerapier.github.io/tags/principles-of-i-o-hardware/"/>
     
   </entry>
   

@@ -6,16 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Archives | お可愛いこと</title>
+  <title>Kubernetes 存储卷 | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="お可愛いこと">
-<meta property="og:url" content="http://divinerapier.github.io/archives/index.html">
+  <meta name="description" content="背景在 Docker 中，Volume 概念表示磁盘上或者另外一个容器内的一个目录。 直到最近，Docker 才支持对基于本地磁盘的 Volume 的生存期进行管理。 虽然 Docker 现在也能提供 Volume 驱动程序，但是目前功能还非常有限 （例如，截至 Docker 1.7，每个容器只允许有一个 Volume 驱动程序，并且无法将参数传递给 Volume）。 而在 Kubernetes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes 存储卷">
+<meta property="og:url" content="http://divinerapier.github.io/2020/10/07/kubernetes-volumes/index.html">
 <meta property="og:site_name" content="お可愛いこと">
+<meta property="og:description" content="背景在 Docker 中，Volume 概念表示磁盘上或者另外一个容器内的一个目录。 直到最近，Docker 才支持对基于本地磁盘的 Volume 的生存期进行管理。 虽然 Docker 现在也能提供 Volume 驱动程序，但是目前功能还非常有限 （例如，截至 Docker 1.7，每个容器只允许有一个 Volume 驱动程序，并且无法将参数传递给 Volume）。 而在 Kubernetes">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-10-07T09:37:14.000Z">
+<meta property="article:modified_time" content="2020-10-07T12:30:22.280Z">
 <meta property="article:author" content="divinerapier">
+<meta property="article:tag" content="kubernetes">
+<meta property="article:tag" content="storage">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -163,41 +169,205 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-kubernetes-volumes" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/10/07/kubernetes-volumes/" class="archive-article-date">
-        <time datetime="2020-10-07T09:37:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-07</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/10/07/kubernetes-volumes/" target="_blank">Kubernetes 存储卷</a>
   
+    <h1 class="article-title" itemprop="name">
+      Kubernetes 存储卷
     </h1>
   
 
 
-        <div class="article-info info-on-right">
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2020/10/07/kubernetes-volumes/" class="archive-article-date">
+        <time datetime="2020-10-07T09:37:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-07</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">1.6k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">6分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 <strong>Docker</strong> 中，<strong><a href="https://docs.docker.com/storage/" target="_blank" rel="noopener">Volume</a></strong> 概念表示磁盘上或者另外一个容器内的一个目录。 直到最近，Docker 才支持对基于本地磁盘的 Volume 的生存期进行管理。 虽然 Docker 现在也能提供 Volume 驱动程序，但是目前功能还非常有限 （例如，截至 Docker 1.7，每个容器只允许有一个 Volume 驱动程序，并且无法将参数传递给 Volume）。</p>
+<p>而在 <strong>Kubernetes</strong> 中，<strong>Volume</strong> 具有明确的生命周期——与其所属 <strong>Pod</strong> 相同。 因此，<strong>Volume 比 Pod 中运行的任何容器的存活期都长</strong>，在容器重新启动时数据也会得到保留。 当然，<strong>当一个 Pod 不再存在时，卷也将不再存在</strong>。 更重要的是，<strong>Kubernetes 可以支持许多类型的卷，Pod 也能同时使用任意数量的卷</strong>。</p>
+<p><strong>Volume</strong> 的核心是包含一些数据的目录，Pod 中的容器可以访问该目录。 特定的卷类型可以决定这个目录是如何形成的，并能决定它支持何种介质，以及目录中存放什么内容。</p>
+<p>使用 <strong>Volume</strong> 时, Pod 声明中需要提供卷的类型 (<strong>.spec.volumes</strong> 字段) 和 <strong>Volume</strong> 挂载的位置 (<strong>.spec.containers.volumeMounts</strong> 字段).</p>
+<p>容器中的进程能看到由它们的 Docker 镜像和卷组成的文件系统视图。 <a href="https://docs.docker.com/userguide/dockerimages/" target="_blank" rel="noopener">Docker 镜像</a> 位于文件系统层次结构的根部，并且任何 Volume 都挂载在镜像内的指定路径上。 卷不能挂载到其他卷，也不能与其他卷有硬链接。 Pod 中的每个容器必须独立地指定每个卷的挂载位置(<strong>Volumes</strong> 之间的挂载点应该相互独立)。</p>
+<h2 id="Volume-的类型"><a href="#Volume-的类型" class="headerlink" title="Volume 的类型"></a>Volume 的类型</h2><p>Kubernetes 支持下列类型的卷:</p>
+<ul>
+<li><a href="#AwsElasticBlockStore">awsElasticBlockStore</a></li>
+<li><a href="#AzureDisk">azureDisk</a></li>
+<li><a href="#AzureFile">azureFile</a></li>
+<li><a href="#Cephfs">cephfs</a></li>
+<li><a href="#Cinder">cinder</a></li>
+<li><a href="#ConfigMap">configMap</a></li>
+<li><a href="#CSI">csi</a></li>
+<li><a href="#DownwardAPI">downwardAPI</a></li>
+<li><a href="#EmptyDir">emptyDir</a></li>
+<li><a href="#Fc">fc (fibre channel)</a></li>
+<li><a href="#FlexVolume">flexVolume</a></li>
+<li><a href="#Flocker">flocker</a></li>
+<li><a href="#GcePersistentDisk">gcePersistentDisk</a></li>
+<li><a href="#GitRepo">gitRepo (deprecated)</a></li>
+<li><a href="#Glusterfs">glusterfs</a></li>
+<li><a href="#HostPath">hostPath</a></li>
+<li><a href="#ISCSI">iscsi</a></li>
+<li><a href="#Local">local</a></li>
+<li><a href="#Nfs">nfs</a></li>
+<li><a href="#PersistentVolumeClaim">persistentVolumeClaim</a></li>
+<li><a href="#Projected">projected</a></li>
+<li><a href="#PortworxVolume">portworxVolume</a></li>
+<li><a href="#Quobyte">quobyte</a></li>
+<li><a href="#Rbd">rbd</a></li>
+<li><a href="#ScaleIO">scaleIO</a></li>
+<li><a href="#Secret">secret</a></li>
+<li><a href="#Storageos">storageos</a></li>
+<li><a href="#VsphereVolume">vsphereVolume</a></li>
+</ul>
+<h3 id="AwsElasticBlockStore"><a href="#AwsElasticBlockStore" class="headerlink" title="AwsElasticBlockStore"></a>AwsElasticBlockStore</h3><h3 id="AzureDisk"><a href="#AzureDisk" class="headerlink" title="AzureDisk"></a>AzureDisk</h3><h3 id="AzureFile"><a href="#AzureFile" class="headerlink" title="AzureFile"></a>AzureFile</h3><h3 id="Cephfs"><a href="#Cephfs" class="headerlink" title="Cephfs"></a>Cephfs</h3><p><strong>cephfs</strong> 允许用户将现存的 <strong>CephFS</strong> 卷挂载到 <strong>Pod</strong> 中。 与 <strong><a href="#EmptyDir">emptyDir</a></strong> 不同的是，<strong>emptyDir</strong> 会在删除 Pod 的同时<strong>一并被删除</strong>，<strong>cephfs</strong> 卷的内容在删除 Pod 时会被保留，卷只是被卸载掉了。 这意味着 <strong>CephFS 卷可以被预先填充数据，并且这些数据可以在 Pod 之间”传递”</strong>。CephFS 卷可同时被多个写者挂载。</p>
+<blockquote>
+<p>注意： 在您使用 Ceph 卷之前，您的 Ceph 服务器必须正常运行并且要使用的 share 被导出（exported）。</p>
+</blockquote>
+<p>更多信息请参考 <a href="https://github.com/kubernetes/examples/tree/master/volumes/cephfs/" target="_blank" rel="noopener">CephFS 示例</a>。</p>
+<h3 id="Cinder"><a href="#Cinder" class="headerlink" title="Cinder"></a>Cinder</h3><h3 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h3><p><strong>configMap</strong> 资源提供了向 Pod <strong>注入配置数据</strong>的方法。 ConfigMap 对象中存储的数据可以被 configMap 类型的卷引用，然后被应用到 Pod 中运行的容器化应用。</p>
+<p>当引用 configMap 对象时，你可以简单的在 Volume 中通过它名称来引用。 还可以自定义 ConfigMap 中特定条目所要使用的路径。 例如，要将名为 log-config 的 ConfigMap 挂载到名为 configmap-pod 的 Pod 中，您可以使用下面的 YAML:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">configmap-pod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/etc/config</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">      <span class="attr">configMap:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">log-config</span></span><br><span class="line">        <span class="attr">items:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">log_level</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">log_level</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="CSI"><a href="#CSI" class="headerlink" title="CSI"></a>CSI</h3><p><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">容器存储接口 (CSI)</a> 为容器编排系统（如 Kubernetes）定义标准接口，以将任意存储系统暴露给它们的容器工作负载。</p>
+<p>更多详情请阅读 <a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/storage/container-storage-interface.md" target="_blank" rel="noopener">CSI 设计方案</a>。</p>
+<p>CSI 的支持在 Kubernetes v1.9 中作为 alpha 特性引入，在 Kubernetes v1.10 中转为 beta 特性，并在 Kubernetes v1.13 正式 GA。</p>
+<blockquote>
+<p><strong>说明:</strong> CSI驱动程序可能并非在所有Kubernetes版本中都兼容。 请查看特定CSI驱动程序的文档，以获取每个 Kubernetes 版本所支持的部署步骤以及兼容性列表。</p>
+</blockquote>
+<p>一旦在 <strong>Kubernetes</strong> 集群上部署了 CSI 兼容卷驱动程序，用户就可以使用 <strong>csi</strong> 作为卷类型来关联、挂载 <strong>CSI Driver</strong> 暴露出来的卷。</p>
+<p>允许如下三种方式，在 Pod 中使用 <strong>csi</strong> 类型的卷:</p>
+<ul>
+<li>通过 <strong>PersistentVolumeClaim</strong></li>
+<li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes" target="_blank" rel="noopener">Generic ephemeral volumes</a></strong></li>
+<li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#csi-ephemeral-volumes" target="_blank" rel="noopener">CSI ephemeral volumes</a></strong></li>
+</ul>
+<p>存储管理员可以使用以下字段来配置 CSI 持久卷(CSI persistent volume):</p>
+<ul>
+<li><p><strong>driver</strong>：指定要使用的卷 驱动程序(CSI Driver) 名称的字符串值。 这个值必须与 <strong>CSI Driver</strong> 的 <strong><a href="(https://github.com/container-storage-interface/spec/blob/master/spec.md#getplugininfo)">GetPluginInfoResponse</a></strong> 的 <strong>name</strong> 字段相同。 <strong>Kubernetes</strong> 使用所给的值来标识要调用的 <strong>CSI Driver</strong>；<strong>CSI Driver</strong> 也使用该值来<strong>辨识哪些 PV 对象属于该 CSI Driver</strong>。</p>
+</li>
+<li><p><strong>volumeHandle</strong>：唯一标识卷的字符串值。 该值必须与 <strong>CSI Driver</strong> 的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 的 <strong>volume.id</strong> 字段相同。 在所有对 <strong>CSI Driver</strong> 的调用中，引用该 <strong>Volume</strong> 时都使用此值作为 <strong>volume_id</strong> 参数。</p>
+</li>
+<li><p><strong>readOnly</strong>：一个可选的布尔值，指示通过 <strong>ControllerPublished</strong> 关联该卷时是否设置该卷为只读。 <strong>默认值是 false</strong>。 该值通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong> 中的 <strong>readonly</strong> 字段传递给 <strong>CSI Driver</strong>。</p>
+</li>
+<li><p><strong>fsType</strong>：如果 <strong>PV</strong> 的 <strong>VolumeMode</strong> 为 <strong>Filesystem</strong>，则该字段指定挂载卷时应该使用的文件系统。 倘若 <strong>Volume</strong> 尚未完成格式化，且支持格式化，则该值将被用于格式化。 可以通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 的 <strong>volume_capability</strong> 字段将该值传递给 <strong>CSI Driver</strong>。</p>
+</li>
+<li><p><strong>volumeAttributes</strong>：一个 <strong>map[string]string</strong> 类型的映射表，用来设置 <strong>Volume</strong> 的静态属性。 该映射表必须与 <strong>CSI Driver</strong> 返回的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 中的 volume.attributes 字段的映射相对应。 该映射表通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong>、和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 中的 <strong>volume_attributes</strong> 字段传递给 <strong>CSI Driver</strong>。</p>
+<ul>
+<li><strong>注意</strong>: 在 <a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">spec</a> 中只看到了 <strong>volume_context</strong>，并没有 <strong>attributes</strong>，根据注释与数据类型来分析，或许是指这个字段？</li>
+</ul>
+</li>
+<li><p><strong>controllerPublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用；该敏感信息会被传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolume</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerunpublishvolume" target="_blank" rel="noopener">ControllerUnpublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
+</li>
+<li><p><strong>nodeStageSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
+</li>
+<li><p><strong>nodePublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
+</li>
+</ul>
+<h3 id="DownwardAPI"><a href="#DownwardAPI" class="headerlink" title="DownwardAPI"></a>DownwardAPI</h3><h3 id="EmptyDir"><a href="#EmptyDir" class="headerlink" title="EmptyDir"></a>EmptyDir</h3><h3 id="Fc-光纤通道"><a href="#Fc-光纤通道" class="headerlink" title="Fc (光纤通道)"></a>Fc (光纤通道)</h3><h3 id="FlexVolume"><a href="#FlexVolume" class="headerlink" title="FlexVolume"></a>FlexVolume</h3><h3 id="Flocker"><a href="#Flocker" class="headerlink" title="Flocker"></a>Flocker</h3><h3 id="GcePersistentDisk"><a href="#GcePersistentDisk" class="headerlink" title="GcePersistentDisk"></a>GcePersistentDisk</h3><h3 id="GitRepo-已废弃"><a href="#GitRepo-已废弃" class="headerlink" title="GitRepo (已废弃)"></a>GitRepo (已废弃)</h3><h3 id="Glusterfs"><a href="#Glusterfs" class="headerlink" title="Glusterfs"></a>Glusterfs</h3><h3 id="HostPath"><a href="#HostPath" class="headerlink" title="HostPath"></a>HostPath</h3><h3 id="ISCSI"><a href="#ISCSI" class="headerlink" title="ISCSI"></a>ISCSI</h3><h3 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h3><h3 id="Nfs"><a href="#Nfs" class="headerlink" title="Nfs"></a>Nfs</h3><h3 id="PersistentVolumeClaim"><a href="#PersistentVolumeClaim" class="headerlink" title="PersistentVolumeClaim"></a>PersistentVolumeClaim</h3><h3 id="Projected"><a href="#Projected" class="headerlink" title="Projected"></a>Projected</h3><h3 id="PortworxVolume"><a href="#PortworxVolume" class="headerlink" title="PortworxVolume"></a>PortworxVolume</h3><h3 id="Quobyte"><a href="#Quobyte" class="headerlink" title="Quobyte"></a>Quobyte</h3><h3 id="Rbd"><a href="#Rbd" class="headerlink" title="Rbd"></a>Rbd</h3><h3 id="ScaleIO"><a href="#ScaleIO" class="headerlink" title="ScaleIO"></a>ScaleIO</h3><h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><h3 id="Storageos"><a href="#Storageos" class="headerlink" title="Storageos"></a>Storageos</h3><h3 id="VsphereVolume"><a href="#VsphereVolume" class="headerlink" title="VsphereVolume"></a>VsphereVolume</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://kubernetes.io/docs/concepts/storage/volumes/" target="_blank" rel="noopener">Volumes</a></li>
+</ul>
+
+    
+
+    
+    <div class="page-reward">
+      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
+        <div class="tooltip tooltip-east">
+          <span class="tooltip-item">
+            赏
+          </span>
+          <span class="tooltip-content">
+            <span class="tooltip-text">
+              <span class="tooltip-inner">
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
+                    class="icon icon-quo-right"></i></p>
+                <div class="reward-box">
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/alipay.jpg">
+                    <span class="reward-type">支付宝</span>
+                  </div>
+                  
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/wechatpay.png">
+                    <span class="reward-type">微信</span>
+                  </div>
+                  
+                </div>
+              </span>
+            </span>
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          divinerapier
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="http://divinerapier.github.io/2020/10/07/kubernetes-volumes/" title="Kubernetes 存储卷" target="_blank">http://divinerapier.github.io/2020/10/07/kubernetes-volumes/</a>
+        </li>
+        
+        <li>
+          <strong>版权声明： </strong>
           
+          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -213,431 +383,107 @@
 		</ul>
 	</div>
 
-          
+    
 
+    
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/10/07/kubernetes-volumes/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
   </div>
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/10/07/kubernetes-persistent-volume/" class="archive-article-date">
-        <time datetime="2020-10-07T09:30:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-07</time>
-</a>
 
+
+<nav id="article-nav">
+  
+  
+    <a href="/2020/10/07/kubernetes-persistent-volume/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">kubernetes-persistent-volume</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/10/07/kubernetes-persistent-volume/" target="_blank">kubernetes-persistent-volume</a>
-  
-    </h1>
-  
+        
+        
+    </div>
+</aside>
 
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/10/06/kubernetes-controllers/" class="archive-article-date">
-        <time datetime="2020-10-06T05:13:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-06</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/10/06/kubernetes-controllers/" target="_blank">Kubernetes 控制器</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">controllers</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/10/02/how-to-use-nfs/" class="archive-article-date">
-        <time datetime="2020-10-02T08:18:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-02</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/10/02/how-to-use-nfs/" target="_blank">使用 NFS</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">nfs</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">filesystem</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/09/30/understanding-kubernetes-objects/" class="archive-article-date">
-        <time datetime="2020-09-30T09:19:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-30</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/09/30/understanding-kubernetes-objects/" target="_blank">理解 Kubernetes 对象</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/09/10/b-tree/" class="archive-article-date">
-        <time datetime="2020-09-10T11:29:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-10</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/09/10/b-tree/" target="_blank">B 树</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">data structure</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">tree</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">storage engine</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">index</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/09/05/windows-terminal/" class="archive-article-date">
-        <time datetime="2020-09-05T01:41:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-05</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/09/05/windows-terminal/" target="_blank">Windows Terminal</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">windows</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">terminal</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/09/04/projected-volumes/" class="archive-article-date">
-        <time datetime="2020-09-04T00:39:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-04</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/09/04/projected-volumes/" target="_blank">投射数据卷 (TBC)</a>
-  
-    </h1>
-  
-
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">pod</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/09/04/play-with-k8s/" class="archive-article-date">
-        <time datetime="2020-09-04T00:08:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-04</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/09/04/play-with-k8s/" target="_blank">Play with Kubernetes</a>
-  
-    </h1>
-  
-
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/09/02/the-basics-of-pods/" class="archive-article-date">
-        <time datetime="2020-09-02T13:06:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-02</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/09/02/the-basics-of-pods/" target="_blank">Pod 的基本概念</a>
-  
-    </h1>
-  
-
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">pod</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/2/">Next &amp;raquo;</a>
-    </nav>
-  
 
 
           </div>
@@ -678,8 +524,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,
