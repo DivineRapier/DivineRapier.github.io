@@ -279,7 +279,25 @@
 <li><p><strong>nodePublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
 </li>
 </ul>
-<h3 id="DownwardAPI"><a href="#DownwardAPI" class="headerlink" title="DownwardAPI"></a>DownwardAPI</h3><h3 id="EmptyDir"><a href="#EmptyDir" class="headerlink" title="EmptyDir"></a>EmptyDir</h3><h3 id="Fc-光纤通道"><a href="#Fc-光纤通道" class="headerlink" title="Fc (光纤通道)"></a>Fc (光纤通道)</h3><h3 id="FlexVolume"><a href="#FlexVolume" class="headerlink" title="FlexVolume"></a>FlexVolume</h3><h3 id="Flocker"><a href="#Flocker" class="headerlink" title="Flocker"></a>Flocker</h3><h3 id="GcePersistentDisk"><a href="#GcePersistentDisk" class="headerlink" title="GcePersistentDisk"></a>GcePersistentDisk</h3><h3 id="GitRepo-已废弃"><a href="#GitRepo-已废弃" class="headerlink" title="GitRepo (已废弃)"></a>GitRepo (已废弃)</h3><h3 id="Glusterfs"><a href="#Glusterfs" class="headerlink" title="Glusterfs"></a>Glusterfs</h3><h3 id="HostPath"><a href="#HostPath" class="headerlink" title="HostPath"></a>HostPath</h3><h3 id="ISCSI"><a href="#ISCSI" class="headerlink" title="ISCSI"></a>ISCSI</h3><h3 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h3><h3 id="Nfs"><a href="#Nfs" class="headerlink" title="Nfs"></a>Nfs</h3><h3 id="PersistentVolumeClaim"><a href="#PersistentVolumeClaim" class="headerlink" title="PersistentVolumeClaim"></a>PersistentVolumeClaim</h3><h3 id="Projected"><a href="#Projected" class="headerlink" title="Projected"></a>Projected</h3><h3 id="PortworxVolume"><a href="#PortworxVolume" class="headerlink" title="PortworxVolume"></a>PortworxVolume</h3><h3 id="Quobyte"><a href="#Quobyte" class="headerlink" title="Quobyte"></a>Quobyte</h3><h3 id="Rbd"><a href="#Rbd" class="headerlink" title="Rbd"></a>Rbd</h3><h3 id="ScaleIO"><a href="#ScaleIO" class="headerlink" title="ScaleIO"></a>ScaleIO</h3><h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><h3 id="Storageos"><a href="#Storageos" class="headerlink" title="Storageos"></a>Storageos</h3><h3 id="VsphereVolume"><a href="#VsphereVolume" class="headerlink" title="VsphereVolume"></a>VsphereVolume</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<h3 id="DownwardAPI"><a href="#DownwardAPI" class="headerlink" title="DownwardAPI"></a>DownwardAPI</h3><p><strong>downwardAPI</strong> 类型的 <strong>Volume</strong> 被用于使 <strong>downward API</strong> 数据对应用程序可见。其表现形式为，挂载一个目录，并将请求的数据写入到纯文本文件中。</p>
+<h3 id="EmptyDir"><a href="#EmptyDir" class="headerlink" title="EmptyDir"></a>EmptyDir</h3><p>当 <strong>Pod</strong> 被指定到某个节点上时，首先创建的是一个 <strong>emptyDir</strong> 类型的 <strong>Volume</strong>，并且只要 <strong>Pod</strong> 保持在该节点上运行，<strong>Volume</strong> 就一直存在。正如名字所说的那样，<strong>Volume</strong> 的初始状态为空。虽然 <strong>Pod</strong> 中的容器挂载 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 的路径可能不尽相同，但这都不重要，重要的是，这些容器都可以读写 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 中的相同的文件。 无论因何种原因，只要 <strong>Pod</strong> 从节点上被删除，<strong>emptyDir</strong> 类型的 <strong>Volume</strong> 中的数据也会被永久删除。</p>
+<blockquote>
+<p><strong>说明</strong>: 容器崩溃并不会导致 <strong>Pod</strong> 从节点上被移除，因此容器崩溃时 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 中的数据是安全的。</p>
+</blockquote>
+<p>有如下需求可以考虑使用 <strong>emptyDir</strong> 类型 <strong>Volume</strong>:</p>
+<ul>
+<li>缓存空间，例如基于磁盘的归并排序。</li>
+<li>为耗时较长的计算任务提供检查点，以便任务能方便地从崩溃前状态恢复执行。</li>
+<li>在 Web 服务器容器服务数据时，保存内容管理器容器获取的文件。</li>
+</ul>
+<p>默认情况下， <strong>emptyDir volume</strong> 所使用的的实际存储介质由节点使用何种存储介质决定: 可以是 <strong>HDD</strong> 或 <strong>SSD</strong> 或 <strong>NFS</strong> 等。但是，可以令 <strong>emptyDir.medium = Memory</strong> 使 <strong>Kubernetes</strong> 安装 <strong>tmpfs</strong>。但需要考虑到，<strong>tmpfs</strong> 的优势与劣势都很突出:</p>
+<ul>
+<li>优势: 基于 <strong>RAM</strong> 的文件系统，速度非常快</li>
+<li>劣势: 随节点重启被清除，且写入的所有文件都会计入容器的内存消耗，受容器内存限制约束</li>
+</ul>
+<h4 id="EmptyDir-示例"><a href="#EmptyDir-示例" class="headerlink" title="EmptyDir 示例"></a>EmptyDir 示例</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">test-pd</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">k8s.gcr.io/test-webserver</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">test-container</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/cache</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">cache-volume</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">cache-volume</span></span><br><span class="line">    <span class="attr">emptyDir:</span> <span class="string">&#123;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Fc-光纤通道"><a href="#Fc-光纤通道" class="headerlink" title="Fc (光纤通道)"></a>Fc (光纤通道)</h3><h3 id="FlexVolume"><a href="#FlexVolume" class="headerlink" title="FlexVolume"></a>FlexVolume</h3><h3 id="Flocker"><a href="#Flocker" class="headerlink" title="Flocker"></a>Flocker</h3><h3 id="GcePersistentDisk"><a href="#GcePersistentDisk" class="headerlink" title="GcePersistentDisk"></a>GcePersistentDisk</h3><h3 id="GitRepo-已废弃"><a href="#GitRepo-已废弃" class="headerlink" title="GitRepo (已废弃)"></a>GitRepo (已废弃)</h3><h3 id="Glusterfs"><a href="#Glusterfs" class="headerlink" title="Glusterfs"></a>Glusterfs</h3><h3 id="HostPath"><a href="#HostPath" class="headerlink" title="HostPath"></a>HostPath</h3><h3 id="ISCSI"><a href="#ISCSI" class="headerlink" title="ISCSI"></a>ISCSI</h3><h3 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h3><h3 id="Nfs"><a href="#Nfs" class="headerlink" title="Nfs"></a>Nfs</h3><h3 id="PersistentVolumeClaim"><a href="#PersistentVolumeClaim" class="headerlink" title="PersistentVolumeClaim"></a>PersistentVolumeClaim</h3><h3 id="Projected"><a href="#Projected" class="headerlink" title="Projected"></a>Projected</h3><h3 id="PortworxVolume"><a href="#PortworxVolume" class="headerlink" title="PortworxVolume"></a>PortworxVolume</h3><h3 id="Quobyte"><a href="#Quobyte" class="headerlink" title="Quobyte"></a>Quobyte</h3><h3 id="Rbd"><a href="#Rbd" class="headerlink" title="Rbd"></a>Rbd</h3><h3 id="ScaleIO"><a href="#ScaleIO" class="headerlink" title="ScaleIO"></a>ScaleIO</h3><h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><h3 id="Storageos"><a href="#Storageos" class="headerlink" title="Storageos"></a>Storageos</h3><h3 id="VsphereVolume"><a href="#VsphereVolume" class="headerlink" title="VsphereVolume"></a>VsphereVolume</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
 <li><a href="https://kubernetes.io/docs/concepts/storage/volumes/" target="_blank" rel="noopener">Volumes</a></li>
 </ul>
 
@@ -496,8 +514,8 @@
 </ol>
 <p>以上即为 <strong>Kubernetes Controller</strong> 的工作模式。</p>
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://kubernetes.io/docs/concepts/architecture/controller/" target="_blank" rel="noopener">Controllers</a></li>
-<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/" target="_blank" rel="noopener">Controllers</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/architecture/controller/" target="_blank" rel="noopener">Architecture-Controllers</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/" target="_blank" rel="noopener">Workloads-Controllers</a></li>
 </ul>
 
     
@@ -1785,6 +1803,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">container</a>
               </li>
              
@@ -1801,19 +1827,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1833,19 +1859,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1873,6 +1887,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
@@ -1897,15 +1915,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">windows</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
             
             <div class="clearfix"></div>
