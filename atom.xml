@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-10-11T05:24:14.330Z</updated>
+  <updated>2020-10-11T06:44:31.570Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -17,11 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>训练系统相关读物</title>
-    <link href="http://divinerapier.github.io/2020/10/11/readings-in-training-system/"/>
-    <id>http://divinerapier.github.io/2020/10/11/readings-in-training-system/</id>
+    <title>初识 MPI</title>
+    <link href="http://divinerapier.github.io/2020/10/11/started-with-mpi/"/>
+    <id>http://divinerapier.github.io/2020/10/11/started-with-mpi/</id>
     <published>2020-10-11T04:10:37.000Z</published>
-    <updated>2020-10-11T05:24:14.330Z</updated>
+    <updated>2020-10-11T06:44:31.570Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>MPI</strong> 全称为 <strong>Message Passing Interface</strong>。其</p><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul><li><a href="http://gaocegege.com/Blog/mpi-1" target="_blank" rel="noopener">MPI，OpenMPI 与深度学习</a></li><li><a href="https://mpitutorial.com/tutorials/mpi-introduction/" target="_blank" rel="noopener">MPI Tutorial Introduction</a></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;strong&gt;MPI&lt;/strong&gt; 全称为 &lt;strong&gt;Message Passing Interface&lt;/strong&gt;。其&lt;/p&gt;
+&lt;h2 id=&quot;参考文档&quot;&gt;&lt;a href=&quot;#参考文档&quot; class=&quot;headerlink&quot; title=&quot;参考文档&quot;&gt;&lt;</summary>
+      
+    
+    
+    
+    
+    <category term="mpi" scheme="http://divinerapier.github.io/tags/mpi/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>训练系统相关读物</title>
+    <link href="http://divinerapier.github.io/2020/10/11/readings-about-training-system/"/>
+    <id>http://divinerapier.github.io/2020/10/11/readings-about-training-system/</id>
+    <published>2020-10-11T03:44:32.000Z</published>
+    <updated>2020-10-11T06:44:19.060Z</updated>
     
     <content type="html"><![CDATA[<ul><li><a href="https://images.nvidia.com/events/sc15/pdfs/NCCL-Woolley.pdf" target="_blank" rel="noopener">NCCL: ACCELERATED MULTI-GPU COLLECTIVE COMMUNICATIONS</a></li><li><a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.95.2490&rep=rep1&type=pdf" target="_blank" rel="noopener">Message Passing, Remote Procedure Calls and Distributed Shared Memory as Communication Paradigms for Distributed Systems</a></li><li><a href="https://zhuanlan.zhihu.com/p/50116885" target="_blank" rel="noopener">分布式训练的方案和效率对比</a></li><li><a href="http://gaocegege.com/Blog/mpi-1" target="_blank" rel="noopener">MPI，OpenMPI 与深度学习</a></li><li><a href="https://mpitutorial.com/tutorials/mpi-introduction/zh_cn/" target="_blank" rel="noopener">MPI 教程介绍</a></li><li><a href="https://www.mpi-forum.org/" target="_blank" rel="noopener">MPI Forum</a></li><li><a href="https://zhuanlan.zhihu.com/p/149771261" target="_blank" rel="noopener">2020 Rethinking GPU 集群上的分布式训练</a></li><li><a href="https://zhuanlan.zhihu.com/p/40578792" target="_blank" rel="noopener">Horovod-基于TensorFlow分布式深度学习框架</a></li><li><a href="https://github.com/horovod/horovod" target="_blank" rel="noopener">Github: Horovod</a></li><li><a href="https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/" target="_blank" rel="noopener">Schedule GPUs</a></li><li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/" target="_blank" rel="noopener">Device Plugins</a></li><li><a href="https://towardsdatascience.com/distributed-deep-learning-training-with-horovod-on-kubernetes-6b28ac1d6b5d" target="_blank" rel="noopener">Distributed Deep Learning Training with Horovod on Kubernetes</a></li><li><a href="https://developer.nvidia.com/kubernetes-gpu" target="_blank" rel="noopener">Kubernetes on NVIDIA GPUs</a></li></ul>]]></content>
     
@@ -40,29 +63,6 @@
     <category term="gpu" scheme="http://divinerapier.github.io/tags/gpu/"/>
     
     <category term="rdma" scheme="http://divinerapier.github.io/tags/rdma/"/>
-    
-    <category term="mpi" scheme="http://divinerapier.github.io/tags/mpi/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>初识 MPI</title>
-    <link href="http://divinerapier.github.io/2020/10/11/started-with-mpi/"/>
-    <id>http://divinerapier.github.io/2020/10/11/started-with-mpi/</id>
-    <published>2020-10-11T03:44:32.000Z</published>
-    <updated>2020-10-11T04:02:55.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><strong>MPI</strong> 全称为 <strong>Message Passing Interface</strong>。其</p><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul><li><a href="http://gaocegege.com/Blog/mpi-1" target="_blank" rel="noopener">MPI，OpenMPI 与深度学习</a></li><li><a href="https://mpitutorial.com/tutorials/mpi-introduction/" target="_blank" rel="noopener">MPI Tutorial Introduction</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;&lt;strong&gt;MPI&lt;/strong&gt; 全称为 &lt;strong&gt;Message Passing Interface&lt;/strong&gt;。其&lt;/p&gt;
-&lt;h2 id=&quot;参考文档&quot;&gt;&lt;a href=&quot;#参考文档&quot; class=&quot;headerlink&quot; title=&quot;参考文档&quot;&gt;&lt;</summary>
-      
-    
-    
-    
     
     <category term="mpi" scheme="http://divinerapier.github.io/tags/mpi/"/>
     

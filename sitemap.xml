@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://divinerapier.github.io/2020/10/11/started-with-mpi/</loc>
+    
+    <lastmod>2020-10-11</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/11/readings-about-training-system/</loc>
+    
+    <lastmod>2020-10-11</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/2020/10/07/kubernetes-volumes/</loc>
     
     <lastmod>2020-10-11</lastmod>
@@ -9,21 +23,7 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/2020/10/11/readings-in-training-system/</loc>
-    
-    <lastmod>2020-10-11</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/2020/10/07/kubernetes-persistent-volume/</loc>
-    
-    <lastmod>2020-10-11</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/11/started-with-mpi/</loc>
     
     <lastmod>2020-10-11</lastmod>
     
