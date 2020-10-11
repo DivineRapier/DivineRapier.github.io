@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-10-11T10:07:03.480Z</updated>
+  <updated>2020-10-11T10:08:16.170Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -21,14 +21,14 @@
     <link href="http://divinerapier.github.io/2020/10/11/started-with-mpi/"/>
     <id>http://divinerapier.github.io/2020/10/11/started-with-mpi/</id>
     <published>2020-10-11T04:10:37.000Z</published>
-    <updated>2020-10-11T10:07:03.480Z</updated>
+    <updated>2020-10-11T10:08:16.170Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><strong>消息传递模型(Message Passing Model)</strong> 指程序通过在进程间传递消息（消息可以理解成带有一些信息和数据的一个数据结构）来完成某些任务。在实践中，基于此模型，很容易开发 <strong>并发程序</strong>。</p><p>举例来说:</p><ol><li>主进程(manager process) 可以通过向从进程(worker process) 发送一个描述工作的消息的方式，将工作分配给从进程。</li><li>一个并发的排序程序可以在当前进程中对当前进程可见的(我们称作本地的，locally) 数据进行排序，然后把排好序的数据发送到邻居进程上面来进行合并的操作。</li></ol><p>几乎所有的并行程序可以使用消息传递模型来描述。</p><p>之后，业界统一制定了一套消息传递模型的接口标准，即 <strong>Message Passing Interface —— MPI</strong>。</p><h2 id="MPI-基础概念"><a href="#MPI-基础概念" class="headerlink" title="MPI 基础概念"></a>MPI 基础概念</h2><h3 id="Communicator"><a href="#Communicator" class="headerlink" title="Communicator"></a>Communicator</h3><p><strong>通讯器(communicator)</strong> 定义了一组能够互相发消息的进程。</p><h3 id="Rank"><a href="#Rank" class="headerlink" title="Rank"></a>Rank</h3><p>在 <strong>通讯器(communicator)</strong> 中，每个进程会被分配一个序号，称作 <strong>秩(rank)</strong>，进程间显性地通过指定 <strong>rank</strong> 来进行通信。</p><h3 id="Tag"><a href="#Tag" class="headerlink" title="Tag"></a>Tag</h3><p>不同进程之间发送、接收操作是通信的基础。</p><p>作为发送者时，进程可以通过指定另一个进程的 <strong>rank</strong> 和一个独一无二的 <strong>消息标签(tag)</strong> 来发送消息给另一个进程。</p><p>作为接受者时，进程可以发送一个 <strong>接收特定标签标记的消息的请求 (或者忽略标签，接收任何消息)</strong>，然后依次处理接收到的数据。</p><h3 id="Point-to-Point-Communications"><a href="#Point-to-Point-Communications" class="headerlink" title="Point-to-Point Communications"></a>Point-to-Point Communications</h3><p>一个发送者，一个接受者的通信被称作 <strong>点对点(point-to-point) 通信</strong>。</p><h3 id="Collective-Communications"><a href="#Collective-Communications" class="headerlink" title="Collective Communications"></a>Collective Communications</h3><p>在很多情况下，某个进程可能需要跟所有其他进程通信。比如主进程想发一个广播给所有的从进程。在这种情况下，如果通过写代码的方式来完成所有的发送和接收过程会很麻烦。并且，事实上，这种方式往往也不会以最佳方式使用网络。MPI 可以处理各种各样的这些涉及所有进程的 <strong>集体(Collective)通信</strong> 类型。</p><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul><li><a href="https://mpitutorial.com/tutorials/mpi-introduction/" target="_blank" rel="noopener">MPI Tutorial Introduction</a></li></ul>]]></content>
+    <content type="html"><![CDATA[<h2 id="消息传递模型"><a href="#消息传递模型" class="headerlink" title="消息传递模型"></a>消息传递模型</h2><p><strong>消息传递模型(Message Passing Model)</strong> 指程序通过在进程间传递消息（消息可以理解成带有一些信息和数据的一个数据结构）来完成某些任务。在实践中，基于此模型，很容易开发 <strong>并发程序</strong>。</p><p>举例来说:</p><ol><li>主进程(manager process) 可以通过向从进程(worker process) 发送一个描述工作的消息的方式，将工作分配给从进程。</li><li>一个并发的排序程序可以在当前进程中对当前进程可见的(我们称作本地的，locally) 数据进行排序，然后把排好序的数据发送到邻居进程上面来进行合并的操作。</li></ol><p>几乎所有的并行程序可以使用消息传递模型来描述。</p><p>之后，业界统一制定了一套消息传递模型的接口标准，即 <strong>Message Passing Interface —— MPI</strong>。</p><h2 id="MPI-基础概念"><a href="#MPI-基础概念" class="headerlink" title="MPI 基础概念"></a>MPI 基础概念</h2><h3 id="Communicator"><a href="#Communicator" class="headerlink" title="Communicator"></a>Communicator</h3><p><strong>通讯器(communicator)</strong> 定义了一组能够互相发消息的进程。</p><h3 id="Rank"><a href="#Rank" class="headerlink" title="Rank"></a>Rank</h3><p>在 <strong>通讯器(communicator)</strong> 中，每个进程会被分配一个序号，称作 <strong>秩(rank)</strong>，进程间显性地通过指定 <strong>rank</strong> 来进行通信。</p><h3 id="Tag"><a href="#Tag" class="headerlink" title="Tag"></a>Tag</h3><p>不同进程之间发送、接收操作是通信的基础。</p><p>作为发送者时，进程可以通过指定另一个进程的 <strong>rank</strong> 和一个独一无二的 <strong>消息标签(tag)</strong> 来发送消息给另一个进程。</p><p>作为接受者时，进程可以发送一个 <strong>接收特定标签标记的消息的请求 (或者忽略标签，接收任何消息)</strong>，然后依次处理接收到的数据。</p><h3 id="Point-to-Point-Communications"><a href="#Point-to-Point-Communications" class="headerlink" title="Point-to-Point Communications"></a>Point-to-Point Communications</h3><p>一个发送者，一个接受者的通信被称作 <strong>点对点(point-to-point) 通信</strong>。</p><h3 id="Collective-Communications"><a href="#Collective-Communications" class="headerlink" title="Collective Communications"></a>Collective Communications</h3><p>在很多情况下，某个进程可能需要跟所有其他进程通信。比如主进程想发一个广播给所有的从进程。在这种情况下，如果通过写代码的方式来完成所有的发送和接收过程会很麻烦。并且，事实上，这种方式往往也不会以最佳方式使用网络。MPI 可以处理各种各样的这些涉及所有进程的 <strong>集体(Collective)通信</strong> 类型。</p><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul><li><a href="https://mpitutorial.com/tutorials/mpi-introduction/" target="_blank" rel="noopener">MPI Tutorial Introduction</a></li></ul>]]></content>
     
     
       
       
-    <summary type="html">&lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;消息传递模型(Message Passing Model)&lt;/strong&gt; 指程序通过在进程间传递消息（消息可以理解成带有</summary>
+    <summary type="html">&lt;h2 id=&quot;消息传递模型&quot;&gt;&lt;a href=&quot;#消息传递模型&quot; class=&quot;headerlink&quot; title=&quot;消息传递模型&quot;&gt;&lt;/a&gt;消息传递模型&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;消息传递模型(Message Passing Model)&lt;/strong&gt; 指程序通过在进</summary>
       
     
     
