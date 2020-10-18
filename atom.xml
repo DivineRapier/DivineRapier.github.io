@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-10-15T12:42:54.195Z</updated>
+  <updated>2020-10-18T13:25:56.340Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Docker 中无法找到命令 configure</title>
+    <link href="http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/"/>
+    <id>http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/</id>
+    <published>2020-10-18T13:02:27.000Z</published>
+    <updated>2020-10-18T13:25:56.340Z</updated>
+    
+    <content type="html"><![CDATA[<p>通过进入基于 <code>ubuntu:20.04</code> 镜像运行的容器中安装 <strong>openmpi</strong> 的一系列指令得到了如下 <strong>dockerfile</strong> 片段:</p><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> tar xzf openmpi-4.0.5.tar.gz -C /tmp</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /tmp/openmpi-4.0.5</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> ./configure --with-threads=posix --<span class="built_in">enable</span>-mpi-thread-multiple</span></span><br></pre></td></tr></table></figure><p>以上命令可以在容器中逐条执行，但却在构建镜像时失败:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/sh: 1: ./configure: not found</span><br></pre></td></tr></table></figure><p>提示 <strong>configure</strong> 不存在。</p><p>修复办法是将 <strong>configure</strong> 命令与前一条命令合并:</p><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> tar xzf openmpi-4.0.5.tar.gz -C /tmp</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /tmp/openmpi-4.0.5 \</span></span><br><span class="line"><span class="bash">  &amp;&amp; ./configure --with-threads=posix --<span class="built_in">enable</span>-mpi-thread-multiple \</span></span><br><span class="line"><span class="bash">  &amp;&amp; make -j \</span></span><br><span class="line"><span class="bash">  &amp;&amp; make -j install</span></span><br></pre></td></tr></table></figure><p>推测原因: <strong>docker</strong> 镜像的每一层基于不同的 <strong>workdir</strong>。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;通过进入基于 &lt;code&gt;ubuntu:20.04&lt;/code&gt; 镜像运行的容器中安装 &lt;strong&gt;openmpi&lt;/strong&gt; 的一系列指令得到了如下 &lt;strong&gt;dockerfile&lt;/strong&gt; 片段:&lt;/p&gt;
+&lt;figure class=&quot;highl</summary>
+      
+    
+    
+    
+    
+    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
+    
+  </entry>
   
   <entry>
     <title>GPU 101 - Architecture</title>
@@ -57,11 +80,11 @@
     
     
     
+    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
+    
     <category term="windows" scheme="http://divinerapier.github.io/tags/windows/"/>
     
     <category term="wsl2" scheme="http://divinerapier.github.io/tags/wsl2/"/>
-    
-    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
     
   </entry>
   
@@ -110,9 +133,9 @@
     
     <category term="kubernetes" scheme="http://divinerapier.github.io/tags/kubernetes/"/>
     
-    <category term="rdma" scheme="http://divinerapier.github.io/tags/rdma/"/>
-    
     <category term="mpi" scheme="http://divinerapier.github.io/tags/mpi/"/>
+    
+    <category term="rdma" scheme="http://divinerapier.github.io/tags/rdma/"/>
     
   </entry>
   
@@ -479,29 +502,6 @@
     <category term="linux performance" scheme="http://divinerapier.github.io/tags/linux-performance/"/>
     
     <category term="cpu performance" scheme="http://divinerapier.github.io/tags/cpu-performance/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux 性能调优指南</title>
-    <link href="http://divinerapier.github.io/2020/08/22/linux-performance-guide/"/>
-    <id>http://divinerapier.github.io/2020/08/22/linux-performance-guide/</id>
-    <published>2020-08-22T14:38:13.000Z</published>
-    <updated>2020-08-22T14:44:46.574Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="/images/linux-performance/01-guide/01-performance-tools.png" alt="01"></p><p><img src="/images/linux-performance/01-guide/02-mind.png" alt="02"></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;&lt;img src=&quot;/images/linux-performance/01-guide/01-performance-tools.png&quot; alt=&quot;01&quot;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/images/linux-performance/01-guide/02-m</summary>
-      
-    
-    
-    
-    
-    <category term="linux performance" scheme="http://divinerapier.github.io/tags/linux-performance/"/>
     
   </entry>
   

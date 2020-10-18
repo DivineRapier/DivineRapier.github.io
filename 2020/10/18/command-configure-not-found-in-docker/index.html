@@ -6,16 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Archives: 2020 | お可愛いこと</title>
+  <title>Docker 中无法找到命令 configure | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="お可愛いこと">
-<meta property="og:url" content="http://divinerapier.github.io/archives/2020/page/4/index.html">
+  <meta name="description" content="通过进入基于 ubuntu:20.04 镜像运行的容器中安装 openmpi 的一系列指令得到了如下 dockerfile 片段: 1234RUN wget https:&#x2F;&#x2F;download.open-mpi.org&#x2F;release&#x2F;open-mpi&#x2F;v4.0&#x2F;openmpi-4.0.5.tar.gzRUN tar xzf openmpi-4.0.5.tar.gz -C &#x2F;tmpRUN cd &#x2F;t">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker 中无法找到命令 configure">
+<meta property="og:url" content="http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/index.html">
 <meta property="og:site_name" content="お可愛いこと">
+<meta property="og:description" content="通过进入基于 ubuntu:20.04 镜像运行的容器中安装 openmpi 的一系列指令得到了如下 dockerfile 片段: 1234RUN wget https:&#x2F;&#x2F;download.open-mpi.org&#x2F;release&#x2F;open-mpi&#x2F;v4.0&#x2F;openmpi-4.0.5.tar.gzRUN tar xzf openmpi-4.0.5.tar.gz -C &#x2F;tmpRUN cd &#x2F;t">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-10-18T13:02:27.000Z">
+<meta property="article:modified_time" content="2020-10-18T13:25:56.340Z">
 <meta property="article:author" content="divinerapier">
+<meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -163,148 +168,245 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-command-configure-not-found-in-docker" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/07/27/mysql-optimization-overview/" class="archive-article-date">
-        <time datetime="2020-07-27T13:43:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-27</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/07/27/mysql-optimization-overview/" target="_blank">MySQL 性能优化概述</a>
   
+    <h1 class="article-title" itemprop="name">
+      Docker 中无法找到命令 configure
     </h1>
   
 
 
-        <div class="article-info info-on-right">
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2020/10/18/command-configure-not-found-in-docker/" class="archive-article-date">
+        <time datetime="2020-10-18T13:02:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-18</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">200字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">1分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>通过进入基于 <code>ubuntu:20.04</code> 镜像运行的容器中安装 <strong>openmpi</strong> 的一系列指令得到了如下 <strong>dockerfile</strong> 片段:</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> tar xzf openmpi-4.0.5.tar.gz -C /tmp</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /tmp/openmpi-4.0.5</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> ./configure --with-threads=posix --<span class="built_in">enable</span>-mpi-thread-multiple</span></span><br></pre></td></tr></table></figure>
+
+<p>以上命令可以在容器中逐条执行，但却在构建镜像时失败:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/sh: 1: ./configure: not found</span><br></pre></td></tr></table></figure>
+
+<p>提示 <strong>configure</strong> 不存在。</p>
+<p>修复办法是将 <strong>configure</strong> 命令与前一条命令合并:</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> tar xzf openmpi-4.0.5.tar.gz -C /tmp</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /tmp/openmpi-4.0.5 \</span></span><br><span class="line"><span class="bash">  &amp;&amp; ./configure --with-threads=posix --<span class="built_in">enable</span>-mpi-thread-multiple \</span></span><br><span class="line"><span class="bash">  &amp;&amp; make -j \</span></span><br><span class="line"><span class="bash">  &amp;&amp; make -j install</span></span><br></pre></td></tr></table></figure>
+
+<p>推测原因: <strong>docker</strong> 镜像的每一层基于不同的 <strong>workdir</strong>。</p>
+
+    
+
+    
+    <div class="page-reward">
+      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
+        <div class="tooltip tooltip-east">
+          <span class="tooltip-item">
+            赏
+          </span>
+          <span class="tooltip-content">
+            <span class="tooltip-text">
+              <span class="tooltip-inner">
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
+                    class="icon icon-quo-right"></i></p>
+                <div class="reward-box">
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/alipay.jpg">
+                    <span class="reward-type">支付宝</span>
+                  </div>
+                  
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/wechatpay.png">
+                    <span class="reward-type">微信</span>
+                  </div>
+                  
+                </div>
+              </span>
+            </span>
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          divinerapier
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/" title="Docker 中无法找到命令 configure" target="_blank">http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/</a>
+        </li>
+        
+        <li>
+          <strong>版权声明： </strong>
           
+          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+    
 
+    
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
   </div>
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/07/26/signing-git-commits-with-gpg/" class="archive-article-date">
-        <time datetime="2020-07-26T01:43:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
-</a>
 
+
+<nav id="article-nav">
+  
+  
+    <a href="/2020/10/15/GPU-101-Architecture/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">GPU 101 - Architecture</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/07/26/signing-git-commits-with-gpg/" target="_blank">使用 GPG 签名认证 git 提交</a>
-  
-    </h1>
-  
+        
+        
+    </div>
+</aside>
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/07/13/hello-world/" class="archive-article-date">
-        <time datetime="2020-07-13T09:00:10.110Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-13</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/07/13/hello-world/" target="_blank">Hello World</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-          
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/2020/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/archives/2020/">1</a><a class="page-number" href="/archives/2020/page/2/">2</a><a class="page-number" href="/archives/2020/page/3/">3</a><span class="page-number current">4</span>
-    </nav>
-  
+
+
+
+
+
+
 
 
           </div>
@@ -345,8 +447,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,
