@@ -170,6 +170,507 @@
             
 
   
+    <article id="post-log-structured-merge-trees" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/26/log-structured-merge-trees/" target="_blank">Log Structured Merge Trees</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/26/log-structured-merge-trees/" class="archive-article-date">
+        <time datetime="2020-08-26T13:37:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-26</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>转自 <a href="https://medium.com/swlh/log-structured-merge-trees-9c8e2bea89e8" target="_blank" rel="noopener">Log Structured Merge Trees</a>。</p>
+<p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
+<p>The various components of a typical LSM backed system are shown below.</p>
+<p><img src="/images/log-structured-merge-trees/01.png" alt="01"></p>
+<p>The main reason why LSM provides high write throughput is that every write request is actually performed only <strong>in-memory</strong> in contrast to traditional B-Tree based implementation where the updates are done to disk which can trigger an update to an index making it very expensive.</p>
+<p>So the obvious question is, how does LSM achieve durability? that’s where WAL comes into the picture.</p>
+<h2 id="WAL"><a href="#WAL" class="headerlink" title="WAL"></a>WAL</h2><p>WAL is a write-ahead log that is used to provide the durability of data during system failures, what it means is that when a request for write comes in, the data is first added to a WAL file (sometimes called journal) and flushed to the disk (using <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/global_file_system/s1-manage-direct-io" target="_blank" rel="noopener">direct io</a>) before updating the in-memory data structure.</p>
+<p>This allows for systems to recover from the WAL if it crashes before persisting the in-memory data structure to disk.</p>
+<p>Why not directly update the write to the disk instead of updating WAL? it’s because WAL updates are cheaper as it’s append-only and doesn’t require any restructuring of data on disk.</p>
+<h2 id="MemTable"><a href="#MemTable" class="headerlink" title="MemTable"></a>MemTable</h2><p>The in-memory data structure is called a memtable, there are various implementations of memtable, but you can think of memtable as just a binary search tree for the sake of simplicity.</p>
+<p>So now for every write request, the data is appended to WAL and the memtable is updated and a successful response is returned to the client.</p>
+<p>For java implementations, the memtable is usually stored off-heap (direct memory) to avoid GC load</p>
+<h2 id="SSTable-Sorted-Strings-Table"><a href="#SSTable-Sorted-Strings-Table" class="headerlink" title="SSTable (Sorted Strings Table)"></a>SSTable (Sorted Strings Table)</h2><p>As it’s obvious that we cannot keep adding data to memtable to bloat the RAM, the memtable is frequently flushed to disk as an SSTable.</p>
+<p>SSTable, as the name indicates, is a sorted array of keys persisted on disk.</p>
+<p>The reason it is sorted is to make it easy to look up the data for readings.</p>
+<p>Okay, now that is the essence of how LSM provides high throughput using a WAL, MemTable &amp; SSTable.</p>
+<p>Usually, even every delete request for a key is also added to memtable with a marker indicating it’s deleted and the same information is flushed to the SSTable.</p>
+<h2 id="Compactor"><a href="#Compactor" class="headerlink" title="Compactor"></a>Compactor</h2><p>As we keep flushing SSTables to disk, the same key may be present in multiple SSTables, although the latest data of a key is present in the most recent SSTable, it’s presence in all previous SSTable needs to be cleaned up.</p>
+<p>This is the job of a compactor which usually runs in the background, It merges SSTables by removing redundant &amp; deleted keys and creating a compacted/merged SSTables.</p>
+<p>the compactor also is responsible for updating an index (typical B-Tree based index) to locate SSTable a key is present in.</p>
+<h2 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h2><p>The index data structure created is used to locate the correct SSTable for a key, once an SSTable is located, it is easy to locate the actual key inside the SSTable as it’s sorted, a binary search in-memory is sufficient.</p>
+<p>Also, the size of SSTables is chosen in such a way that it corresponds to the operating system <a href="https://en.wikipedia.org/wiki/Page_(computer_memory)" target="_blank" rel="noopener">page size</a> (usually multiples of disk bock size) making it easier to load the data to memory faster.</p>
+<p>Although the Index along with SSTable help in faster lookup of keys, all read requests are first consulted in the memtable as it should contain the most recent change. If the key is not in the memtable, then the index is used to identify the possible SSTable the key may be present and then search inside the SSTable in-memory.</p>
+<p>Since every read has to check the memtable, index &amp; SSTable to look for a key, it makes read requests very expensive especially for keys that are not present!</p>
+<p>For keys that are recently updated, the read request will easily locate it in the memtable, but for keys not recently updated, and for keys that are not present in the system the read path is expensive!</p>
+<p>Bloom Filters are used to improve read performance especially for the cases where the key is not present in the system.</p>
+<h2 id="Bloom-Filter"><a href="#Bloom-Filter" class="headerlink" title="Bloom Filter"></a>Bloom Filter</h2><p>A Bloom filter is a probabilistic data structure, which at a high level helps you check if a key is present or not in the system with O(1) complexity in memory.</p>
+<p>With bloom filter, False positive match is possible, which means, it may indicate a key is present although it’s not in the system. But false-negative match won’t happen, which means if bloom filter indicates a key is not present, then it is definitely not present in the system, so we could avoid taking the expensive read path.</p>
+<p>So the presence of a bloom filter improves the read performance for keys that are missing in the system but for the keys that are present in the system, the read is still expensive as we have to look into the memtable, index and the SSTable.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>So every time you come across a system that promises high write throughput, you can assume there will be a variant of LSM tree underneath that helps achieve the throughput and also understand why reads are expensive.</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">storage engine</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">lsm tree</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">sstable</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/26/log-structured-merge-trees/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-container-orchestration-and-kubernetes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/24/container-orchestration-and-kubernetes/" target="_blank">容器编排与 Kubernetes</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/24/container-orchestration-and-kubernetes/" class="archive-article-date">
+        <time datetime="2020-08-24T12:58:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-24</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p><code>Docker</code> 容器依托于 <code>Linux Namespace</code>、<code>Cgroup</code>、<code>rootfs</code> 三方面，在宿主机之上为用户构建出互相隔离的进程运行环境。</p>
+<ul>
+<li><code>rootfs</code> 作为容器镜像，是静态视图；</li>
+<li><code>Namespace</code> + <code>Cgroup</code> 提供运行时隔离环境，是动态视图。</li>
+</ul>
+<p>显而易见，对于开发者而言，他们更关注于容器镜像。容器镜像，可以看做是以前的应用程序，它由开发者负责构建，并在开发、测试、发布等各个环节之间作为最核心的组件。</p>
+<p>在这种前提之下，云服务提供商的职责就从原来的 <strong>将用户提交的应用在虚拟机上运行起来</strong>，转变为 <strong>将用户提交的镜像以容器的方式运行起来</strong>。</p>
+<p>因此，整个生态必将以容器镜像为核心连接点，在生态链路的各个节点，如 <code>CI/CD</code>、监控、安全、网络、存储等，都需要转变为以容器镜像为根本。这将是一次云服务平台的结构化升级。</p>
+<p>容器从一个开发者手里的小工具，一跃成为了云计算领域的绝对主角；而能够定义容器组织和管理规范的 <strong>容器编排</strong> 技术，则当仁不让地坐上了容器技术领域的 <strong>头把交椅</strong>。这其中，其中翘楚当属 <code>Docker</code> 公司的 <code>Compose+Swarm</code> 组合，以及 <code>Google</code> 与 <code>RedHat</code> 公司共同主导的 <code>Kubernetes</code> 项目。</p>
+<h2 id="Kubernetes"><a href="#Kubernetes" class="headerlink" title="Kubernetes"></a>Kubernetes</h2><p><code>Kubernetes</code> 项目脱胎于 <code>Google</code> 的核心系统 <code>Borg</code>，在项目初期有有着很强的技术理论指导。</p>
+<p><code>Borg</code> 系统，一直以来都被誉为 <code>Google</code> 公司内部最强大的 <strong>秘密武器</strong>。虽然略显夸张，但这个说法倒不算是吹牛。因为，相比于 <code>Spanner</code>、<code>BigTable</code> 等相对上层的项目，<code>Borg</code> 要承担的责任，是承载 <code>Google</code> 公司整个基础设施的核心依赖。在 <code>Google</code> 公司已经公开发表的基础设施体系论文中，<code>Borg</code> 项目当仁不让地位居整个基础设施技术栈的最底层。</p>
+<p><img src="/images/container-orchestration-and-kubernetes/google-stack.png" alt="google-stack"></p>
+<p>上图，来自于 <code>Google Omega</code> 论文的第一作者的博士毕业论文。它描绘了当时 <code>Google</code> 已经公开发表的整个基础设施栈。在这个图里，你既可以找到 <code>MapReduce</code>、<code>BigTable</code> 等知名项目，也能看到 <code>Borg</code> 和它的继任者 <code>Omega</code> 位于整个技术栈的最底层。</p>
+<p>正是由于这样的定位，<code>Borg</code> 可以说是 <code>Google</code> 最不可能开源的一个项目。而幸运的是，得益于 <code>Docker</code> 项目和容器技术的风靡，它终于得以以另一种方式与开源社区见面，这个方式就是 <code>Kubernetes</code> 项目。</p>
+<p>所以，相比于 <strong>小打小闹</strong> 的 <code>Docker</code> 公司、<strong>旧瓶装新酒</strong> 的 <code>Mesos</code> 社区，<strong><code>Kubernetes</code> 项目从一开始就比较幸运地站上了一个他人难以企及的高度</strong>: 在它的成长阶段，这个项目每一个核心特性的提出，几乎都脱胎于 <code>Borg/Omega</code> 系统的设计与经验。更重要的是，这些特性在开源社区落地的过程中，又在整个社区的合力之下得到了极大的改进，修复了很多当年遗留在 <code>Borg</code> 体系中的缺陷和问题。</p>
+<p>所以，尽管在发布之初被批评是 <strong>曲高和寡</strong>，但是在逐渐觉察到 <code>Docker</code> 技术栈的 <strong>稚嫩</strong> 和 <code>Mesos</code> 社区的 <strong>老迈</strong> 之后，这个社区很快就明白了: <code>Kubernetes</code> 项目在 <code>Borg</code> 体系的指导下，体现出了一种独有的 <strong>先进性</strong> 与 <strong>完备性</strong>，而这些特质才是一个基础设施领域开源项目赖以生存的核心价值。</p>
+<h2 id="Kubernetes-解决了什么问题"><a href="#Kubernetes-解决了什么问题" class="headerlink" title="Kubernetes 解决了什么问题"></a>Kubernetes 解决了什么问题</h2><p>在说明 <code>Kubernetes</code> 解决了什么问题之前，先来讨论一下，用户期望 <code>Kubernetes</code> 有什么样的功能。</p>
+<p>对于大多数用户来说，他们希望 <code>Kubernetes</code> 项目带来的体验是确定的: 现在我有了应用的容器镜像，请帮我在一个给定的集群上把这个应用运行起来。</p>
+<p>更进一步地说，还希望 <code>Kubernetes</code> 能给我提供路由 <strong>网关</strong>、<strong>水平扩展</strong>、<strong>监控</strong>、<strong>备份</strong>、<strong>灾难恢复</strong> 等一系列运维能力。</p>
+<p>解决发现，这就是对于 <code>PaaS(Cloud Foundry)</code> 同等的诉求。</p>
+<p>但是，这些功能完全可以通过 <code>Docker</code> 及其生态圈 <code>Docker Compose</code> + <code>Docker Swarm</code> 自行实现，完全不知道实现一个 <strong>百万行代码量级</strong> 的 <code>Kubernetes</code></p>
+<p>所以说，如果 <code>Kubernetes</code> 项目只是停留在拉取用户镜像、运行容器，以及提供常见的运维功能的话，那么别说跟 <strong>原生</strong> 的 <code>Docker Swarm</code> 项目竞争了，哪怕跟经典的 <code>PaaS</code> 项目相比也难有什么优势可言。</p>
+<p>而实际上，在定义核心功能的过程中，<code>Kubernetes</code> 项目是站在巨人 <code>Borg</code> 项目的肩膀之上，凭借 <code>Borg</code> 超前的理论优势，在短短几个月内迅速站稳了脚跟，进而确定了一个如下图所示的全局架构:</p>
+<p><img src="/images/container-orchestration-and-kubernetes/k8s-architecture.png" alt="k8s-architecture"></p>
+<p>可以看到，<code>Kubernetes</code> 项目的架构与原型项目 <code>Borg</code> 非常类似，都由 <code>Master</code> 和 <code>Node</code> 两种节点组成，分别用作控制节点和计算节点。</p>
+<p>其中，控制节点，即 <code>Master</code> 节点，由 <strong>三个</strong> 紧密协作的独立组件组合而成，它们分别是<strong>负责 <code>API</code> 服务的 <code>kube-apiserver</code></strong>、<strong>负责调度的 <code>kube-scheduler</code></strong>，以及 <strong>负责容器编排的 <code>kube-controller-manager</code></strong>。整个集群的持久化数据，由 <code>kube-apiserver</code> 处理后保存在 <code>ETCD</code> 中。</p>
+<p>而计算节点上最核心的部分，则是一个叫作 <code>kubelet</code> 的组件。</p>
+<p>在 <code>Kubernetes</code> 项目中，<code>kubelet</code> 主要负责同容器运行时(比如 <code>Docker</code> 项目)打交道。而这个交互所依赖的，是一个称作 <code>CRI(Container Runtime Interface)</code> 的远程调用接口，这个接口定义了容器运行时的各项核心操作，比如: 启动一个容器需要的所有参数。</p>
+<p>这也是为何，<code>Kubernetes</code> 项目并不关心你部署的是什么容器运行时、使用的什么技术实现，只要你的这个容器运行时能够运行标准的容器镜像，它就可以通过实现 <code>CRI</code> 接入到 <code>Kubernetes</code> 项目当中。</p>
+<p>而具体的容器运行时，比如 <code>Docker</code> 项目，则一般通过 <code>OCI</code> 这个容器运行时规范同底层的 <code>Linux</code> 操作系统进行交互，即: 把 <code>CRI</code> 请求翻译成对 <code>Linux</code> 操作系统的调用(操作 <code>Linux Namespace</code> 和 <code>Cgroups</code> 等)。</p>
+<p>此外，<code>kubelet</code> 还通过 <code>gRPC</code> 协议同一个叫作 <code>Device Plugin</code> 的插件进行交互。这个插件，是 <code>Kubernetes</code> 项目用来管理 <code>GPU</code> 等宿主机物理设备的主要组件，也是基于 <code>Kubernetes</code> 项目进行机器学习训练、高性能作业支持等工作必须关注的功能。</p>
+<p>而 <code>kubelet</code> 的另一个重要功能，则是调用网络插件和存储插件为容器配置网络和持久化存储。这两个插件与 <code>kubelet</code> 进行交互的接口，分别是 <code>CNI(Container Networking Interface)</code>和 <code>CSI(Container Storage Interface)</code>。</p>
+<p>实际上，<code>kubelet</code> 这个奇怪的名字，来自于 <code>Borg</code> 项目里的同源组件 <code>Borglet</code>。不过，如果你浏览过 <code>Borg</code> 论文的话，就会发现，这个命名方式可能是 <code>kubelet</code> 组件与 <code>Borglet</code> 组件的唯一相似之处。因为 <code>Borg</code> 项目，并不支持我们这里所讲的容器技术，而只是简单地使用了 <code>Linux Cgroups</code> 对进程进行限制。</p>
+<p>这就意味着，像 <code>Docker</code> 这样的“容器镜像”在 <code>Borg</code> 中是不存在的，<code>Borglet</code> 组件也自然不需要像 <code>kubelet</code> 这样考虑如何同 <code>Docker</code> 进行交互、如何对容器镜像进行管理的问题，也不需要支持 <code>CRI</code>、<code>CNI</code>、<code>CSI</code> 等诸多容器技术接口。</p>
+<p>可以说，<code>kubelet</code> 完全就是为了实现 <code>Kubernetes</code> 项目对容器的管理能力而重新实现的一个组件，与 <code>Borg</code> 之间并没有直接的传承关系。</p>
+<p>那么，<code>Borg</code> 对于 <code>Kubernetes</code> 项目的指导作用又体现在哪里呢？</p>
+<p>答案是，<code>Master</code> 节点。</p>
+<p>虽然在 <code>Master</code> 节点的实现细节上 <code>Borg</code> 项目与 <code>Kubernetes</code> 项目不尽相同，但它们的出发点却高度一致，即: <strong>如何编排、管理、调度用户提交的作业</strong>。</p>
+<p>所以，<code>Borg</code> 项目完全可以把 <code>Docker</code> 镜像看作一种新的应用打包方式。这样，<code>Borg</code> 团队过去在大规模作业管理与编排上的经验就可以直接 <strong>套</strong> 在 <code>Kubernetes</code> 项目上了。</p>
+<p>这些经验最主要的表现就是，从一开始，<code>Kubernetes</code> 项目就没有像同时期的各种 <strong>容器云</strong> 项目那样，把 <code>Docker</code> 作为整个架构的核心，而仅仅把它作为最底层的一个容器运行时实现。</p>
+<p>而 <code>Kubernetes</code> 项目要着重解决的问题，则来自于 <code>Borg</code> 的研究人员在论文中提到的一个非常重要的观点:</p>
+<blockquote>
+<p>运行在大规模集群中的各种任务之间，实际上存在着各种各样的关系。这些关系的处理，才是作业编排和管理系统最困难的地方。</p>
+</blockquote>
+<p>事实也正是如此。</p>
+<p>其实，这种任务与任务之间的关系，在我们平常的各种技术场景中随处可见。比如，一个 <code>Web</code> 应用与数据库之间的访问关系，一个负载均衡器和它的后端服务之间的代理关系，一个门户应用与授权组件之间的调用关系。</p>
+<p>更进一步地说，同属于一个服务单位的不同功能之间，也完全可能存在这样的关系。比如，一个 <code>Web</code> 应用与日志搜集组件之间的文件交换关系。</p>
+<p>而在容器技术普及之前，传统虚拟机环境对这种关系的处理方法都是比较“粗粒度”的。你会经常发现很多功能并不相关的应用被一股脑儿地部署在同一台虚拟机中，只是因为它们之间偶尔会互相发起几个 <code>HTTP</code> 请求。</p>
+<p>更常见的情况则是，一个应用被部署在虚拟机里之后，你还得手动维护很多跟它协作的守护进程 <code>(Daemon)</code>，用来处理它的日志搜集、灾难恢复、数据备份等辅助工作。</p>
+<p>但容器技术出现以后，你就不难发现，在 <strong>功能单位</strong> 的划分上，容器有着独一无二的 <strong>细粒度</strong> 优势: 毕竟容器的本质，只是一个进程而已。</p>
+<p>也就是说，只要你愿意，那些原先拥挤在同一个虚拟机里的各个应用、组件、守护进程，都可以被分别做成镜像，然后运行在一个个专属的容器中。它们之间互不干涉，拥有各自的资源配额，可以被调度在整个集群里的任何一台机器上。而这，正是一个 <code>PaaS</code> 系统最理想的工作状态，也是所谓“微服务”思想得以落地的先决条件。</p>
+<p>当然，如果只做到 <strong>封装微服务、调度单容器</strong> 这一层次，<code>Docker Swarm</code> 项目就已经绰绰有余了。如果再加上 <code>Compose</code> 项目，你甚至还具备了处理一些简单依赖关系的能力，比如：一个 <strong>Web 容器</strong> 和它要访问的数据库 <strong>DB 容器</strong>。</p>
+<p>在 <code>Compose</code> 项目中，你可以为这样的两个容器定义一个 <code>link</code>，而 <code>Docker</code> 项目则会负责维护这个 <strong>link</strong> 关系，其具体做法是: <code>Docker</code> 会在 <code>Web</code> 容器中，将 <code>DB</code> 容器的 <code>IP</code> 地址、端口等信息以环境变量的方式注入进去，供应用进程使用，比如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DB_NAME&#x3D;&#x2F;web&#x2F;db</span><br><span class="line">DB_PORT&#x3D;tcp:&#x2F;&#x2F;172.17.0.5:5432</span><br><span class="line">DB_PORT_5432_TCP&#x3D;tcp:&#x2F;&#x2F;172.17.0.5:5432</span><br><span class="line">DB_PORT_5432_TCP_PROTO&#x3D;tcp</span><br><span class="line">DB_PORT_5432_TCP_PORT&#x3D;5432</span><br><span class="line">DB_PORT_5432_TCP_ADDR&#x3D;172.17.0.5</span><br></pre></td></tr></table></figure>
+
+<p>而当 DB 容器发生变化时(比如，镜像更新，被迁移到其他宿主机上等等)，这些环境变量的值会由 <code>Docker</code> 项目自动更新。这就是平台项目自动地处理容器间关系的典型例子。</p>
+<p>可是，如果我们现在的需求是，要求这个项目能够处理前面提到的所有类型的关系，甚至还要能够支持未来可能出现的更多种类的关系呢？</p>
+<p>这时，<code>link</code> 这种单独针对一种案例设计的解决方案就太过简单了。如果你做过架构方面的工作，就会深有感触：一旦要追求项目的普适性，那就一定要从顶层开始做好设计。</p>
+<p>所以，<code>Kubernetes</code> 项目最主要的设计思想是，从更宏观的角度，以统一的方式来定义任务之间的各种关系，并且为将来支持更多种类的关系留有余地。</p>
+<p>比如，<code>Kubernetes</code> 项目对容器间的 <strong>访问</strong> 进行了分类，首先总结出了一类非常常见的“紧密交互”的关系，即：这些应用之间需要非常频繁的交互和访问；又或者，它们会直接通过本地文件进行信息交换。</p>
+<p>在常规环境下，这些应用往往会被直接部署在同一台机器上，通过 <code>Localhost</code> 通信，通过本地磁盘目录交换文件。而在 <code>Kubernetes</code> 项目中，这些容器则会被划分为一个 <strong>Pod</strong>，<code>Pod</code> 里的容器共享同一个 <code>Network Namespace</code>、同一组数据卷，从而达到高效率交换信息的目的。</p>
+<p><code>Pod</code> 是 <code>Kubernetes</code> 项目中最基础的一个对象，源自于 <code>Google Borg</code> 论文中一个名叫 <code>Alloc</code> 的设计。在后续的章节中，我们会对 <code>Pod</code> 做更进一步地阐述。</p>
+<p>而对于另外一种更为常见的需求，比如 <strong>Web 应用</strong> 与 <strong>数据库</strong> 之间的访问关系，<code>Kubernetes</code> 项目则提供了一种叫作“Service”的服务。像这样的两个应用，往往故意不部署在同一台机器上，这样即使 <code>Web</code> 应用所在的机器宕机了，数据库也完全不受影响。可是，我们知道，对于一个容器来说，它的 <code>IP</code> 地址等信息不是固定的，那么 <code>Web</code> 应用又怎么找到数据库容器的 <code>Pod</code> 呢？</p>
+<p>所以，Kubernetes 项目的做法是给 <code>Pod</code> 绑定一个 <code>Service</code> 服务，而 <code>Service</code> 服务声明的 <code>IP</code> 地址等信息是 <strong>终生不变</strong> 的。这个 <code>Service</code> 服务的主要作用，就是作为 <code>Pod</code> 的代理入口 <code>(Portal)</code>，从而代替 <code>Pod</code> 对外暴露一个固定的网络地址。</p>
+<p>这样，对于 <code>Web</code> 应用的 <code>Pod</code> 来说，它需要关心的就是数据库 <code>Pod</code> 的 <code>Service</code> <code>信息。不难想象，Service</code> 后端真正代理的 <code>Pod</code> 的 <code>IP</code> 地址、端口等信息的自动更新、维护，则是 <code>Kubernetes</code> 项目的职责。</p>
+<p>像这样，围绕着容器和 <code>Pod</code> 不断向真实的技术场景扩展，我们就能够摸索出一幅如下所示的 <code>Kubernetes</code> 项目核心功能的“全景图”。</p>
+<p><img src="/images/container-orchestration-and-kubernetes/k8s-overview.png" alt="k8s-overview"></p>
+<p>按照这幅图的线索，我们从容器这个最基础的概念出发，首先遇到了容器间“紧密协作”关系的难题，于是就扩展到了 <code>Pod</code>: 有了 <code>Pod</code> 之后，我们希望能一次启动多个应用的实例，这样就需要 <code>Deployment</code> 这个 <code>Pod</code> 的多实例管理器；而有了这样一组相同的 <code>Pod</code> 后，我们又需要通过一个固定的 <code>IP</code> 地址和端口以负载均衡的方式访问它，于是就有了 <code>Service</code>。</p>
+<p>可是，如果现在两个不同 <code>Pod</code> 之间不仅有“访问关系”，还要求在发起时加上授权信息。最典型的例子就是 <code>Web</code> 应用对数据库访问时需要 <code>Credential</code>(数据库的用户名和密码)信息。那么，在 <code>Kubernetes</code> 中这样的关系又如何处理呢？</p>
+<p><code>Kubernetes</code> 项目提供了一种叫作 <code>Secret</code> 的对象，它其实是一个保存在 <code>Etcd</code> 里的键值对数据。这样，你把 <code>Credential</code> 信息以 <code>Secret</code> 的方式存在 <code>Etcd</code> <code>里，Kubernetes</code> 就会在你指定的 <code>Pod</code>(比如，<code>Web</code> 应用的 <code>Pod</code>)启动时，自动把 <code>Secret</code> 里的数据以 <code>Volume</code> 的方式挂载到容器里。这样，这个 <code>Web</code> 应用就可以访问数据库了。</p>
+<p>除了应用与应用之间的关系外，应用运行的形态是影响 <strong>如何容器化这个应用</strong> 的第二个重要因素。</p>
+<p>为此，<code>Kubernetes</code> 定义了新的、基于 <code>Pod</code> 改进后的对象。比如 <code>Job</code>，用来描述一次性运行的 <code>Pod</code>(比如，大数据任务): 再比如 <code>DaemonSet</code>，用来描述每个宿主机上必须且只能运行一个副本的守护进程服务: 又比如 <code>CronJob</code>，则用于描述定时任务等等。</p>
+<p>如此种种，正是 <code>Kubernetes</code> 项目定义容器间关系和形态的主要方法。</p>
+<p>可以看到，<code>Kubernetes</code> 项目并没有像其他项目那样，为每一个管理功能创建一个指令，然后在项目中实现其中的逻辑。这种做法，的确可以解决当前的问题，但是在更多的问题来临之后，往往会力不从心。</p>
+<p>相比之下，在 <code>Kubernetes</code> 项目中，我们所推崇的使用方法是：</p>
+<ul>
+<li>首先，通过一个 <strong>编排对象</strong>，比如 <code>Pod</code>、<code>Job</code>、<code>CronJob</code> 等，来描述你试图管理的应用；</li>
+<li>然后，再为它定义一些“服务对象”，比如 <code>Service</code>、<code>Secret</code>、<code>Horizontal Pod Autoscaler</code>(自动水平扩展器)等。这些对象，会负责具体的平台级功能。</li>
+</ul>
+<p>这种使用方法，就是所谓的 <strong>声明式 API</strong> 。这种 <code>API</code> 对应的 <strong>编排对象</strong> 和 <strong>服务对象</strong>，都是 <code>Kubernetes</code> 项目中的 <code>API</code> 对象<code>(API Object)</code>。</p>
+<p>这就是 <code>Kubernetes</code> 最核心的设计理念，也是接下来我会重点剖析的关键技术点。</p>
+<p>最后，我来回答一个更直接的问题: <code>Kubernetes</code> 项目如何启动一个容器化任务呢？</p>
+<p>比如，我现在已经制作好了一个 <code>Nginx</code> 容器镜像，希望让平台帮我启动这个镜像。并且，我要求平台帮我运行两个完全相同的 <code>Nginx</code> 副本，以负载均衡的方式共同对外提供服务。</p>
+<p>如果是自己 <code>DIY</code> 的话，可能需要启动两台虚拟机，分别安装两个 <code>Nginx</code>，然后使用 <code>keepalived</code> 为这两个虚拟机做一个虚拟 <code>IP</code>。</p>
+<p>而如果使用 <code>Kubernetes</code> 项目呢？你需要做的则是编写如下这样一个 <code>YAML</code> 文件(比如名叫 nginx-deployment.yaml):</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-deployment</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">nginx:1.7.9</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面这个 <code>YAML</code> 文件中，我们定义了一个 <code>Deployment</code> 对象，它的主体部分 <code>(spec.template 部分)</code> 是一个使用 <code>Nginx</code> 镜像的 <code>Pod</code>，而这个 <code>Pod</code> 的副本数是 2(replicas=2)。</p>
+<p>然后执行:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl create -f nginx-deployment.yaml</span><br></pre></td></tr></table></figure>
+
+<p>这样，两个完全相同的 <code>Nginx</code> 容器副本就被启动了。</p>
+<p>不过，这么看来，做同样一件事情，<code>Kubernetes</code> 用户要做的工作也不少嘛。</p>
+<p>别急，在后续的讲解中，我会陆续介绍 <code>Kubernetes</code> 项目这种 <strong>声明式 API</strong> 的种种好处，以及基于它实现的强大的编排能力。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>Kubernetes</code> 项目的本质，是为用户提供一个具有普遍意义的容器编排工具。</p>
+<h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><ul>
+<li><a href="http://malteschwarzkopf.de/research/assets/google-stack.pdf" target="_blank" rel="noopener">The Google Stack</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">container orchestration</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/24/container-orchestration-and-kubernetes/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-load-average" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/22/load-average/" target="_blank">CPU 平均工作负载</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/22/load-average/" class="archive-article-date">
+        <time datetime="2020-08-22T14:48:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-22</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>当程序的性能未达到预期时，大多数开发者会选择使用 <code>top</code> 指令查看指标 <code>CPU</code> 使用率。其实，还有另一个有关 <code>CPU</code> 的重要指标: 平均负责 <code>(load average)</code>。</p>
+<p>可以使用 <code>top</code> 指令，或者 <code>uptime</code> 指令查看:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$top</span></span><br><span class="line"></span><br><span class="line">top - 23:11:02 up 19 days, 12:05,  1 user,  load average: 1.25, 1.42, 1.29</span><br><span class="line">Tasks: 258 total,   2 running, 197 sleeping,   0 stopped,   0 zombie</span><br><span class="line">%Cpu(s):  9.1 us,  6.8 sy,  0.3 ni, 78.1 id,  5.2 wa,  0.0 hi,  0.5 si,  0.0 st</span><br><span class="line">KiB Mem : 15871204 total,   508880 free,  1675924 used, 13686400 buff/cache</span><br><span class="line">KiB Swap:  2097148 total,  2096112 free,     1036 used. 14133480 avail Mem</span><br><span class="line"></span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND</span><br><span class="line"> 4812 root      20   0  271208 155208  36668 S  14.6  1.0   1078:57 rancher</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ uptime</span><br><span class="line"> 23:10:12 up 19 days, 12:05,  1 user,  load average: 1.65, 1.50, 1.31</span><br></pre></td></tr></table></figure>
+
+<p>可以发现，<code>uptime</code> 指令的输出与 <code>top</code> 指令输出的第一行几乎一致。具体每一部分的含义为:</p>
+<ul>
+<li><strong>当前时间</strong>: 23:10:12</li>
+<li><strong>运行时间</strong>: up 19 days, 12:05</li>
+<li><strong>登录用户数量</strong>: 1 user</li>
+<li><strong>平均负载</strong>: 过去 <strong>1min</strong>，<strong>3min</strong>，<strong>5min</strong> 的平均负载</li>
+</ul>
+<h2 id="什么是平均负载"><a href="#什么是平均负载" class="headerlink" title="什么是平均负载"></a>什么是平均负载</h2><p>首先，需要强调:</p>
+<ul>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+</ul>
+<p>而是，系统处于 <strong>可运行状态</strong> 和 <strong>不可中断状态</strong> 的平均进程数，即 <strong>平均活跃进程数</strong>。与 <code>CPU</code> 使用率没有直接关系。</p>
+<ul>
+<li><strong>可运行状态</strong>: 正在使用 <code>CPU</code> 或者正在等待 <code>CPU</code> 的进程。即 <code>ps</code> 指令显示为 <code>R</code> 状态 <code>(Running/Runable)</code> 的进程。</li>
+<li><strong>不可中断状态</strong>: 处于内核态关键流程中的进程，且不可打断。比如最常见的是等待硬件设备的 <code>I/O</code> 响应，即 <code>ps</code> 指令中中看到的 <code>D</code> 状态 <code>(Uninterruptible Sleep/Disk Sleep)</code> 的进程。</li>
+</ul>
+<p>比如，当一个进程向磁盘读写数据时，为了保证数据的一致性，在得到磁盘回复前，它是不能被其他 <strong>进程</strong> 或者 <strong>中断</strong> 打断的，这个时候的进程就处于不可中断状态。如果此时的进程被打断了，就容易出现磁盘数据与进程数据不一致的问题。</p>
+<p>所以，<strong>不可中断状态实际上是系统对进程和硬件设备的一种保护机制</strong>。</p>
+<h2 id="评估平均负载"><a href="#评估平均负载" class="headerlink" title="评估平均负载"></a>评估平均负载</h2><p>可以简单的认为，平均负载就是活跃的进程数。所以，最理想的场景是每个 <code>CPU</code> 都只需要处理一个进程，即 <code>CPU</code> 数量等于平均负载值。</p>
+<p>因此，在分析系统平均负载是否合理时，首先应该知道当前系统的 <code>CPU</code> 数量。</p>
+<p>平均负载可以简单的认为是活跃进程数:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat /proc/cpuinfo | grep -i <span class="string">'model name'</span> | wc -l</span><br><span class="line">16</span><br></pre></td></tr></table></figure>
+
+<p>之后，就可以通过比较 <code>CPU</code> 的数量与平均负载大小关系，确认系统是否过载。</p>
+<p>同时，结合过去 <code>1min</code>，<code>5min</code>，<code>15min</code> 的系统负载，就可以推测出系统负载的变化趋势。</p>
+<p>当平均负载超过 <code>CPU</code> <code>50%</code> 时，可以认为负载较高；当超过 <code>70%</code> 时，就应该开发分析导致高负载的原因。同时，也应该将平均负载作为一项监控指标。只有结合历史数据来分析才更有意义。</p>
+<h2 id="平均负载与-CPU-使用率"><a href="#平均负载与-CPU-使用率" class="headerlink" title="平均负载与 CPU 使用率"></a>平均负载与 CPU 使用率</h2><p><strong>平均负载</strong> 表示为一定时间内，处于 <strong>可运行状态</strong> 和 <strong>不可中断状态</strong> 的进程数量。核心在于 <strong>进程数量</strong>。</p>
+<ul>
+<li><code>R</code> 状态: 运行状态，会使用到 <code>CPU</code></li>
+<li><code>D</code> 状态: 不可中断状态，处于内核态等待 <code>I/O</code> 响应，不使用 <code>CPU</code>。</li>
+</ul>
+<p><strong><code>CPU</code> 使用率</strong> 表示为一定时间内 <code>CPU</code> 的繁忙情况。核心在于进程占用 <code>CPU</code> 的时间占总时间的百分比。</p>
+<p>因此，应该将二者结合一起使用:</p>
+<ul>
+<li><code>CPU</code> 密集型进程，使用大量 <code>CPU</code> 会导致平均负载升高，此时这两者是一致的</li>
+<li><code>I/O</code> 密集型进程，等待 <code>I/O</code> 会导致平均负载升高，但 <code>CPU</code> 使用率不一定很高</li>
+<li>大量等待 <code>CPU</code> 的进程调度也会导致平均负载升高，此时的 <code>CPU</code> 使用率也会比较高。</li>
+</ul>
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><p>系统初始状态为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ uptime</span><br><span class="line"> 16:39:57 up 1 day,  2:52,  0 users,  load average: 0.10, 0.05, 0.06</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装工具"><a href="#安装工具" class="headerlink" title="安装工具"></a>安装工具</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pacman -S stress sysstat</span><br></pre></td></tr></table></figure>
+
+<h3 id="CPU-密集型"><a href="#CPU-密集型" class="headerlink" title="CPU 密集型"></a>CPU 密集型</h3><p>首先，在 <code>Terminal No.1</code> 使用 <code>stress</code> 模拟一个 <code>CPU</code> 密集型进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ stress --cpu 1 --timeout 6000</span><br><span class="line">stress: info: [5049] dispatching hogs: 1 cpu, 0 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>然后，在 <code>Terminal No.2</code> 查看平均负载:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ watch -d uptime</span><br><span class="line">Every 2.0s: uptime                zephyrus: Sun Aug 23 16:44:30 2020</span><br><span class="line"></span><br><span class="line"> 16:44:30 up 1 day,  2:56,  0 users,  load average: 0.99, 0.62, 0.30</span><br></pre></td></tr></table></figure>
+
+<p>可以观察到，<code>1min</code> 的平均负载有较大的变化。</p>
+<p>接着，在 <code>Terminal No.3</code> 监控 <code>CPU</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ mpstat -P ALL 5</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">04:44:59 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle</span><br><span class="line">04:45:04 PM  all    6.29    0.00    0.06    0.00    0.00    0.08    0.00    0.00    0.00   93.57</span><br><span class="line">04:45:04 PM    0    0.00    0.00    0.00    0.00    0.00    1.19    0.00    0.00    0.00   98.81</span><br><span class="line">04:45:04 PM    1  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">04:45:04 PM    2    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM    3    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM    4    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM    5    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM    6    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM    7    0.40    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">04:45:04 PM    8    0.00    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">04:45:04 PM    9    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   10    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM   11    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   12    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM   13    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   14    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   15    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br></pre></td></tr></table></figure>
+
+<p><code>#1 CPU</code> 的 <code>%usr</code> 使用率为 <code>100。00</code>，而 <code>%sys</code> 与 <code>%iowait</code> 都是 <code>0.00</code>，说明 <code>#1 CPU</code> 正在处理 <code>CPU</code> 密集型的任务。</p>
+<p>最后，在 <code>Terminal No.4</code> 中查找占用 <code>CPU</code> 的进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ pidstat -u 5 1</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">04:46:58 PM   UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">04:47:03 PM   977      5050  100.00    0.00    0.00    0.00  100.00     1  stress</span><br><span class="line">04:47:03 PM   977      5054    0.00    0.20    0.00    0.00    0.20     4  watch</span><br><span class="line"></span><br><span class="line">Average:      UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">Average:      977      5050  100.00    0.00    0.00    0.00  100.00     -  stress</span><br><span class="line">Average:      977      5054    0.00    0.20    0.00    0.00    0.20     -  watch</span><br></pre></td></tr></table></figure>
+
+<p>确认 <code>pid=5050</code> 的 <code>stress</code> 进程占用了 <code>100%</code> 的 <code>CPU</code>。</p>
+<h3 id="I-O-密集型"><a href="#I-O-密集型" class="headerlink" title="I/O 密集型"></a>I/O 密集型</h3><p>等待一段时间，平均负载恢复正常之后。</p>
+<p>首先，在 <code>Terminal No.1</code> 使用 <code>stress</code> 模拟一个 <code>I/O</code> 密集型进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ stress -i 1</span><br><span class="line">stress: info: [7126] dispatching hogs: 0 cpu, 1 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>然后，在 <code>Terminal No.2</code> 查看平均负载:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ watch -d uptime</span><br><span class="line">Every 2.0s: uptime                zephyrus: Sun Aug 23 17:11:31 2020</span><br><span class="line"></span><br><span class="line"> 17:11:31 up 1 day,  3:23,  0 users,  load average: 0.98, 0.60, 0.54</span><br></pre></td></tr></table></figure>
+
+<p><code>1min</code> 的平均负载有所增加。</p>
+<p>接着，在 <code>Terminal No.3</code> 监控 <code>CPU</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ mpstat -P ALL 5</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:11:53 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle</span><br><span class="line">05:11:58 PM  all    0.09    0.00    0.64    0.01    0.00    0.05    0.00    0.00    0.00   99.21</span><br><span class="line">05:11:58 PM    0    0.00    0.00    0.20    0.00    0.00    0.20    0.00    0.00    0.00   99.59</span><br><span class="line">05:11:58 PM    1    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM    2    0.20    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">05:11:58 PM    3    0.00    0.00    6.76    0.20    0.00    0.00    0.00    0.00    0.00   93.04</span><br><span class="line">05:11:58 PM    4    0.00    0.00    0.43    0.00    0.00    0.65    0.00    0.00    0.00   98.92</span><br><span class="line">05:11:58 PM    5    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">05:11:58 PM    6    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM    7    1.00    0.00    1.40    0.00    0.00    0.00    0.00    0.00    0.00   97.60</span><br><span class="line">05:11:58 PM    8    0.00    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">05:11:58 PM    9    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   10    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   11    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   12    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   13    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   14    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">05:11:58 PM   15    0.20    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00   99.40</span><br></pre></td></tr></table></figure>
+
+<p>很遗憾，相比于 <code>CPU</code> 密集型的测试，<code>I/O</code> 本次测试的 <code>CPU</code> 变化不是特别明显。不过，还是可以发现 <code>#3 CPU</code> 的数据与其他 <code>CPU</code> 有一定的差别。</p>
+<ol>
+<li><code>%idle</code> 为 <code>93.04</code>，而其他的 <code>CPU</code> 该项数值均处于较高的水平</li>
+<li><code>%sys</code> 为 <code>6.76</code>，远高于其他 <code>CPU</code></li>
+<li><code>%iowait</code> 为 <code>0.20</code>，相对于其他 <code>CPU</code> 最高只有 <code>0.01</code>，可谓是高出了 <code>2000%</code></li>
+</ol>
+<p>最后，使用 <code>pidstat</code> 查找具体进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ pidstat -u 5 1</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:13:36 PM   UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">05:13:41 PM   977      3196    0.20    0.00    0.00    0.00    0.20     7  node</span><br><span class="line">05:13:41 PM   977      7127    0.00   15.00    0.00    0.20   15.00     3  stress</span><br><span class="line"></span><br><span class="line">Average:      UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">Average:      977      3196    0.20    0.00    0.00    0.00    0.20     -  node</span><br><span class="line">Average:      977      7127    0.00   15.00    0.00    0.20   15.00     -  stress</span><br></pre></td></tr></table></figure>
+
+<p>发现 <code>stress</code> 进程的指标为 <code>%system = 15.00</code>，<code>%wait = 0.20</code>，<code>%CPU = 15.00</code>。</p>
+<h3 id="大量进程"><a href="#大量进程" class="headerlink" title="大量进程"></a>大量进程</h3><p>因为，测试机有 16 个 <code>CPU</code> 核心，所以，在 <code>Terminal 1</code> 上模拟 <code>64</code> 个进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ stress -c 64 --timeout 6000</span><br><span class="line">stress: info: [7847] dispatching hogs: 64 cpu, 0 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>然后，在 <code>Terminal 2</code> 上查看平均负载:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ watch -d uptime</span><br><span class="line">Every 2.0s: uptime                      zephyrus: Sun Aug 23 17:32:28 2020</span><br><span class="line"></span><br><span class="line"> 17:32:28 up 1 day,  3:44,  0 users,  load average: 62.89, 35.44, 14.80</span><br></pre></td></tr></table></figure>
+
+<p>接着，在 <code>Terminal 3</code> 查看 <code>CPU</code> 的状态:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ mpstat -P ALL 5</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:31:42 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle</span><br><span class="line">05:31:47 PM  all   99.92    0.00    0.07    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    0   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    1  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    2  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    3   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    4  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    5  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    6   99.60    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    7  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    8  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    9  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   10  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   11  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   12   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   13  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   14   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   15  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br></pre></td></tr></table></figure>
+
+<p>所有的 <code>CPU</code> 都处于满负载工作状态，除了 <code>%usr</code> 之外，只有 <code>%sys</code> 有少量数值。</p>
+<p>最后，在 <code>Terminal 4</code> 查看进程状态:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line">$ pidstat -u 5 1</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:33:00 PM   UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">05:33:05 PM   977      7848   25.00    0.00    0.00   75.00   25.00     4  stress</span><br><span class="line">05:33:05 PM   977      7849   25.00    0.00    0.00   74.60   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7850   25.00    0.00    0.00   74.40   25.00     9  stress</span><br><span class="line">05:33:05 PM   977      7851   25.00    0.00    0.00   75.00   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7852   25.00    0.00    0.00   75.20   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7853   24.80    0.00    0.00   75.20   24.80     6  stress</span><br><span class="line">05:33:05 PM   977      7854   24.80    0.20    0.00   75.40   25.00     0  stress</span><br><span class="line">05:33:05 PM   977      7855   25.00    0.00    0.00   74.80   25.00     4  stress</span><br><span class="line">05:33:05 PM   977      7856   25.00    0.00    0.00   75.20   25.00     6  stress</span><br><span class="line">05:33:05 PM   977      7857   25.20    0.00    0.00   75.20   25.20     9  stress</span><br><span class="line">05:33:05 PM   977      7858   25.00    0.00    0.00   75.00   25.00    10  stress</span><br><span class="line">05:33:05 PM   977      7859   25.00    0.00    0.00   75.00   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7860   25.00    0.00    0.00   75.00   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7861   25.00    0.00    0.00   75.00   25.00     1  stress</span><br><span class="line">05:33:05 PM   977      7863   25.00    0.00    0.00   75.00   25.00     5  stress</span><br><span class="line">05:33:05 PM   977      7864   25.00    0.00    0.00   75.40   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7865   25.00    0.00    0.00   75.00   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7866   25.00    0.00    0.00   75.00   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7867   24.80    0.00    0.00   75.00   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7868   24.80    0.00    0.00   75.00   24.80    14  stress</span><br><span class="line">05:33:05 PM   977      7869   25.00    0.00    0.00   74.80   25.00     0  stress</span><br><span class="line">05:33:05 PM   977      7870   25.00    0.00    0.00   75.00   25.00     5  stress</span><br><span class="line">05:33:05 PM   977      7871   25.00    0.00    0.00   74.40   25.00     6  stress</span><br><span class="line">05:33:05 PM   977      7872   25.00    0.00    0.00   75.20   25.00     9  stress</span><br><span class="line">05:33:05 PM   977      7873   24.80    0.00    0.00   75.40   24.80    10  stress</span><br><span class="line">05:33:05 PM   977      7874   25.00    0.00    0.00   75.40   25.00    12  stress</span><br><span class="line">05:33:05 PM   977      7875   25.00    0.00    0.00   75.00   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7876   25.00    0.00    0.00   75.00   25.00     1  stress</span><br><span class="line">05:33:05 PM   977      7877   24.60    0.20    0.00   75.00   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7878   25.00    0.00    0.00   75.40   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7879   24.80    0.00    0.00   75.60   24.80     8  stress</span><br><span class="line">05:33:05 PM   977      7880   25.00    0.00    0.00   75.00   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7881   25.00    0.00    0.00   75.00   25.00    12  stress</span><br><span class="line">05:33:05 PM   977      7882   25.00    0.00    0.00   75.80   25.00    14  stress</span><br><span class="line">05:33:05 PM   977      7883   25.20    0.00    0.00   74.80   25.20     1  stress</span><br><span class="line">05:33:05 PM   977      7884   25.00    0.00    0.00   75.00   25.00     4  stress</span><br><span class="line">05:33:05 PM   977      7885   25.00    0.00    0.00   75.20   25.00     6  stress</span><br><span class="line">05:33:05 PM   977      7886   25.00    0.00    0.00   74.80   25.00     8  stress</span><br><span class="line">05:33:05 PM   977      7887   25.00    0.00    0.00   75.40   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7888   25.20    0.00    0.00   74.80   25.20    12  stress</span><br><span class="line">05:33:05 PM   977      7889   24.80    0.00    0.00   75.20   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7890   24.80    0.00    0.00   75.20   24.80     0  stress</span><br><span class="line">05:33:05 PM   977      7891   25.00    0.00    0.00   74.80   25.00     5  stress</span><br><span class="line">05:33:05 PM   977      7892   25.00    0.00    0.00   75.40   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7893   25.00    0.00    0.00   74.80   25.00     8  stress</span><br><span class="line">05:33:05 PM   977      7894   25.20    0.00    0.00   74.60   25.20    10  stress</span><br><span class="line">05:33:05 PM   977      7895   25.00    0.00    0.00   75.20   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7896   25.00    0.00    0.00   75.00   25.00    14  stress</span><br><span class="line">05:33:05 PM   977      7897   24.80    0.00    0.00   75.60   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7898   25.00    0.00    0.00   74.80   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7899   24.80    0.00    0.00   75.20   24.80     8  stress</span><br><span class="line">05:33:05 PM   977      7900   25.00    0.00    0.00   74.80   25.00    10  stress</span><br><span class="line">05:33:05 PM   977      7901   25.00    0.00    0.00   74.80   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7902   24.80    0.00    0.00   74.80   24.80    14  stress</span><br><span class="line">05:33:05 PM   977      7903   24.80    0.00    0.00   75.20   24.80     1  stress</span><br><span class="line">05:33:05 PM   977      7904   25.00    0.00    0.00   74.80   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7905   24.80    0.00    0.00   75.00   24.80     4  stress</span><br><span class="line">05:33:05 PM   977      7906   25.00    0.00    0.00   75.00   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7907   24.80    0.00    0.00   75.00   24.80     9  stress</span><br><span class="line">05:33:05 PM   977      7908   25.00    0.00    0.00   74.40   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7909   25.00    0.00    0.00   75.20   25.00    12  stress</span><br><span class="line">05:33:05 PM   977      7910   25.00    0.00    0.00   75.00   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7911   25.00    0.00    0.00   74.80   25.00     0  stress</span><br><span class="line">05:33:05 PM   977      7912   25.00    0.00    0.00   75.20   25.00     5  stress</span><br><span class="line"></span><br><span class="line">Average:      UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">Average:      977      7848   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7849   25.00    0.00    0.00   74.60   25.00     -  stress</span><br><span class="line">Average:      977      7850   25.00    0.00    0.00   74.40   25.00     -  stress</span><br><span class="line">Average:      977      7851   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7852   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7853   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7854   24.80    0.20    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7855   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7856   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7857   25.20    0.00    0.00   75.20   25.20     -  stress</span><br><span class="line">Average:      977      7858   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7859   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7860   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7861   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7863   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7864   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7865   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7866   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7867   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7868   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7869   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7870   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7871   25.00    0.00    0.00   74.40   25.00     -  stress</span><br><span class="line">Average:      977      7872   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7873   24.80    0.00    0.00   75.40   24.80     -  stress</span><br><span class="line">Average:      977      7874   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7875   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7876   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7877   24.60    0.20    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7878   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7879   24.80    0.00    0.00   75.60   24.80     -  stress</span><br><span class="line">Average:      977      7880   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7881   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7882   25.00    0.00    0.00   75.80   25.00     -  stress</span><br><span class="line">Average:      977      7883   25.20    0.00    0.00   74.80   25.20     -  stress</span><br><span class="line">Average:      977      7884   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7885   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7886   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7887   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7888   25.20    0.00    0.00   74.80   25.20     -  stress</span><br><span class="line">Average:      977      7889   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7890   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7891   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7892   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7893   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7894   25.20    0.00    0.00   74.60   25.20     -  stress</span><br><span class="line">Average:      977      7895   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7896   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7897   24.80    0.00    0.00   75.60   24.80     -  stress</span><br><span class="line">Average:      977      7898   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7899   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7900   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7901   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7902   24.80    0.00    0.00   74.80   24.80     -  stress</span><br><span class="line">Average:      977      7903   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7904   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7905   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7906   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7907   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7908   25.00    0.00    0.00   74.40   25.00     -  stress</span><br><span class="line">Average:      977      7909   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7910   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7911   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7912   25.00    0.00    0.00   75.20   25.00     -  stress</span><br></pre></td></tr></table></figure>
+
+<p>64 个进程，基本都占用了 <code>25%</code> 的 <code>CPU</code> 使用率。与设想中的一致，每个 <code>CPU</code> 核心要服务于 4 个进程。</p>
+<h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><p><a href="https://jingwei.link/2018/12/23/linux-cpu-load-d-process.html" target="_blank" rel="noopener">Linux的CPU-Load虚高之进程的D状态</a><br><a href="https://www.cnblogs.com/gatsby123/p/11127158.html" target="_blank" rel="noopener">CPU使用率原理及计算方式</a><br><a href="https://www.cnblogs.com/xiaotengyi/p/7644336.html" target="_blank" rel="noopener">Linux 进程的 Uninterruptible sleep(D) 状态</a><br><a href="https://blog.csdn.net/wudebao5220150/article/details/12919453" target="_blank" rel="noopener">Linux进程状态解析</a></p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">linux performance</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">cpu performance</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/22/load-average/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-linux-performance-guide" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1210,402 +1711,6 @@
 
 
   
-    <article id="post-where-clause-optimization" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/01/where-clause-optimization/" target="_blank">优化 WHERE 子句</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/01/where-clause-optimization/" class="archive-article-date">
-        <time datetime="2020-08-01T07:26:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>以 <code>SELECT</code> 语句为例，介绍如何优化 <code>WHERE</code> 子句。这些优化方法同样适用于 <code>DELETE</code> 和 <code>UPDATE</code> 语句中的 <code>WHERE</code> 子句。</p>
-<p>在编写 <code>SQL</code> 时，开发者在主观上为了使语句执行的更快而去做一些所谓的“优化”。但实际上，这些“优化”要么会使 <code>SQL</code> 失去了可读性，要么是在重复 <code>MySQL</code> 做的事情。</p>
-<p>下面列举一些 <code>MySQL</code> 会做的优化:</p>
-<ul>
-<li><p>删除不必要的括号</p>
-  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">((a AND b) AND c OR (((a AND b) AND (c AND d))))</span><br><span class="line">-&gt; (a AND b AND c) OR (a AND b AND c AND d)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>常量替换(Constant folding)</p>
-  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(a&lt;b AND b=c) AND a=5</span><br><span class="line">-&gt; b&gt;5 AND b=c AND a=5</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>删除恒定条件</p>
-  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(b&gt;=5 AND b=5) OR (b=6 AND 5=5) OR (b=7 AND 5=6)</span><br><span class="line">-&gt; b=5 OR b=6</span><br></pre></td></tr></table></figure>
-
-<p>  在 <code>MySQL 8.0.14</code> 和更高版本中，这是在准备过程中发生的，而不是在优化阶段发生的，这有助于简化联接。 有关更多信息和示例，请参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/outer-join-optimization.html" target="_blank" rel="noopener">Section 8.2.1.9, “Outer Join Optimization”</a>。</p>
-</li>
-<li><p>索引使用的常量表达式仅计算一次。</p>
-</li>
-<li><p>从 <code>MySQL 8.0.16</code> 开始，数值类型的列与常数比较时，折叠(folded)或删除无效或越界的值：</p>
-  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- CREATE TABLE t (c TINYINT UNSIGNED NOT NULL);</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> c ≪ <span class="number">256</span>;</span><br><span class="line">-≫ <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>对于使用<code>MyISAM</code> 和 <code>MEMORY</code>存储引擎的表，在单一表上执行 <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_count" target="_blank" rel="noopener"><code>COUNT(*)</code></a> 操作时，如果没有 <code>WHERE</code> 子句，或者 <code>WHERE</code> 子句的表达式 <code>NOT NULL</code>，都将直接从表信息中读取。</p>
-<blockquote>
-<p>COUNT(*) on a single table without a WHERE is retrieved directly from the table information for MyISAM and MEMORY tables. This is also done for any NOT NULL expression when used with only one table.</p>
-</blockquote>
-</li>
-<li><p>尽早检测无效的常量表达式。<code>MySQL</code> 检测到无效 <code>SELECT</code> 语句时，直接返回无结果。</p>
-</li>
-<li><p>不使用 <code>GROUP BY</code> 或聚合函数(<code>COUNT()，MIN()</code>)时，会把 <code>HAVING</code> 与 <code>WHERE</code> 合并。</p>
-</li>
-<li><p>对于联接查询中的每个表，构造一个简单的 <code>WHERE</code> 实现快速 <code>WHERE</code> 评估，尽快跳过行的目的。</p>
-</li>
-<li><p>优先读取常量表。满足以下任意一个即为常量表：</p>
-<ul>
-<li>空表或具有一行的表。</li>
-<li>使用 <code>WHERE</code> 语句构建得到的表，且 <code>WHERE</code> 子句中的所有列只能是 <code>PRIMARY KEY</code> 或 <code>NOT NULL UNIQUE</code> 索引与常量表达式比较。</li>
-</ul>
-<p>以下所有表均用作常量表：</p>
-  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">WHERE primary_key=1;</span><br><span class="line"></span><br><span class="line">WHERE t1.primary_key=1 AND t2.primary_key=t1.id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- PRIMARY KEY (column1,column2)</span></span><br><span class="line">WHERE column1=5 AND column2=7</span><br><span class="line"></span><br><span class="line"><span class="comment">-- unique_not_null_column INT NOT NULL UNIQUE</span></span><br><span class="line">WHERE unique_not_null_column=5</span><br></pre></td></tr></table></figure>
-
-<p>参考 <a href="https://dev.mysql.com/doc/internals/en/optimizer-constants-constant-tables.html" target="_blank" rel="noopener">7.2.1.4 Constants and Constant Tables</a> 了解更多有关常量与常量表。</p>
-</li>
-<li><p>通过尝试所有可能的方法，找到用于联接表的最佳联接组合。如果 <code>ORDER BY</code> 和 <code>GROUP BY</code> 子句中的所有列都来自同一表，则在连接时优先使用该表。</p>
-</li>
-<li><p>如果 <code>ORDER BY</code> 子句和 <code>GROUP BY</code> 子句使用不同的列，或者 <code>ORDER BY</code>/<code>GROUP BY</code> 使用的列不属于联接队列中第一个表，则会创建一个临时表。</p>
-<blockquote>
-<p>If there is an ORDER BY clause and a different GROUP BY clause, or if the ORDER BY or GROUP BY contains columns from tables other than the first table in the join queue, a temporary table is created.</p>
-</blockquote>
-</li>
-<li><p>如果使用 <code>SQL_SMALL_RESULT</code> 修饰符，<code>MySQL</code> 将使用内存临时表。</p>
-</li>
-<li><p>从表的所有索引中选择一个最佳索引使用。或者，优化器认为全表扫描更有效时，会选择全表扫描。曾经，当使用最佳索引仍然会跨越表的 <code>30%</code>(<code>spanned more than 30% of the table</code>)时，就会选择使用全表扫描。但现在，使用索引还是全表扫描不再只取决于固定百分比，同时还要考虑其他因素，例如表大小，行数和 <code>I/O</code> 块大小。</p>
-</li>
-<li><p>在某些情况下，<code>MySQL</code> 可以从索引中读取数据行，而无需查询数据文件。如果索引中使用的所有列都是数字列，则仅使用索引树解析查询。</p>
-</li>
-<li><p>在输出每一行之前，将跳过与 <code>HAVING</code> 子句不匹配的行。</p>
-</li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">where clause</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/01/where-clause-optimization/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-optimizing-select-statements" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/07/28/optimizing-select-statements/" target="_blank">优化 SELECT 语句</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/07/28/optimizing-select-statements/" class="archive-article-date">
-        <time datetime="2020-07-28T13:45:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>数据库中所有查找操作，均以 <code>SELECT</code> 语句的形式执行。无论是实现网站秒级以内的响应时间，还是期望在生成大量的隔夜报告是缩短数小时的执行时间，调试这类语句都是重中之重。</p>
-<p>除了 <code>SELECT</code> 语句外，相同的技术还适用于诸如 <code>CREATE TABLE ... AS SELECT</code>，<code>INSERT INTO ... SELECT</code> 和 <code>DELETE</code> 语句中的 <code>WHERE</code> 子句。但由于这些语句同时会涉及到读写两种操作，因此还需要考虑其他方面的性能问题。</p>
-<p>多节点集群支持 <strong><code>JOIN</code> 查询下推优化(<code>join pushdown optimization</code>)</strong>，能将符合条件的 <code>JOIN</code> 完整地发送到集群的数据节点，让这个查询请求被分发到这些节点上并行执行。有关此优化的更多信息，请参见<a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-cluster-options-variables.html#ndb_join_pushdown-conditions" target="_blank" rel="noopener">Conditions for NDB pushdown joins</a>。</p>
-<p>优化查询的核心因素：</p>
-<ul>
-<li><p>如何查询语句 <code>SELECT ... WHERE</code> 执行的非常之慢，首选提速方法就是检查是否可以添加<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_index" target="_blank" rel="noopener">索引</a>。在 <code>WHERE</code> 子句中使用的列上设置索引，以加快执行，过滤，检索结果等操作的速度。同时，索引信息需要占用一定的磁盘空间，请尽可能在有一定关联性的查询中复用索引。</p>
-<p>  在执行 <code>JOIN</code> 查询，外键关联等需要多个表参与的查询语句时，索引尤为重要。此时，可以通过 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 语句来确定，执行 <code>SELECT</code> 语句时，实际有哪些索引真正被使用了。参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-indexes.html" target="_blank" rel="noopener">Section 8.3.1, “How MySQL Uses Indexes”</a> and <a href="https://dev.mysql.com/doc/refman/8.0/en/using-explain.html" target="_blank" rel="noopener">Section 8.8.1, “Optimizing Queries with EXPLAIN”</a>。</p>
-</li>
-<li><p>隔离和调整查询中花费时间过多的任何部分，例如函数调用。 根据查询的结构方式，可以对结果集中的每一行调用一次函数，甚至可以对表中的每一行调用一次函数，从而极大地提高了效率。</p>
-</li>
-<li><p>最小化查询中<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_full_table_scan" target="_blank" rel="noopener">全表扫描</a>的次数，特别是对于大表。</p>
-</li>
-<li><p>通过定期使用 <a href="https://dev.mysql.com/doc/refman/8.0/en/analyze-table.html" target="_blank" rel="noopener"><code>ANALYZE TABLE</code></a> 语句使表统计信息保持最新状态，让优化器具有充足的信息构造有效执行计划。</p>
-</li>
-<li><p>了解每种存储引擎的调整技术，索引技术和配置参数。无论是 <code>InnoDB</code> 还是 <code>MyISAM</code>，都各自具有一套保持查询高性能的准则。参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-queries.html" target="_blank" rel="noopener">Section 8.5.6, “Optimizing InnoDB Queries”</a> 和 <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-queries-myisam.html" target="_blank" rel="noopener">Section 8.6.1, “Optimizing MyISAM Queries”</a>。</p>
-</li>
-<li><p>使用 <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-ro-txn.html" target="_blank" rel="noopener">Section 8.5.3, “Optimizing InnoDB Read-Only Transactions”</a> 中的技术优化 <code>InnoDB</code> 表的单查询事务。</p>
-</li>
-<li><p>避免以难以理解的方式转换查询，特别是在优化器自动执行某些相同转换的情况下。</p>
-</li>
-<li><p>当使用基本准则不能轻松解决性能问题时，可以通过阅读 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 计划并调整索引，<code>WHERE</code>，<code>JOIN</code> 等子句来调查特定查询的内部详细信息。(有一定经验之后，阅读 <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html" target="_blank" rel="noopener">EXPLAIN</a> 计划可能是每个查询的第一步。)</p>
-</li>
-<li><p>调整 <code>MySQL</code> 用于缓存的内存区域的大小和属性。合理使用 InnoDB 的<a href="https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_buffer_pool" target="_blank" rel="noopener">buffer pool</a>，<code>MyISAM</code> 的 <code>key cache</code> 和 <code>MySQL</code> 的 <code>query cache</code>，可以让重复查询的运行速度更快。</p>
-</li>
-<li><p>即使查询已经使用了内存缓存，也依然可能对其进一步优化，使其需要更少的内存，从而使应用程序更具可伸缩性。比如，应用程序可以同时处理更多的用户，更大的请求量，而不会导致性能大幅下降。</p>
-</li>
-<li><p>锁定问题，多个会话同时访问同一张表可能会影响查询速度。</p>
-</li>
-</ul>
-<h3 id="更多优化策略"><a href="#更多优化策略" class="headerlink" title="更多优化策略"></a>更多优化策略</h3><ul>
-<li><a href="https://blog.divinerapier.cn/2020/08/01/where-clause-optimization/" target="_blank" rel="noopener">WHERE Clause Optimization</a></li>
-<li>Range Optimization</li>
-<li>Index Merge Optimization</li>
-<li>Hash Join Optimization</li>
-<li>Engine Condition Pushdown Optimization</li>
-<li>Index Condition Pushdown Optimization</li>
-<li>Nested-Loop Join Algorithms</li>
-<li>Nested Join Optimization</li>
-<li>Outer Join Optimization</li>
-<li>Outer Join Simplification</li>
-<li>Multi-Range Read Optimization</li>
-<li>Block Nested-Loop and Batched Key Access Joins</li>
-<li>Condition Filtering</li>
-<li>Constant-Folding Optimization</li>
-<li>IS NULL Optimization</li>
-<li>ORDER BY Optimization</li>
-<li>GROUP BY Optimization</li>
-<li>DISTINCT Optimization</li>
-<li>LIMIT Query Optimization</li>
-<li>Function Call Optimization</li>
-<li>Window Function Optimization</li>
-<li>Row Constructor Expression Optimization</li>
-<li>Avoiding Full Table Scans</li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">select statements</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/07/28/optimizing-select-statements/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-optimizing-sql-statements" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/07/28/optimizing-sql-statements/" target="_blank">优化SQL语句</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/07/28/optimizing-sql-statements/" class="archive-article-date">
-        <time datetime="2020-07-28T11:41:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <ol>
-<li>Optimizing SELECT Statements</li>
-<li>Optimizing Subqueries, Derived Tables, View References, and Common Table Expressions</li>
-<li>Optimizing INFORMATION_SCHEMA Queries</li>
-<li>Optimizing Performance Schema Queries</li>
-<li>Optimizing Data Change Statements</li>
-<li>Optimizing Database Privileges</li>
-<li>Other Optimization Tips</li>
-</ol>
-<p>数据库应用程序的核心逻辑是通过 <code>SQL</code> 语句执行的，无论这些 <code>SQL</code> 语句是通过解释程序直接发出还是通过调用 <code>API</code> 提交。之后提到的调整准则有助于加快各种使用到 <code>MySQL</code> 应用程序的速度。指南涵盖了读写数据的 <code>SQL</code> 操作，通用 <code>SQL</code> 操作的底层开销以及在特定方案（例如数据库监视）中使用的操作。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/07/28/optimizing-sql-statements/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/">Next &amp;raquo;</a>
@@ -1743,10 +1848,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -1760,6 +1861,26 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">index</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">networks</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1795,19 +1916,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1824,14 +1945,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1859,15 +1972,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">optimization</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1887,7 +2000,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1895,11 +2008,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
