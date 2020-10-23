@@ -208,9 +208,9 @@
     
     <category term="kubernetes" scheme="http://divinerapier.github.io/tags/kubernetes/"/>
     
-    <category term="mpi" scheme="http://divinerapier.github.io/tags/mpi/"/>
-    
     <category term="rdma" scheme="http://divinerapier.github.io/tags/rdma/"/>
+    
+    <category term="mpi" scheme="http://divinerapier.github.io/tags/mpi/"/>
     
   </entry>
   
