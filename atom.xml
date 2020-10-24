@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-10-23T08:21:31.110Z</updated>
+  <updated>2020-10-24T08:57:37.680Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -17,11 +17,31 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>OpenMPI Dockerfile</title>
+    <link href="http://divinerapier.github.io/2020/10/24/openmpi-dockerfile/"/>
+    <id>http://divinerapier.github.io/2020/10/24/openmpi-dockerfile/</id>
+    <published>2020-10-24T08:57:06.000Z</published>
+    <updated>2020-10-24T08:57:37.680Z</updated>
+    
+    <content type="html"><![CDATA[<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">20.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt install -y wget gcc g++ make</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install OpenSSH for MPI to communicate between containers</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get install -y --no-install-recommends openssh-client openssh-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /var/run/sshd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Allow OpenSSH to talk to containers without asking for confirmation</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking &gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">echo</span> <span class="string">"    StrictHostKeyChecking no"</span> &gt;&gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install Open MPI</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    tar zxf openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> openmpi-4.0.5 &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ./configure --<span class="built_in">enable</span>-orterun-prefix-by-default &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make -j $(nproc) all &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make install &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ldconfig</span></span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;figure class=&quot;highlight dockerfile&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span </summary>
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
     <title>MPI Operator</title>
     <link href="http://divinerapier.github.io/2020/10/23/mpi-operator/"/>
     <id>http://divinerapier.github.io/2020/10/23/mpi-operator/</id>
     <published>2020-10-23T08:17:12.000Z</published>
-    <updated>2020-10-23T08:21:31.110Z</updated>
+    <updated>2020-10-24T08:56:30.340Z</updated>
     
     <content type="html"><![CDATA[<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul><li><a href="https://github.com/kubeflow/mpi-operator" target="_blank" rel="noopener">GitHub: MPI Operator</a></li><li><a href="https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-296d5f2e6edc" target="_blank" rel="noopener">Introduction to Kubeflow MPI Operator and Industry Adoption</a></li><li><a href="https://www.kubeflow.org/docs/components/training/mpi/" target="_blank" rel="noopener">MPI Training</a></li></ul>]]></content>
     
@@ -477,33 +497,6 @@
     <category term="k8s" scheme="http://divinerapier.github.io/tags/k8s/"/>
     
     <category term="pod" scheme="http://divinerapier.github.io/tags/pod/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>让你的 Hexo 博客支持 RSS</title>
-    <link href="http://divinerapier.github.io/2020/09/02/enable-rss-on-hexo/"/>
-    <id>http://divinerapier.github.io/2020/09/02/enable-rss-on-hexo/</id>
-    <published>2020-09-02T12:37:46.000Z</published>
-    <updated>2020-09-02T12:50:44.937Z</updated>
-    
-    <content type="html"><![CDATA[<p>让博客支持 <code>RSS</code> 是一种美好的品德。</p><ul><li><p>安装 <code>RSS</code> 插件</p>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-feed</span><br></pre></td></tr></table></figure></li><li><p>配置博客 <code>_config.uml</code></p>  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Extensions</span></span><br><span class="line"><span class="attr">plugins:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">hexo-generator-feed</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Feed Atom</span></span><br><span class="line"><span class="attr">feed:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">atom</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">atom.xml</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">20</span></span><br></pre></td></tr></table></figure></li><li><p>配置主题 <code>_config.yml</code></p>  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># RSS订阅</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">/atom.xml</span></span><br></pre></td></tr></table></figure></li><li><p>客户端订阅</p><p>  使用 <code>RSS</code> 客户端订阅 <code>http(s)://${YOUR_BLOG_HOST}/atom.xml</code>。</p></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;让博客支持 &lt;code&gt;RSS&lt;/code&gt; 是一种美好的品德。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;安装 &lt;code&gt;RSS&lt;/code&gt; 插件&lt;/p&gt;
-  &lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter</summary>
-      
-    
-    
-    
-    
-    <category term="hexo" scheme="http://divinerapier.github.io/tags/hexo/"/>
-    
-    <category term="rss" scheme="http://divinerapier.github.io/tags/rss/"/>
     
   </entry>
   
