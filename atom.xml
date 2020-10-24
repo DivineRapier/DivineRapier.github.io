@@ -182,11 +182,11 @@
     
     
     
+    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
+    
     <category term="windows" scheme="http://divinerapier.github.io/tags/windows/"/>
     
     <category term="wsl2" scheme="http://divinerapier.github.io/tags/wsl2/"/>
-    
-    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
     
   </entry>
   
