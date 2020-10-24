@@ -170,92 +170,6 @@
             
 
   
-    <article id="post-openmpi-in-docker" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/24/openmpi-in-docker/" target="_blank">在 Docker 中使用 OpenMPI</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/24/openmpi-in-docker/" class="archive-article-date">
-        <time datetime="2020-10-24T08:57:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="构建-Base-镜像"><a href="#构建-Base-镜像" class="headerlink" title="构建 Base 镜像"></a>构建 Base 镜像</h2><p>基于 <strong>Ubuntu 20.04 + OpenMPI 4.0.5</strong> 构建 <strong>Base</strong> 镜像:</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">20.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt install -y wget gcc g++ make</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install OpenSSH for MPI to communicate between containers</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get install -y --no-install-recommends openssh-client openssh-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /var/run/sshd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Allow OpenSSH to talk to containers without asking for confirmation</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking &gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">echo</span> <span class="string">"    StrictHostKeyChecking no"</span> &gt;&gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install Open MPI</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    tar zxf openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> openmpi-4.0.5 &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ./configure --<span class="built_in">enable</span>-orterun-prefix-by-default &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make -j $(nproc) all &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make install &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ldconfig</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="发布镜像"><a href="#发布镜像" class="headerlink" title="发布镜像"></a>发布镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker build -t divinerapier/openmpi-helloworld:0.0.1 -f=./dockerfile .</span><br><span class="line">docker push divinerapier/openmpi:4.0.5</span><br></pre></td></tr></table></figure>
-
-<h2 id="应用程序"><a href="#应用程序" class="headerlink" title="应用程序"></a>应用程序</h2><h3 id="程序代码"><a href="#程序代码" class="headerlink" title="程序代码"></a>程序代码</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 初始化 MPI 环境</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过调用以下方法来得到所有可以工作的进程数量</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 得到当前进程的秩</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 得到当前进程的名字</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印一条带有当前进程名字，秩以及</span></span><br><span class="line">    <span class="comment">// 整个 communicator 的大小的 hello world 消息。</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放 MPI 的一些资源</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">MPICC ?= mpicc</span><br><span class="line"></span><br><span class="line"><span class="section">all: build</span></span><br><span class="line"></span><br><span class="line"><span class="section">build: main.c</span></span><br><span class="line">    <span class="variable">$(MPICC)</span> -o mpi_hello_world main.c</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm -rf mpi_hello_world</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> divinerapier/openmpi:<span class="number">4.0</span>.<span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./ /helloworld</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /helloworld \</span></span><br><span class="line"><span class="bash">  &amp;&amp; make</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="运行应用程序"><a href="#运行应用程序" class="headerlink" title="运行应用程序"></a>运行应用程序</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker build -t divinerapier/openmpi-helloworld:0.0.1 -f=./dockerfile .</span><br><span class="line">$ docker run --rm -it divinerapier/openmpi-helloworld:0.0.1 mpirun -allow-run-as-root -np 4 /helloworld/mpi_hello_world</span><br><span class="line">Hello world from processor fa74677bda6b, rank 0 out of 4 processors</span><br><span class="line">Hello world from processor fa74677bda6b, rank 1 out of 4 processors</span><br><span class="line">Hello world from processor fa74677bda6b, rank 2 out of 4 processors</span><br><span class="line">Hello world from processor fa74677bda6b, rank 3 out of 4 processors</span><br></pre></td></tr></table></figure>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/24/openmpi-in-docker/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-mpi-operator" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -264,7 +178,7 @@
   
     <h1 itemprop="name">
 	
-	  <a class="article-title" href="/2020/10/23/mpi-operator/" target="_blank">MPI Operator</a>
+	  <a class="article-title" href="/2020/10/24/mpi-operator/" target="_blank">MPI Operator</a>
   
     </h1>
   
@@ -272,8 +186,8 @@
 
   
   
-<a href="/2020/10/23/mpi-operator/" class="archive-article-date">
-        <time datetime="2020-10-23T08:17:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-23</time>
+<a href="/2020/10/24/mpi-operator/" class="archive-article-date">
+        <time datetime="2020-10-24T10:17:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
 </a>
 
   
@@ -285,7 +199,13 @@
   
   <div class="article-entry" itemprop="articleBody">
     
-    <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+    <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>部署默认配置的 <strong>mpi-operator</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/kubeflow/mpi-operator</span><br><span class="line"><span class="built_in">cd</span> mpi-operator</span><br><span class="line">kubectl create -f deploy/v1alpha2/mpi-operator.yaml</span><br></pre></td></tr></table></figure>
+
+<p>验证是否安装成功:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get crd</span><br><span class="line"><span class="comment"># NAME                                          CREATED AT</span></span><br><span class="line"><span class="comment"># mpijobs.kubeflow.org                          2020-10-23T08:40:15Z</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
 <li><a href="https://github.com/kubeflow/mpi-operator" target="_blank" rel="noopener">GitHub: MPI Operator</a></li>
 <li><a href="https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-296d5f2e6edc" target="_blank" rel="noopener">Introduction to Kubeflow MPI Operator and Industry Adoption</a></li>
 <li><a href="https://www.kubeflow.org/docs/components/training/mpi/" target="_blank" rel="noopener">MPI Training</a></li>
@@ -324,7 +244,93 @@
 
     
     <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/23/mpi-operator/">展开全文 >></a>
+      <a class="article-more-a" href="/2020/10/24/mpi-operator/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-openmpi-in-docker" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/24/openmpi-in-docker/" target="_blank">在 Docker 中使用 OpenMPI</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/24/openmpi-in-docker/" class="archive-article-date">
+        <time datetime="2020-10-24T08:57:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="构建-Base-镜像"><a href="#构建-Base-镜像" class="headerlink" title="构建 Base 镜像"></a>构建 Base 镜像</h2><p>基于 <strong>Ubuntu 20.04 + OpenMPI 4.0.5</strong> 构建 <strong>Base</strong> 镜像:</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">20.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt install -y wget gcc g++ make</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install OpenSSH for MPI to communicate between containers</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get install -y --no-install-recommends openssh-client openssh-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /var/run/sshd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Allow OpenSSH to talk to containers without asking for confirmation</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking &gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">echo</span> <span class="string">"    StrictHostKeyChecking no"</span> &gt;&gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install Open MPI</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    tar zxf openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> openmpi-4.0.5 &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ./configure --<span class="built_in">enable</span>-orterun-prefix-by-default &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make -j $(nproc) all &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make install &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ldconfig</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="发布镜像"><a href="#发布镜像" class="headerlink" title="发布镜像"></a>发布镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker build -t divinerapier/openmpi:4.0.5 -f=./dockerfile .</span><br><span class="line">docker push divinerapier/openmpi:4.0.5</span><br></pre></td></tr></table></figure>
+
+<h2 id="应用程序"><a href="#应用程序" class="headerlink" title="应用程序"></a>应用程序</h2><h3 id="程序代码"><a href="#程序代码" class="headerlink" title="程序代码"></a>程序代码</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 初始化 MPI 环境</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过调用以下方法来得到所有可以工作的进程数量</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 得到当前进程的秩</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 得到当前进程的名字</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印一条带有当前进程名字，秩以及</span></span><br><span class="line">    <span class="comment">// 整个 communicator 的大小的 hello world 消息。</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放 MPI 的一些资源</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">MPICC ?= mpicc</span><br><span class="line"></span><br><span class="line"><span class="section">all: build</span></span><br><span class="line"></span><br><span class="line"><span class="section">build: main.c</span></span><br><span class="line">    <span class="variable">$(MPICC)</span> -o mpi_hello_world main.c</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm -rf mpi_hello_world</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> divinerapier/openmpi:<span class="number">4.0</span>.<span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./ /helloworld</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /helloworld \</span></span><br><span class="line"><span class="bash">  &amp;&amp; make</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="运行应用程序"><a href="#运行应用程序" class="headerlink" title="运行应用程序"></a>运行应用程序</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker build -t divinerapier/openmpi-helloworld:0.0.1 -f=./dockerfile .</span><br><span class="line">docker run --rm -it divinerapier/openmpi-helloworld:0.0.1 mpirun -allow-run-as-root -np 4 /helloworld/mpi_hello_world</span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 0 out of 4 processors</span></span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 1 out of 4 processors</span></span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 2 out of 4 processors</span></span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 3 out of 4 processors</span></span><br></pre></td></tr></table></figure>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/24/openmpi-in-docker/">展开全文 >></a>
     </p>
     
 
@@ -518,7 +524,7 @@
 <p>然后配置 <strong>kubeconfig</strong>:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br></pre></td></tr></table></figure>
 
-<h2 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h2><h3 id="Calico"><a href="#Calico" class="headerlink" title="Calico"></a>Calico</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p calico; <span class="built_in">cd</span> calico</span><br><span class="line">curl https://docs.projectcalico.org/manifests/canal.yaml -O</span><br><span class="line">kubectl apply -f canal.yaml</span><br><span class="line"><span class="built_in">cd</span> -</span><br></pre></td></tr></table></figure>
+<h2 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h2><h3 id="Calico"><a href="#Calico" class="headerlink" title="Calico"></a>Calico</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://docs.projectcalico.org/manifests/canal.yaml</span><br></pre></td></tr></table></figure>
 
 <h2 id="添加-Worker-节点"><a href="#添加-Worker-节点" class="headerlink" title="添加 Worker 节点"></a>添加 Worker 节点</h2><p>在 <strong>Worker</strong> 节点执行命令:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm join 192.168.50.5:6443 --token 4n2pwp.hq9jyo3auaibma3q     --discovery-token-ca-cert-hash sha256:750da2c87a67b96bfec73ade40888d22b61e045fdd28bbb7a4ff2c6ce3e0309c</span><br><span class="line"></span><br><span class="line">This node has joined the cluster:</span><br><span class="line">* Certificate signing request was sent to apiserver and a response was received.</span><br><span class="line">* The Kubelet was informed of the new secure connection details.</span><br><span class="line"></span><br><span class="line">Run <span class="string">'kubectl get nodes'</span> on the control-plane to see this node join the cluster.</span><br></pre></td></tr></table></figure>
@@ -526,7 +532,7 @@
 <h2 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/website/master/content/en/examples/application/nginx-app.yaml</span><br></pre></td></tr></table></figure>
 
 <h2 id="清理集群"><a href="#清理集群" class="headerlink" title="清理集群"></a>清理集群</h2><p>在期望清理的节点执行:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm reset</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubeadm reset</span><br><span class="line">rm -rf /etc/cni/net.d</span><br><span class="line">rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
 
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
 <li><a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener">Install Docker Engine on Ubuntu</a></li>
@@ -1538,15 +1544,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
