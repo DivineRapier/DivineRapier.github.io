@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://divinerapier.github.io/2020/10/24/openmpi-dockerfile/</loc>
+    <loc>http://divinerapier.github.io/2020/10/24/openmpi-in-docker/</loc>
     
     <lastmod>2020-10-24</lastmod>
     
@@ -459,6 +459,13 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/controllers/</loc>
+    <lastmod>2020-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/volume/</loc>
     <lastmod>2020-10-24</lastmod>
     <changefreq>daily</changefreq>
@@ -466,7 +473,7 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/controllers/</loc>
+    <loc>http://divinerapier.github.io/tags/storage/</loc>
     <lastmod>2020-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -543,13 +550,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/storage/</loc>
-    <lastmod>2020-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/select-statements/</loc>
     <lastmod>2020-10-24</lastmod>
     <changefreq>daily</changefreq>
@@ -564,6 +564,13 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/pod/</loc>
+    <lastmod>2020-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/rdma/</loc>
     <lastmod>2020-10-24</lastmod>
     <changefreq>daily</changefreq>
@@ -572,13 +579,6 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/git/</loc>
-    <lastmod>2020-10-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/pod/</loc>
     <lastmod>2020-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
