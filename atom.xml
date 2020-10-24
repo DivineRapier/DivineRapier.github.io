@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-10-24T08:57:37.680Z</updated>
+  <updated>2020-10-24T08:59:43.270Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -17,18 +17,19 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>OpenMPI Dockerfile</title>
+    <title>构建 OpenMPI 底包</title>
     <link href="http://divinerapier.github.io/2020/10/24/openmpi-dockerfile/"/>
     <id>http://divinerapier.github.io/2020/10/24/openmpi-dockerfile/</id>
     <published>2020-10-24T08:57:06.000Z</published>
-    <updated>2020-10-24T08:57:37.680Z</updated>
+    <updated>2020-10-24T08:59:43.270Z</updated>
     
-    <content type="html"><![CDATA[<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">20.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt install -y wget gcc g++ make</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install OpenSSH for MPI to communicate between containers</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get install -y --no-install-recommends openssh-client openssh-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /var/run/sshd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Allow OpenSSH to talk to containers without asking for confirmation</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking &gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">echo</span> <span class="string">"    StrictHostKeyChecking no"</span> &gt;&gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install Open MPI</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    tar zxf openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> openmpi-4.0.5 &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ./configure --<span class="built_in">enable</span>-orterun-prefix-by-default &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make -j $(nproc) all &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make install &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ldconfig</span></span><br></pre></td></tr></table></figure>]]></content>
+    <content type="html"><![CDATA[<p>基于 <strong>Ubuntu 20.04 + OpenMPI 4.0.5</strong> 构建 <strong>Dockerfile</strong>。</p><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">20.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt install -y wget gcc g++ make</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install OpenSSH for MPI to communicate between containers</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get install -y --no-install-recommends openssh-client openssh-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /var/run/sshd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Allow OpenSSH to talk to containers without asking for confirmation</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking &gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">echo</span> <span class="string">"    StrictHostKeyChecking no"</span> &gt;&gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install Open MPI</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    tar zxf openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> openmpi-4.0.5 &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ./configure --<span class="built_in">enable</span>-orterun-prefix-by-default &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make -j $(nproc) all &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make install &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ldconfig</span></span><br></pre></td></tr></table></figure><p>发布镜像:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker build -t divinerapier/openmpi-helloworld:0.0.1 -f=./dockerfile .</span><br><span class="line">docker push divinerapier/openmpi:4.0.5</span><br></pre></td></tr></table></figure>]]></content>
     
     
       
       
-    <summary type="html">&lt;figure class=&quot;highlight dockerfile&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span </summary>
+    <summary type="html">&lt;p&gt;基于 &lt;strong&gt;Ubuntu 20.04 + OpenMPI 4.0.5&lt;/strong&gt; 构建 &lt;strong&gt;Dockerfile&lt;/strong&gt;。&lt;/p&gt;
+&lt;figure class=&quot;highlight dockerfile&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td </summary>
       
     
     
@@ -202,11 +203,11 @@
     
     
     
-    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
-    
     <category term="windows" scheme="http://divinerapier.github.io/tags/windows/"/>
     
     <category term="wsl2" scheme="http://divinerapier.github.io/tags/wsl2/"/>
+    
+    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
     
   </entry>
   
