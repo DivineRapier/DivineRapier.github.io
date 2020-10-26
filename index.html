@@ -19,7 +19,7 @@
 <meta property="og:url" content="http://divinerapier.github.io/index.html">
 <meta property="og:site_name" content="お可愛いこと">
 <meta property="og:locale" content="en_US">
-<meta property="article:author" content="Amana">
+<meta property="article:author" content="A">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -66,7 +66,7 @@
 			<img src="/img/avatars.ico" class="js-avatar">
 		</a>
 		<hgroup>
-			<h1 class="header-author"><a href="/">Amana</a></h1>
+			<h1 class="header-author"><a href="/">A</a></h1>
 		</hgroup>
 		
 
@@ -128,7 +128,7 @@
 				</a>
 			</div>
 			<hgroup>
-			  <h1 class="header-author js-header-author">Amana</h1>
+			  <h1 class="header-author js-header-author">A</h1>
 			</hgroup>
 			
 			
@@ -178,7 +178,7 @@
   
     <h1 itemprop="name">
 	
-	  <a class="article-title" href="/2020/10/26/opt-cni-is-readonly-directory/" target="_blank">目录 /opt/bin 是只读目录</a>
+	  <a class="article-title" href="/2020/10/26/opt-cni-is-readonly-directory/" target="_blank">/opt/cni - readonly filesystem</a>
   
     </h1>
   
@@ -211,14 +211,17 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system describe pod kube-proxy-tt2qn</span><br><span class="line"></span><br><span class="line">Events:</span><br><span class="line">  Type     Reason          Age                      From                Message</span><br><span class="line">  ----     ------          ----                     ----                -------</span><br><span class="line">  Normal   Scheduled       11m                      default-scheduler   Successfully assigned kube-system/kube-proxy-tt2qn to ubuntu-01</span><br><span class="line">  Normal   Pulled          11m (x2 over 11m)        kubelet, ubuntu-01  Container image <span class="string">"registry.aliyuncs.com/google_containers/kube-proxy:v1.19.3"</span> already present on machine</span><br><span class="line">  Normal   Created         11m (x2 over 11m)        kubelet, ubuntu-01  Created container kube-proxy</span><br><span class="line">  Warning  Failed          11m                      kubelet, ubuntu-01  Error: failed to start container <span class="string">"kube-proxy"</span>: Error response from daemon: cannot join network of a non running container: 119388927b173ad23226c1049db0c1269ada343b133774807a1615cc79442246</span><br><span class="line">  Warning  BackOff         11m (x9 over 11m)        kubelet, ubuntu-01  Back-off restarting failed container</span><br><span class="line">  Normal   SandboxChanged  11m (x10 over 11m)       kubelet, ubuntu-01  Pod sandbox changed, it will be killed and re-created.</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>查看 <strong>Worker</strong> 节点上 <strong>Kubelet</strong> 与 <strong>Docker</strong> 日志:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">divinerapier@ubuntu-01:~$ journalctl -f</span><br><span class="line">-- Logs begin at Mon 2020-10-19 10:09:50 UTC. --</span><br><span class="line">Oct 26 02:31:35 ubuntu-01 docker.dockerd[1781]: time=<span class="string">"2020-10-26T02:31:35.429587085Z"</span> level=error msg=<span class="string">"Handler for POST /v1.40/containers/aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18/start returned error: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474035  281110 remote_runtime.go:248] StartContainer <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span> from runtime service failed: rpc error: code = Unknown desc = failed to start container <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span>: Error response from daemon: error <span class="keyword">while</span> creating mount <span class="built_in">source</span> path <span class="string">'/opt/cni/bin'</span>: mkdir /opt/cni: <span class="built_in">read</span>-only file system</span><br><span class="line">Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474175  281110 pod_workers.go:191] Error syncing pod 5f45d450-c4e9-45dc-b2c6-52a95570ba71 (<span class="string">"canal-5qk26_kube-system(5f45d450-c4e9-45dc-b2c6-52a95570ba71)"</span>), skipping: failed to <span class="string">"StartContainer"</span> <span class="keyword">for</span> <span class="string">"install-cni"</span> with RunContainerError: <span class="string">"failed to start container \"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18\": Error response from daemon: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">Oct 26 02:31:36 ubuntu-01 audit[315954]: AVC apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">Oct 26 02:31:36 ubuntu-01 kernel: audit: <span class="built_in">type</span>=1400 audit(1603679496.465:6039): apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">Oct 26 02:31:36 ubuntu-01 kubelet[281110]: W1026 02:31:36.635730  281110 cni.go:239] Unable to update cni config: no networks found <span class="keyword">in</span> /etc/cni/net.d</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ journalctl -f</span><br><span class="line"></span><br><span class="line">  -- Logs begin at Mon 2020-10-19 10:09:50 UTC. --</span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 docker.dockerd[1781]: time=<span class="string">"2020-10-26T02:31:35.429587085Z"</span> level=error msg=<span class="string">"Handler for POST /v1.40/containers/aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18/start returned error: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474035  281110 remote_runtime.go:248] StartContainer <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span> from runtime service failed: rpc error: code = Unknown desc = failed to start container <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span>: Error response from daemon: error <span class="keyword">while</span> creating mount <span class="built_in">source</span> path <span class="string">'/opt/cni/bin'</span>: mkdir /opt/cni: <span class="built_in">read</span>-only file system</span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474175  281110 pod_workers.go:191] Error syncing pod 5f45d450-c4e9-45dc-b2c6-52a95570ba71 (<span class="string">"canal-5qk26_kube-system(5f45d450-c4e9-45dc-b2c6-52a95570ba71)"</span>), skipping: failed to <span class="string">"StartContainer"</span> <span class="keyword">for</span> <span class="string">"install-cni"</span> with RunContainerError: <span class="string">"failed to start container \"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18\": Error response from daemon: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 audit[315954]: AVC apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 kernel: audit: <span class="built_in">type</span>=1400 audit(1603679496.465:6039): apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 kubelet[281110]: W1026 02:31:36.635730  281110 cni.go:239] Unable to update cni config: no networks found <span class="keyword">in</span> /etc/cni/net.d</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>
 <p>根据上述日志信息，可以确认根本错误出现在 <strong>Docker</strong> 中:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error while creating mount source path &#39;&#x2F;opt&#x2F;cni&#x2F;bin&#39;: mkdir &#x2F;opt&#x2F;cni: read-only file system</span><br></pre></td></tr></table></figure>
 
-<p>因此，通过重启 <strong>Docker</strong> 解决问题:</p>
+<p>但宿主机目录 <strong>/opt/cni</strong> 的权限为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">stat</span> /opt/cni/</span><br><span class="line"></span><br><span class="line">  File: /opt/cni/</span><br><span class="line">  Size: 4096            Blocks: 8          IO Block: 4096   directory</span><br><span class="line">Device: fd00h/64768d    Inode: 917533      Links: 3</span><br><span class="line">Access: (0755/drwxr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2020-10-26 01:41:07.222221020 +0000</span><br><span class="line">Modify: 2020-10-20 13:00:36.461719609 +0000</span><br><span class="line">Change: 2020-10-20 13:00:36.461719609 +0000</span><br><span class="line"> Birth: -</span><br></pre></td></tr></table></figure>
+
+<p>因此，推测为 <strong>Docker</strong> 服务的问题。最终，通过重启 <strong>Docker</strong> 解决问题:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart docker.service</span><br></pre></td></tr></table></figure>
 
     
@@ -648,7 +651,7 @@
 <h2 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/website/master/content/en/examples/application/nginx-app.yaml</span><br></pre></td></tr></table></figure>
 
 <h2 id="清理集群"><a href="#清理集群" class="headerlink" title="清理集群"></a>清理集群</h2><p>在期望清理的节点执行:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubeadm reset</span><br><span class="line">rm -rf /etc/cni/net.d</span><br><span class="line">rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm reset</span><br><span class="line">sudo rm -rf /etc/cni/net.d</span><br><span class="line">rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
 
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
 <li><a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener">Install Docker Engine on Ubuntu</a></li>
@@ -657,7 +660,6 @@
 <li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/" target="_blank" rel="noopener">Creating a cluster with kubeadm</a></li>
 <li><a href="https://github.com/cloudnativelabs/kube-router/blob/master/docs/kubeadm.md" target="_blank" rel="noopener">Deploying kube-router with kubeadm</a></li>
 <li><a href="https://docs.projectcalico.org/getting-started/kubernetes/flannel/flannel" target="_blank" rel="noopener">Install Calico for policy and flannel (aka Canal) for networking</a></li>
-<li><a href="https://stackoverflow.com/questions/62856916/calico-based-pod-is-not-coming-up" target="_blank" rel="noopener">calico-based-pod-is-not-coming-up</a></li>
 </ul>
 
     
@@ -1081,15 +1083,15 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">windows</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">wsl2</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
         		</li>
       		
 		</ul>
@@ -1254,7 +1256,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2018-2020 <a href="http://divinerapier.github.io/" target="_blank">Amana</a>
+    		&copy; 2018-2020 <a href="http://divinerapier.github.io/" target="_blank">A</a>
     	</div>
       	<div class="footer-right">
 			
@@ -1393,6 +1395,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
@@ -1413,27 +1423,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1450,6 +1444,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1537,19 +1539,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1561,15 +1563,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">terminal</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
             
             <div class="clearfix"></div>

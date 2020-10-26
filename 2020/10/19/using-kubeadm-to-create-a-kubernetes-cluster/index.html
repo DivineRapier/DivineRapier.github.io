@@ -18,8 +18,8 @@
 <meta property="og:description" content="在 Ubuntu 20.04 系统上搭建 Kubernetes 集群。 安装 Docker123456789101112131415161718192021222324252627282930sudo apt-get remove docker docker-engine docker.io containerd runcsudo apt-get updatesudo apt-get instal">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-10-19T12:38:25.000Z">
-<meta property="article:modified_time" content="2020-10-26T03:43:59.596Z">
-<meta property="article:author" content="Amana">
+<meta property="article:modified_time" content="2020-10-26T04:14:58.976Z">
+<meta property="article:author" content="A">
 <meta property="article:tag" content="kubernetes">
 <meta property="article:tag" content="kubeadm">
 <meta name="twitter:card" content="summary">
@@ -68,7 +68,7 @@
 			<img src="/img/avatars.ico" class="js-avatar">
 		</a>
 		<hgroup>
-			<h1 class="header-author"><a href="/">Amana</a></h1>
+			<h1 class="header-author"><a href="/">A</a></h1>
 		</hgroup>
 		
 
@@ -130,7 +130,7 @@
 				</a>
 			</div>
 			<hgroup>
-			  <h1 class="header-author js-header-author">Amana</h1>
+			  <h1 class="header-author js-header-author">A</h1>
 			</hgroup>
 			
 			
@@ -202,7 +202,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">820字</span>
+      <span class="post-count">815字</span>
     </span>
   </span>
 
@@ -259,7 +259,7 @@
 <h2 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/website/master/content/en/examples/application/nginx-app.yaml</span><br></pre></td></tr></table></figure>
 
 <h2 id="清理集群"><a href="#清理集群" class="headerlink" title="清理集群"></a>清理集群</h2><p>在期望清理的节点执行:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubeadm reset</span><br><span class="line">rm -rf /etc/cni/net.d</span><br><span class="line">rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm reset</span><br><span class="line">sudo rm -rf /etc/cni/net.d</span><br><span class="line">rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
 
 <h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
 <li><a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener">Install Docker Engine on Ubuntu</a></li>
@@ -268,7 +268,6 @@
 <li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/" target="_blank" rel="noopener">Creating a cluster with kubeadm</a></li>
 <li><a href="https://github.com/cloudnativelabs/kube-router/blob/master/docs/kubeadm.md" target="_blank" rel="noopener">Deploying kube-router with kubeadm</a></li>
 <li><a href="https://docs.projectcalico.org/getting-started/kubernetes/flannel/flannel" target="_blank" rel="noopener">Install Calico for policy and flannel (aka Canal) for networking</a></li>
-<li><a href="https://stackoverflow.com/questions/62856916/calico-based-pod-is-not-coming-up" target="_blank" rel="noopener">calico-based-pod-is-not-coming-up</a></li>
 </ul>
 
     
@@ -312,7 +311,7 @@
       <ul class="post-copyright">
         <li>
           <strong>本文作者：</strong>
-          Amana
+          A
         </li>
         <li>
           <strong>本文链接：</strong>
@@ -467,7 +466,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2018-2020 <a href="http://divinerapier.github.io/" target="_blank">Amana</a>
+    		&copy; 2018-2020 <a href="http://divinerapier.github.io/" target="_blank">A</a>
     	</div>
       	<div class="footer-right">
 			
@@ -606,6 +605,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
@@ -626,27 +633,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -663,6 +654,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -750,19 +749,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -774,15 +773,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">terminal</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
             
             <div class="clearfix"></div>
