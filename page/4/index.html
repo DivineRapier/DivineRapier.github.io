@@ -170,6 +170,163 @@
             
 
   
+    <article id="post-https-mutual-authentication" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/15/https-mutual-authentication/" target="_blank">HTTPS 双向认证</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/15/https-mutual-authentication/" class="archive-article-date">
+        <time datetime="2020-08-15T06:04:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="TLS-协议"><a href="#TLS-协议" class="headerlink" title="TLS 协议"></a>TLS 协议</h2><p>传输层安全性协议 <code>(TLS: Transport Layer Security)</code> 及其前身安全套接层 <code>(SSL: Secure Sockets Layer)</code> 是一种安全协议，目的是为互联网通信提供安全及数据完整性保障。</p>
+<p><code>SSL</code> 包含记录层 <code>(Record Layer)</code> 和传输层，记录层协议确定传输层数据的封装格式。传输层安全协议使用 <code>X.509</code> 认证，然后利用非对称加密演算来对通信方做身份认证，之后交换对称密钥作为会谈密钥 <code>(Session key)</code>。这个会谈密钥是用来将通信两方交换的数据做加密，保证两个应用间通信的保密性和可靠性，使客户与服务器应用之间的通信不被攻击者窃听。</p>
+<h2 id="HTTPS-协议"><a href="#HTTPS-协议" class="headerlink" title="HTTPS 协议"></a>HTTPS 协议</h2><p>超文本传输安全协议 <code>(HTTPS: HyperText Transfer Protocol Secure，常称为HTTP over TLS、HTTP over SSL或HTTP Secure)</code> 是一种通过计算机网络进行安全通信的传输协议。<code>HTTPS</code> 经由 <code>HTTP</code> 进行通信，但利用 <code>SSL/TLS</code> 来加密数据包。<code>HTTPS</code> 开发的主要目的，是提供对网站服务器的身份认证，保护交换数据的隐私与完整性。</p>
+<h2 id="认证过程"><a href="#认证过程" class="headerlink" title="认证过程"></a>认证过程</h2><h3 id="单向认证"><a href="#单向认证" class="headerlink" title="单向认证"></a>单向认证</h3><p>在访问大多数网站 <code>(google, facebook)</code> 时，会使用单向认证的方式。客户端(浏览器)会验证服务端证书的合法性，过程如下：</p>
+<p><img src="/images/https-mutual-authentication/01-one-way-authentication.png" alt="01-one-way-authentication"></p>
+<ol>
+<li>客户端发起建立 <code>HTTPS</code> 连接请求，将 <code>SSL</code> 协议版本的信息发送给服务器端</li>
+<li>服务器端将本机的公钥证书 <code>(server.crt)</code> 发送给客户端</li>
+<li>客户端读取公钥证书 <code>(server.crt)</code> 取出服务端公钥</li>
+<li>客户端生成随机密钥 <code>R</code>，用服务器公钥加密密钥<code>R</code>，将密文发送给服务端</li>
+<li>服务端用私钥 <code>(server.key)</code> 解密密文，得到了密钥 <code>R</code></li>
+<li>双方使用随机密钥 <code>R</code> 通信的对称加密密钥</li>
+</ol>
+<h3 id="双向认证"><a href="#双向认证" class="headerlink" title="双向认证"></a>双向认证</h3><p>而在某些有较高安全性要求，或需要验证访问者身份的场景，则可能会需要用到双向认证的方式：</p>
+<p><img src="/images/https-mutual-authentication/02-mutual-anthentication.png" alt="02-mutual-anthentication"></p>
+<ol>
+<li>客户端发起建立 <code>HTTPS</code> 连接请求，将 <code>SSL</code> 协议版本的信息发送给服务端；</li>
+<li>服务器端将本机的公钥证书 <code>(server.crt)</code> 发送给客户端</li>
+<li>客户端读取公钥证书 <code>(server.crt)</code> 取出服务端公钥</li>
+<li>客户端将客户端公钥证书 <code>(client.crt)</code> 发送给服务器端</li>
+<li>服务器端使用根证书 <code>(root.crt)</code> 解密客户端公钥证书，得到客户端公钥</li>
+<li>客户端发送自己支持的加密方案给服务器端</li>
+<li>服务器端根据自己和客户端的能力，选择一个双方都能接受的加密方案，使用客户端的公钥加密目标方案. 后发送给客户端；</li>
+<li>客户端使用自己的私钥解密加密方案，生成随机密钥 <code>R</code>，使用服务器公钥加密后传给服务器端；</li>
+<li>服务端用自己的私钥去解密这个密文，得到了密钥 <code>R</code></li>
+<li>双方使用随机密钥 <code>R</code> 通信的对称加密密钥</li>
+</ol>
+<h2 id="生成自签名证书"><a href="#生成自签名证书" class="headerlink" title="生成自签名证书"></a>生成自签名证书</h2><p>生成这一些列证书之前，我们需要先生成一个 <code>CA</code> 根证书，然后由这个 <code>CA</code> 根证书颁发服务器公钥证书和客户端公钥证书。为了验证根证书颁发与验证客户端证书这个逻辑，我们使用根证书生成两套不同的客户端证书，然后同时用两个客户端证书来发送请求，看服务器端是否都能识别。下面是证书生成的内在逻辑示意图：</p>
+<p><img src="/images/https-mutual-authentication/03-self-signed-sertificate.png" alt="03-self-signed-sertificate"></p>
+<h3 id="生成根证书"><a href="#生成根证书" class="headerlink" title="生成根证书"></a>生成根证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建根证书私钥：</span></span><br><span class="line">$ openssl genrsa -out root.key 1024</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建根证书请求文件：</span></span><br><span class="line">$ openssl req -new -out root.csr -key root.key</span><br><span class="line"><span class="comment"># 后续参数请自行填写，下面是一个例子：</span></span><br><span class="line"><span class="comment"># Country Name (2 letter code) [XX]:cn</span></span><br><span class="line"><span class="comment"># State or Province Name (full name) []:bj</span></span><br><span class="line"><span class="comment"># Locality Name (eg, city) [Default City]:bj</span></span><br><span class="line"><span class="comment"># Organization Name (eg, company) [Default Company Ltd]:alibaba</span></span><br><span class="line"><span class="comment"># Organizational Unit Name (eg, section) []:test</span></span><br><span class="line"><span class="comment"># Common Name (eg, your name or your servers hostname) []:root</span></span><br><span class="line"><span class="comment"># Email Address []: a.divinerapier.cn</span></span><br><span class="line"><span class="comment"># A challenge password []:</span></span><br><span class="line"><span class="comment"># An optional company name []:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建根证书：</span></span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> root.csr -out root.crt -signkey root.key -CAcreateserial -days 3650</span><br></pre></td></tr></table></figure>
+
+<p>可以得到</p>
+<ul>
+<li><code>root.crt</code>: 有效期为 <code>10</code> 年的根证书</li>
+</ul>
+<h3 id="生成自签名服务器端证书"><a href="#生成自签名服务器端证书" class="headerlink" title="生成自签名服务器端证书"></a>生成自签名服务器端证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成服务器端证书私钥：</span></span><br><span class="line">$ openssl genrsa -out server.key 1024</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成服务器证书请求文件，过程和注意事项参考根证书，本节不详述：</span></span><br><span class="line">$ openssl req -new -out server.csr -key server.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成服务器端公钥证书</span></span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> server.csr -out server.crt -signkey server.key -CA root.crt -CAkey root.key -CAcreateserial -days 3650</span><br></pre></td></tr></table></figure>
+
+<p>可以得到</p>
+<ul>
+<li><code>server.key</code>: 服务端私钥文件</li>
+<li><code>server.crt</code>: 有效期为 <code>10</code> 年的服务端公钥文件</li>
+</ul>
+<h3 id="生成自签名客户端证书"><a href="#生成自签名客户端证书" class="headerlink" title="生成自签名客户端证书"></a>生成自签名客户端证书</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成客户端证书秘钥：</span></span><br><span class="line">$ openssl genrsa -out client.key 1024</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成客户端证书请求文件，过程和注意事项参考根证书，本节不详述：</span></span><br><span class="line">$ openssl req -new -out client.csr -key client.key</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生客户端证书</span></span><br><span class="line">$ openssl x509 -req -<span class="keyword">in</span> client.csr -out client.crt -signkey client.key -CA root.crt -CAkey root.key -CAcreateserial -days 3650</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生客户端p12格式证书，输入一个好记的密码，比如 123456</span></span><br><span class="line">$ openssl pkcs12 -<span class="built_in">export</span> -clcerts -<span class="keyword">in</span> client.crt -inkey client.key -out client.p12</span><br></pre></td></tr></table></figure>
+
+<p>可以得到</p>
+<ul>
+<li><code>client.key</code>: 客户端私钥文件</li>
+<li><code>client.crt</code>: 有效期为 <code>10</code> 年的客户端公钥文件</li>
+<li><code>client.p12</code>: 同时包含公钥与私钥的客户端 <code>p12</code> 证书文件</li>
+</ul>
+<h3 id="生成证书注意事项"><a href="#生成证书注意事项" class="headerlink" title="生成证书注意事项"></a>生成证书注意事项</h3><p>在创建证书请求文件的时候需要注意</p>
+<ul>
+<li>根证书的 <code>Common Name</code> 填写 <code>root</code> 就可以</li>
+<li>所有客户端和服务器端的 <code>Common Name</code> 需要填写域名</li>
+<li>根证书的 <code>Common Name</code> 与客户端证书、服务端证书的 <code>Common Name</code> 不能相同</li>
+<li>其他所有字段的填写，根证书、服务器端证书、客户端证书需保持一致 最后的密码可以直接回车跳过</li>
+</ul>
+<h2 id="使用-golang-构建双向认证通信"><a href="#使用-golang-构建双向认证通信" class="headerlink" title="使用 golang 构建双向认证通信"></a>使用 golang 构建双向认证通信</h2><h3 id="服务端代码"><a href="#服务端代码" class="headerlink" title="服务端代码"></a>服务端代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"crypto/tls"</span></span><br><span class="line">    <span class="string">"crypto/x509"</span></span><br><span class="line">    <span class="string">"flag"</span></span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"io/ioutil"</span></span><br><span class="line">    <span class="string">"net/http"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> handler <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *handler)</span> <span class="title">ServeHTTP</span><span class="params">(w http.ResponseWriter,</span></span></span><br><span class="line"><span class="function"><span class="params">    r *http.Request)</span></span> &#123;</span><br><span class="line">    fmt.Fprintf(w,</span><br><span class="line">        <span class="string">"Hi, This is an example of https service in golang!\n"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> capath, certpath, keypath, bind <span class="keyword">string</span></span><br><span class="line">    flag.StringVar(&amp;capath, <span class="string">"ca"</span>, <span class="string">"./root.crt"</span>, <span class="string">"path of ca file"</span>)</span><br><span class="line">    flag.StringVar(&amp;certpath, <span class="string">"cert"</span>, <span class="string">"./server.crt"</span>, <span class="string">"path of cert file"</span>)</span><br><span class="line">    flag.StringVar(&amp;keypath, <span class="string">"key"</span>, <span class="string">"./server.key"</span>, <span class="string">"path of key file"</span>)</span><br><span class="line">    flag.StringVar(&amp;bind, <span class="string">"bind"</span>, <span class="string">":443"</span>, <span class="string">"local address to bind"</span>)</span><br><span class="line">    flag.Parse()</span><br><span class="line"></span><br><span class="line">    pool := x509.NewCertPool()</span><br><span class="line"></span><br><span class="line">    caCrt, err := ioutil.ReadFile(capath)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"ReadFile err:"</span>, err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    pool.AppendCertsFromPEM(caCrt)</span><br><span class="line">    s := &amp;http.Server&#123;</span><br><span class="line">        Addr:    bind,</span><br><span class="line">        Handler: &amp;handler&#123;&#125;,</span><br><span class="line">        TLSConfig: &amp;tls.Config&#123;</span><br><span class="line">            ClientCAs:  pool,</span><br><span class="line">            ClientAuth: tls.RequireAndVerifyClientCert,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = s.ListenAndServeTLS(certpath, keypath)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"ListenAndServeTLS err:"</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端代码"><a href="#客户端代码" class="headerlink" title="客户端代码"></a>客户端代码</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"crypto/tls"</span></span><br><span class="line">    <span class="string">"crypto/x509"</span></span><br><span class="line">    <span class="string">"flag"</span></span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"io/ioutil"</span></span><br><span class="line">    <span class="string">"net/http"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> host, capath, certpath, keypath <span class="keyword">string</span></span><br><span class="line">    flag.StringVar(&amp;capath, <span class="string">"ca"</span>, <span class="string">"./root.crt"</span>, <span class="string">"path of ca file"</span>)</span><br><span class="line">    flag.StringVar(&amp;certpath, <span class="string">"cert"</span>, <span class="string">"./client.crt"</span>, <span class="string">"path of cert file"</span>)</span><br><span class="line">    flag.StringVar(&amp;keypath, <span class="string">"key"</span>, <span class="string">"./client.key"</span>, <span class="string">"path of key file"</span>)</span><br><span class="line">    flag.StringVar(&amp;host, <span class="string">"host"</span>, <span class="string">"https://localhost"</span>, <span class="string">"host of https server"</span>)</span><br><span class="line">    flag.Parse()</span><br><span class="line"></span><br><span class="line">    pool := x509.NewCertPool()</span><br><span class="line"></span><br><span class="line">    caCrt, err := ioutil.ReadFile(capath)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"ReadFile err:"</span>, err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    pool.AppendCertsFromPEM(caCrt)</span><br><span class="line"></span><br><span class="line">    cliCrt, err := tls.LoadX509KeyPair(certpath, keypath)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">"Loadx509keypair err:"</span>, err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    tr := &amp;http.Transport&#123;</span><br><span class="line">        TLSClientConfig: &amp;tls.Config&#123;</span><br><span class="line">            RootCAs:      pool,</span><br><span class="line">            Certificates: []tls.Certificate&#123;cliCrt&#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">    client := &amp;http.Client&#123;Transport: tr&#125;</span><br><span class="line">    resp, err := client.Get(host)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line">    body, err := ioutil.ReadAll(resp.Body)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(<span class="keyword">string</span>(body) + <span class="string">"\n"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">tls</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">ssl</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">https</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">mutual authentication</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/15/https-mutual-authentication/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-device-controllers" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1215,18 +1372,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -1243,11 +1388,31 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">networks</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1259,11 +1424,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">networks</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1283,11 +1448,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1307,11 +1472,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1319,19 +1480,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1340,6 +1497,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1359,11 +1524,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1399,11 +1560,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
             
             <div class="clearfix"></div>

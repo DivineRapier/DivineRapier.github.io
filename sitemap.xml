@@ -2,14 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://divinerapier.github.io/2020/10/24/mpi-operator/</loc>
+    <loc>http://divinerapier.github.io/2020/10/26/opt-cni-is-readonly-directory/</loc>
     
-    <lastmod>2020-10-24</lastmod>
+    <lastmod>2020-10-26</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/</loc>
+    
+    <lastmod>2020-10-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/24/mpi-operator/</loc>
     
     <lastmod>2020-10-24</lastmod>
     
@@ -284,27 +291,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/windows/</loc>
-    <lastmod>2020-10-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/wsl2/</loc>
-    <lastmod>2020-10-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/docker/</loc>
-    <lastmod>2020-10-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/data-structure/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
@@ -333,6 +319,27 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/docker/</loc>
+    <lastmod>2020-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/ubuntu/</loc>
+    <lastmod>2020-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/networks/</loc>
+    <lastmod>2020-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/container-orchestration/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
@@ -341,6 +348,20 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/kubernetes/</loc>
+    <lastmod>2020-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/windows/</loc>
+    <lastmod>2020-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/wsl2/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -361,14 +382,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/ubuntu/</loc>
+    <loc>http://divinerapier.github.io/tags/hexo/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/networks/</loc>
+    <loc>http://divinerapier.github.io/tags/rss/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -403,14 +424,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/hexo/</loc>
+    <loc>http://divinerapier.github.io/tags/nfs/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/rss/</loc>
+    <loc>http://divinerapier.github.io/tags/filesystem/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -445,14 +466,7 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/nfs/</loc>
-    <lastmod>2020-10-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/filesystem/</loc>
+    <loc>http://divinerapier.github.io/tags/controllers/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -466,13 +480,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/controllers/</loc>
-    <lastmod>2020-10-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/storage/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
@@ -480,14 +487,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/mpi/</loc>
+    <loc>http://divinerapier.github.io/tags/linux-performance/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/operator/</loc>
+    <loc>http://divinerapier.github.io/tags/cpu-performance/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -502,6 +509,20 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/sstable/</loc>
+    <lastmod>2020-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/mpi/</loc>
+    <lastmod>2020-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/operator/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -536,14 +557,7 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/linux-performance/</loc>
-    <lastmod>2020-10-26</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/cpu-performance/</loc>
+    <loc>http://divinerapier.github.io/tags/faq/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -606,14 +620,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/paas/</loc>
+    <loc>http://divinerapier.github.io/tags/terminal/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/terminal/</loc>
+    <loc>http://divinerapier.github.io/tags/paas/</loc>
     <lastmod>2020-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
