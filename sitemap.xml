@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-deployment/</loc>
+    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-statefulset/</loc>
     
     <lastmod>2020-10-27</lastmod>
     
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-statefulset/</loc>
+    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-deployment/</loc>
     
     <lastmod>2020-10-27</lastmod>
     
@@ -620,14 +620,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/kubeadm/</loc>
+    <loc>http://divinerapier.github.io/tags/paas/</loc>
     <lastmod>2020-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/paas/</loc>
+    <loc>http://divinerapier.github.io/tags/kubeadm/</loc>
     <lastmod>2020-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
