@@ -170,6 +170,143 @@
             
 
   
+    <article id="post-nvidia-docker" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/11/14/nvidia-docker/" target="_blank">Nvidia Docker</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/11/14/nvidia-docker/" class="archive-article-date">
+        <time datetime="2020-11-14T10:21:01.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-14</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p><img src="/images/using-nvidia-gpu-on-kubernetes/nvidia-container-toolkit.png" alt="nvidia-container-toolkit.png"></p>
+<p>Nvidia Container Toolkit 包含容器运行时库和一些工具，用于自动配置容器使用 GPU 资源。并且，支持多种不同的容器引擎，如 Docker、LXC、Podman 等。用户根据需要可以自行选择使用哪种引擎。</p>
+<h2 id="The-Architecture-Overview-of-Nvidia-Container-Toolkit"><a href="#The-Architecture-Overview-of-Nvidia-Container-Toolkit" class="headerlink" title="The Architecture Overview of Nvidia Container Toolkit"></a>The Architecture Overview of Nvidia Container Toolkit</h2><p>Nvidia Container Toolkit 的架构允许其支持任何容器运行时。若以 Docker 为例，其由以下组件，以从上到下的层次结构组成:</p>
+<ul>
+<li>nvidia-docker2</li>
+<li>nvidia-container-runtime</li>
+<li>nvidia-container-toolkit</li>
+<li>libnvidia-container</li>
+</ul>
+<p>下图为各个组件的关系:</p>
+<p><img src="/images/using-nvidia-gpu-on-kubernetes/nvidia-docker-arch.png" alt="nvidia-docker-arch.png"></p>
+<h3 id="Components-and-Packages"><a href="#Components-and-Packages" class="headerlink" title="Components and Packages"></a>Components and Packages</h3><h4 id="libnvidia-container"><a href="#libnvidia-container" class="headerlink" title="libnvidia-container"></a>libnvidia-container</h4><p>提供库与 CLI 程序，实现自动化配置 GNU/Linux 容器使用 NVIDIA GPU 资源，其实现依赖于内核基础功能，且在设计上与容器运行时解耦。</p>
+<p>libnvidia-container 提供了一个定义良好的 API 和一个封装好的 CLI 程序(nvidia-container-cli)，任何容器运行时都可以调用它来支持 NVIDIA GPU。</p>
+<h4 id="nvidia-container-toolkit"><a href="#nvidia-container-toolkit" class="headerlink" title="nvidia-container-toolkit"></a>nvidia-container-toolkit</h4><p>实现了 runC prestart hook 需要的接口的脚本。该脚本在容器被创建之后，启动之前被 runC 调用，且被赋予访问与容器相关联的 config.json 的权限。脚本根据 config.json 中的信息作为合适的命令行参数 (an appropriate set of flags) 来调用 libnvidia-container CLI。其中，“指定哪些 GPU 设备在容器中使用” 是最重要的参数。</p>
+<p>该组件之前的名字是 nvidia-container-runtime-hook，现在系统上的 nvidia-container-runtime-hook 是 nvidia-container-toolkit 的符号链接。</p>
+<h4 id="nvidia-container-runtime"><a href="#nvidia-container-runtime" class="headerlink" title="nvidia-container-runtime"></a>nvidia-container-runtime</h4><p>曾经，nvidia-container-runtime 以 runC 作为基础，添加了 NVIDIA 特定的代码。2019 年，更改为对宿主机上原生 runC 做简单的封装。nvidia-container-runtime 将 runC spec 作为输入，将 nvidia-container-toolkit 脚本作为 prestart hook 注入到 runC spec 中。然后，将修改后的带有该 hook set 的 runC spec 传递给原生 runC 并调用 runC。需要注意的是，该组件不一定是针对 docker 的(但它是针对runC的)。</p>
+<p>当该 package 完成安装后，Docker 的 daemon.json 文件会被更新为指向这个二进制文件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"default-runtime"</span>: <span class="string">"nvidia"</span>,</span><br><span class="line"><span class="string">"runtimes"</span>: &#123;</span><br><span class="line">    <span class="string">"nvidia"</span>: &#123;</span><br><span class="line">        <span class="string">"path"</span>: <span class="string">"/usr/bin/nvidia-container-runtime"</span>,</span><br><span class="line">        <span class="string">"runtimeArgs"</span>: []</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="nvidia-docker2"><a href="#nvidia-docker2" class="headerlink" title="nvidia-docker2"></a>nvidia-docker2</h4><p>这个 package 是架构中唯一的 docker 专用包。它采用与 nvidia-container-runtime 相关的脚本，并将其安装到 docker 的 /etc/docker/daemon.json 文件中。这样，使用者就可以运行 <strong>docker run –runtime=nvidia …</strong> 来自动为容器添加对 GPU 的支持。这个 package 还安装了一个封装了原生 docker CLI 的脚本，名为 nvidia-docker，避免每次都指定 –runtime=nvidia 来调用 docker。它还允许用户在宿主机上设置环境变量 NV_GPU 来指定将哪些 GPU 注入到容器中。</p>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><h3 id="Pre-Requisites"><a href="#Pre-Requisites" class="headerlink" title="Pre-Requisites"></a>Pre-Requisites</h3><ul>
+<li><a href="https://www.nvidia.com/Download/index.aspx?lang=en-us" target="_blank" rel="noopener">NVIDIA Drivers</a></li>
+<li>Platform Requirements:<ol>
+<li>GNU/Linux x86_64 with kernel version &gt; 3.10</li>
+<li>Docker &gt;= 19.03 (recommended, but some distributions may include older versions of Docker. The minimum supported version is 1.12)</li>
+<li>NVIDIA GPU with Architecture &gt; Fermi (or compute capability 2.1)</li>
+<li>NVIDIA drivers ~= 361.93 (untested on older versions)</li>
+</ol>
+</li>
+<li>Docker CE</li>
+</ul>
+<h3 id="Setting-up-NVIDIA-Container-Toolkit"><a href="#Setting-up-NVIDIA-Container-Toolkit" class="headerlink" title="Setting up NVIDIA Container Toolkit"></a>Setting up NVIDIA Container Toolkit</h3><p>安装软件源与 GPG key:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ distribution=$(. /etc/os-release;<span class="built_in">echo</span> <span class="variable">$ID</span><span class="variable">$VERSION_ID</span>) \</span><br><span class="line">   &amp;&amp; curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \</span><br><span class="line">   &amp;&amp; curl -s -L https://nvidia.github.io/nvidia-docker/<span class="variable">$distribution</span>/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list</span><br></pre></td></tr></table></figure>
+
+<p>安装 nvidia-docker2 并重启 Docker Daemon:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get update \</span><br><span class="line">   &amp;&amp; sudo apt-get install -y nvidia-docker2 \</span><br><span class="line">   &amp;&amp; sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>启动容器测试，如果得到类似如下的输出则安装成功:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi</span><br><span class="line"></span><br><span class="line">+-----------------------------------------------------------------------------+</span><br><span class="line">| NVIDIA-SMI 450.51.06    Driver Version: 450.51.06    CUDA Version: 11.0     |</span><br><span class="line">|-------------------------------+----------------------+----------------------+</span><br><span class="line">| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |</span><br><span class="line">| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |</span><br><span class="line">|                               |                      |               MIG M. |</span><br><span class="line">|===============================+======================+======================|</span><br><span class="line">|   0  Tesla T4            On   | 00000000:00:1E.0 Off |                    0 |</span><br><span class="line">| N/A   34C    P8     9W /  70W |      0MiB / 15109MiB |      0%      Default |</span><br><span class="line">|                               |                      |                  N/A |</span><br><span class="line">+-------------------------------+----------------------+----------------------+</span><br><span class="line"></span><br><span class="line">+-----------------------------------------------------------------------------+</span><br><span class="line">| Processes:                                                                  |</span><br><span class="line">|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |</span><br><span class="line">|        ID   ID                                                   Usage      |</span><br><span class="line">|=============================================================================|</span><br><span class="line">|  No running processes found                                                 |</span><br><span class="line">+-----------------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/index.html" target="_blank" rel="noopener">NVIDIA Cloud Native Technologies</a></li>
+<li><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html" target="_blank" rel="noopener">Container Toolkit Installation Guide</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">gpu</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">nvidia</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/11/14/nvidia-docker/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-adding-a-new-hard-drive-for-linux" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1295,100 +1432,6 @@
 
 
   
-    <article id="post-configure-networks-on-ubuntu-20-04" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/19/configure-networks-on-ubuntu-20-04/" target="_blank">Ubuntu 20.04 配置静态网络</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/19/configure-networks-on-ubuntu-20-04/" class="archive-article-date">
-        <time datetime="2020-10-19T10:55:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-19</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><strong>Ubuntu 20.04</strong> 的网络配置文件位于 <strong>/etc/netplan/00-installer-config.yaml</strong>:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This is the network config written by 'subiquity'</span></span><br><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">ens33:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">addresses:</span> <span class="string">[192.168.50.30/24]</span></span><br><span class="line">      <span class="attr">gateway4:</span> <span class="number">192.168</span><span class="number">.50</span><span class="number">.1</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span> <span class="string">[192.168.50.1,</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
-
-<p>更新配置:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu-00:~<span class="comment"># netplan --debug apply</span></span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.734: Processing input file /etc/netplan/00-installer-config.yaml..</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.734: starting new processing pass</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.735: We have some netdefs, pass them through a final round of validation</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.735: ens33: setting default backend to 1</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.735: Configuration is valid</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.736: Generating output files..</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.736: NetworkManager: definition ens33 is not <span class="keyword">for</span> us (backend 1)</span><br><span class="line">(generate:3768): GLib-DEBUG: 11:49:11.736: posix_spawn avoided (fd close requested)</span><br><span class="line">DEBUG:netplan generated networkd configuration changed, restarting networkd</span><br></pre></td></tr></table></figure>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">ubuntu</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">networks</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/19/configure-networks-on-ubuntu-20-04/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
@@ -1522,15 +1565,15 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1550,7 +1593,23 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">networks</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1562,19 +1621,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">networks</a>
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1591,14 +1642,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1678,10 +1721,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">namespace</a>
               </li>
              
@@ -1690,7 +1729,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">select statements</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1702,11 +1749,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1715,10 +1766,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
