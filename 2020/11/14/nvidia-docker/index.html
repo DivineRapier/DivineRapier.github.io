@@ -17,16 +17,16 @@
 <meta property="og:site_name" content="お可愛いこと">
 <meta property="og:description" content="Nvidia Container Toolkit 包含容器运行时库和一些工具，用于自动配置容器使用 GPU 资源。并且，支持多种不同的容器引擎，如 Docker、LXC、Podman 等。用户根据需要可以自行选择使用哪种引擎。 The Architecture Overview of Nvidia Container ToolkitNvidia Container Toolkit 的架构允许其支">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://divinerapier.github.io/images/using-nvidia-gpu-on-kubernetes/nvidia-container-toolkit.png">
-<meta property="og:image" content="http://divinerapier.github.io/images/using-nvidia-gpu-on-kubernetes/nvidia-docker-arch.png">
+<meta property="og:image" content="http://divinerapier.github.io/images/nvidia-docker/nvidia-container-toolkit.png">
+<meta property="og:image" content="http://divinerapier.github.io/images/nvidia-docker/nvidia-docker-arch.png">
 <meta property="article:published_time" content="2020-11-14T10:21:01.000Z">
-<meta property="article:modified_time" content="2020-11-14T14:13:33.889Z">
+<meta property="article:modified_time" content="2020-11-14T14:17:09.039Z">
 <meta property="article:author" content="A">
 <meta property="article:tag" content="gpu">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="nvidia">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://divinerapier.github.io/images/using-nvidia-gpu-on-kubernetes/nvidia-container-toolkit.png">
+<meta name="twitter:image" content="http://divinerapier.github.io/images/nvidia-docker/nvidia-container-toolkit.png">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
   
@@ -226,7 +226,7 @@
   
   <div class="article-entry" itemprop="articleBody">
     
-    <p><img src="/images/using-nvidia-gpu-on-kubernetes/nvidia-container-toolkit.png" alt="nvidia-container-toolkit.png"></p>
+    <p><img src="/images/nvidia-docker/nvidia-container-toolkit.png" alt="nvidia-container-toolkit.png"></p>
 <p>Nvidia Container Toolkit 包含容器运行时库和一些工具，用于自动配置容器使用 GPU 资源。并且，支持多种不同的容器引擎，如 Docker、LXC、Podman 等。用户根据需要可以自行选择使用哪种引擎。</p>
 <h2 id="The-Architecture-Overview-of-Nvidia-Container-Toolkit"><a href="#The-Architecture-Overview-of-Nvidia-Container-Toolkit" class="headerlink" title="The Architecture Overview of Nvidia Container Toolkit"></a>The Architecture Overview of Nvidia Container Toolkit</h2><p>Nvidia Container Toolkit 的架构允许其支持任何容器运行时。若以 Docker 为例，其由以下组件，以从上到下的层次结构组成:</p>
 <ul>
@@ -236,7 +236,7 @@
 <li>libnvidia-container</li>
 </ul>
 <p>下图为各个组件的关系:</p>
-<p><img src="/images/using-nvidia-gpu-on-kubernetes/nvidia-docker-arch.png" alt="nvidia-docker-arch.png"></p>
+<p><img src="/images/nvidia-docker/nvidia-docker-arch.png" alt="nvidia-docker-arch.png"></p>
 <h3 id="Components-and-Packages"><a href="#Components-and-Packages" class="headerlink" title="Components and Packages"></a>Components and Packages</h3><h4 id="libnvidia-container"><a href="#libnvidia-container" class="headerlink" title="libnvidia-container"></a>libnvidia-container</h4><p>提供库与 CLI 程序，实现自动化配置 GNU/Linux 容器使用 NVIDIA GPU 资源，其实现依赖于内核基础功能，且在设计上与容器运行时解耦。</p>
 <p>libnvidia-container 提供了一个定义良好的 API 和一个封装好的 CLI 程序(nvidia-container-cli)，任何容器运行时都可以调用它来支持 NVIDIA GPU。</p>
 <h4 id="nvidia-container-toolkit"><a href="#nvidia-container-toolkit" class="headerlink" title="nvidia-container-toolkit"></a>nvidia-container-toolkit</h4><p>实现了 runC prestart hook 需要的接口的脚本。该脚本在容器被创建之后，启动之前被 runC 调用，且被赋予访问与容器相关联的 config.json 的权限。脚本根据 config.json 中的信息作为合适的命令行参数 (an appropriate set of flags) 来调用 libnvidia-container CLI。其中，“指定哪些 GPU 设备在容器中使用” 是最重要的参数。</p>
@@ -416,6 +416,15 @@
 
 
 <nav id="article-nav">
+  
+    <a href="/2020/11/15/kubernetes-device-plugin/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Kubernetes Device Plugin
+        
+      </div>
+    </a>
   
   
     <a href="/2020/11/01/adding-a-new-hard-drive-for-linux/" id="article-nav-older" class="article-nav-link-wrap">
@@ -629,19 +638,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -749,11 +758,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -765,11 +774,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -778,10 +791,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -959,7 +968,7 @@
   }
 
   
-    var modelName = "hibiki";
+    var modelName = "haru/01";
   
 
   var modelJsonPath = "";
@@ -992,16 +1001,6 @@
 </script>
 
   
-  
-  <script type="text/javascript" src="/lib/snow.js"></script>
-  <script type="text/javascript" src="/lib/jquery-2.1.4.min.js"></script>
-  <script>
-    snow.down();
-    $(window).resize(function() {
-      $("canvas").css("z-index","500").remove();
-      snow.down();
-    });
-  </script>
   
 </body>
 
