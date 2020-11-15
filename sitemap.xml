@@ -410,20 +410,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/I-O/</loc>
-    <lastmod>2020-11-15</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/principles-of-i-o-hardware/</loc>
-    <lastmod>2020-11-15</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/container-orchestration/</loc>
     <lastmod>2020-11-15</lastmod>
     <changefreq>daily</changefreq>
@@ -432,6 +418,20 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/kubernetes/</loc>
+    <lastmod>2020-11-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/I-O/</loc>
+    <lastmod>2020-11-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/principles-of-i-o-hardware/</loc>
     <lastmod>2020-11-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
