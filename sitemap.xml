@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://divinerapier.github.io/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/</loc>
+    
+    <lastmod>2020-11-15</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/2020/11/15/kubernetes-device-plugin/</loc>
     
     <lastmod>2020-11-15</lastmod>
@@ -649,6 +656,13 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/rdma/</loc>
+    <lastmod>2020-11-15</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/scheduling/</loc>
     <lastmod>2020-11-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
