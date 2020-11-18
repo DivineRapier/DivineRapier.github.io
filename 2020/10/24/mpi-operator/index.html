@@ -10,15 +10,15 @@
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="安装部署默认配置的 mpi-operator: 123git clone https:&#x2F;&#x2F;github.com&#x2F;kubeflow&#x2F;mpi-operatorcd mpi-operatorkubectl create -f deploy&#x2F;v1alpha2&#x2F;mpi-operator.yaml  验证是否安装成功: 123kubectl get crd# NAME">
+  <meta name="description" content="安装部署默认配置的 mpi-operator: 123git clone https:&#x2F;&#x2F;github.com&#x2F;kubeflow&#x2F;mpi-operatorcd mpi-operatorkubectl create -f deploy&#x2F;v1&#x2F;mpi-operator.yaml  验证是否安装成功: 123kubectl get crd# NAME">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MPI Operator">
 <meta property="og:url" content="http://divinerapier.github.io/2020/10/24/mpi-operator/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="安装部署默认配置的 mpi-operator: 123git clone https:&#x2F;&#x2F;github.com&#x2F;kubeflow&#x2F;mpi-operatorcd mpi-operatorkubectl create -f deploy&#x2F;v1alpha2&#x2F;mpi-operator.yaml  验证是否安装成功: 123kubectl get crd# NAME">
+<meta property="og:description" content="安装部署默认配置的 mpi-operator: 123git clone https:&#x2F;&#x2F;github.com&#x2F;kubeflow&#x2F;mpi-operatorcd mpi-operatorkubectl create -f deploy&#x2F;v1&#x2F;mpi-operator.yaml  验证是否安装成功: 123kubectl get crd# NAME">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-10-24T10:17:12.000Z">
-<meta property="article:modified_time" content="2020-11-16T07:35:25.231Z">
+<meta property="article:modified_time" content="2020-11-18T05:13:56.766Z">
 <meta property="article:author" content="A">
 <meta property="article:tag" content="kubernetes">
 <meta property="article:tag" content="mpi">
@@ -203,7 +203,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">171字</span>
+      <span class="post-count">248字</span>
     </span>
   </span>
 
@@ -224,13 +224,19 @@
   <div class="article-entry" itemprop="articleBody">
     
     <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>部署默认配置的 <strong>mpi-operator</strong>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/kubeflow/mpi-operator</span><br><span class="line"><span class="built_in">cd</span> mpi-operator</span><br><span class="line">kubectl create -f deploy/v1alpha2/mpi-operator.yaml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/kubeflow/mpi-operator</span><br><span class="line"><span class="built_in">cd</span> mpi-operator</span><br><span class="line">kubectl create -f deploy/v1/mpi-operator.yaml</span><br></pre></td></tr></table></figure>
 
 <p>验证是否安装成功:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get crd</span><br><span class="line"><span class="comment"># NAME                                          CREATED AT</span></span><br><span class="line"><span class="comment"># mpijobs.kubeflow.org                          2020-10-23T08:40:15Z</span></span><br></pre></td></tr></table></figure>
 
+<h3 id="参数选项"><a href="#参数选项" class="headerlink" title="参数选项"></a>参数选项</h3><p>在使用 <strong>v1</strong> 版本时，需要注意几个选项:</p>
+<ul>
+<li><strong>-namespace</strong>: 不为空时，只监控指定 <strong>namespace</strong> 的 <strong>MPIJob</strong>，否则将监控所有的 <strong>namespace</strong></li>
+<li><strong>-gang-scheduling</strong>: 指定使用的 <strong>gang scheduler</strong> 的名字，此时会启动 <strong>gang scheduling</strong> 调度策略</li>
+<li><strong>launcher-runs-workloads</strong>: 在 <strong>launcher</strong> 拥有 <strong>GPU</strong> 时执行任务</li>
+</ul>
 <h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>创建一个 <strong>MPIJob</strong> 的配置文件:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1alpha2</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">/helloworld/mpi_hello_world</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">10Mi</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                 <span class="attr">memory:</span> <span class="string">10Mi</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">10Mi</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">10Mi</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">/helloworld/mpi_hello_world</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                 <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br></pre></td></tr></table></figure>
 
 <p>部署到 <strong>Kubernetes</strong> 上:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f ./openmpi-helloworld.yml</span><br></pre></td></tr></table></figure>
@@ -560,6 +566,14 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -580,26 +594,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">windows</a>
               </li>
              
@@ -608,11 +602,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -624,19 +614,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -656,6 +646,26 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">tls</a>
               </li>
              
@@ -672,23 +682,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -701,6 +699,14 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">storage</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -732,19 +738,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
+                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -752,15 +750,23 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
