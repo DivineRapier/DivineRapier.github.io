@@ -170,6 +170,119 @@
             
 
   
+    <article id="post-testing-the-bandwidth-between-two-nodes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/11/19/testing-the-bandwidth-between-two-nodes/" target="_blank">测试节点之间的网络带宽</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/11/19/testing-the-bandwidth-between-two-nodes/" class="archive-article-date">
+        <time datetime="2020-11-19T05:14:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-19</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>昨天同事找到我，说 <strong>nfs</strong> 太慢了，通过 <strong>iostat</strong> 看只有 <strong>1-2MB/s</strong> 的写入速度。在通过 <strong>fio</strong> 测试磁盘顺序写入速度，得到结果为 <strong>300MB/s</strong> 之后，遂怀疑是网络的问题。</p>
+<h2 id="iperf"><a href="#iperf" class="headerlink" title="iperf"></a>iperf</h2><blockquote>
+<p>iperf is a tool for performing network throughput measurements.  It can test either TCP or UDP throughput.  To perform an iperf test the user must establish both a server (to discard traffic) and a client (to generate traffic).</p>
+</blockquote>
+<p>此处省略安装过程。</p>
+<h3 id="测试网络带宽"><a href="#测试网络带宽" class="headerlink" title="测试网络带宽"></a>测试网络带宽</h3><p><strong>iperf</strong> 通过使用不同的命令行参数，支持分别作为 <strong>服务端</strong> 或 <strong>客户端</strong>。</p>
+<h4 id="启动服务端"><a href="#启动服务端" class="headerlink" title="启动服务端"></a>启动服务端</h4><p>监听默认端口 <strong>5001</strong>，启动服务端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -s</span><br></pre></td></tr></table></figure>
+
+<p>或者，监听指定端口，启动服务端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -s -p &lt;port&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动客户端"><a href="#启动客户端" class="headerlink" title="启动客户端"></a>启动客户端</h4><p>连接默认端口 <strong>5001</strong>，启动客户端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt;</span><br></pre></td></tr></table></figure>
+
+<p>或者，连接指定端口，启动客户端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt;</span><br></pre></td></tr></table></figure>
+
+<p>同时，<strong>iperf</strong> 也支持多线程的客户端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt; -P &lt;threadiness&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>单线程客户端的测试结果:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size:  170 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37290 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.6 sec  24.0 MBytes  19.0 Mbits/sec</span><br></pre></td></tr></table></figure>
+
+<p>多线程客户端的测试结果，两个节点都有 <strong>16</strong> 个 <strong>CPU</strong> 核心:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size: 85.0 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[ 18] <span class="built_in">local</span> 172.29.60.164 port 37392 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 17] <span class="built_in">local</span> 172.29.60.164 port 37390 connected with 10.33.28.26 port 9999</span><br><span class="line">[  4] <span class="built_in">local</span> 172.29.60.164 port 37364 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 11] <span class="built_in">local</span> 172.29.60.164 port 37378 connected with 10.33.28.26 port 9999</span><br><span class="line">[  9] <span class="built_in">local</span> 172.29.60.164 port 37374 connected with 10.33.28.26 port 9999</span><br><span class="line">[  8] <span class="built_in">local</span> 172.29.60.164 port 37372 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 10] <span class="built_in">local</span> 172.29.60.164 port 37376 connected with 10.33.28.26 port 9999</span><br><span class="line">[  6] <span class="built_in">local</span> 172.29.60.164 port 37366 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 13] <span class="built_in">local</span> 172.29.60.164 port 37382 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 14] <span class="built_in">local</span> 172.29.60.164 port 37384 connected with 10.33.28.26 port 9999</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37362 connected with 10.33.28.26 port 9999</span><br><span class="line">[  5] <span class="built_in">local</span> 172.29.60.164 port 37368 connected with 10.33.28.26 port 9999</span><br><span class="line">[  7] <span class="built_in">local</span> 172.29.60.164 port 37370 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 15] <span class="built_in">local</span> 172.29.60.164 port 37386 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 16] <span class="built_in">local</span> 172.29.60.164 port 37388 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 12] <span class="built_in">local</span> 172.29.60.164 port 37380 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.2 sec  2.62 MBytes  2.17 Mbits/sec</span><br><span class="line">[ 13]  0.0-10.2 sec  2.88 MBytes  2.36 Mbits/sec</span><br><span class="line">[ 15]  0.0-10.2 sec  1.88 MBytes  1.54 Mbits/sec</span><br><span class="line">[  7]  0.0-10.9 sec  1.50 MBytes  1.15 Mbits/sec</span><br><span class="line">[  6]  0.0-11.0 sec  1.75 MBytes  1.34 Mbits/sec</span><br><span class="line">[ 17]  0.0-11.2 sec  1.88 MBytes  1.40 Mbits/sec</span><br><span class="line">[  5]  0.0-11.3 sec  1.50 MBytes  1.12 Mbits/sec</span><br><span class="line">[ 10]  0.0-11.6 sec  1.88 MBytes  1.35 Mbits/sec</span><br><span class="line">[  9]  0.0-12.4 sec  1.62 MBytes  1.10 Mbits/sec</span><br><span class="line">[  4]  0.0-13.0 sec  2.88 MBytes  1.85 Mbits/sec</span><br><span class="line">[ 11]  0.0-13.0 sec  4.62 MBytes  2.98 Mbits/sec</span><br><span class="line">[ 14]  0.0-13.1 sec  4.88 MBytes  3.12 Mbits/sec</span><br><span class="line">[  8]  0.0-13.9 sec  2.12 MBytes  1.28 Mbits/sec</span><br><span class="line">[ 16]  0.0-14.1 sec  2.00 MBytes  1.19 Mbits/sec</span><br><span class="line">[ 18]  0.0-14.1 sec  2.12 MBytes  1.26 Mbits/sec</span><br><span class="line">[ 12]  0.0-14.3 sec  1.73 MBytes  1.01 Mbits/sec</span><br><span class="line">[SUM]  0.0-14.3 sec  37.9 MBytes  22.1 Mbits/sec</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>瓶颈在网络带宽，悲哀。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">network</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/11/19/testing-the-bandwidth-between-two-nodes/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-volcano" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1383,122 +1496,6 @@
 
 
   
-    <article id="post-mpi-operator" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/24/mpi-operator/" target="_blank">MPI Operator</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/24/mpi-operator/" class="archive-article-date">
-        <time datetime="2020-10-24T10:17:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>部署默认配置的 <strong>mpi-operator</strong>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/kubeflow/mpi-operator</span><br><span class="line"><span class="built_in">cd</span> mpi-operator</span><br><span class="line">kubectl create -f deploy/v1/mpi-operator.yaml</span><br></pre></td></tr></table></figure>
-
-<p>验证是否安装成功:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get crd</span><br><span class="line"><span class="comment"># NAME                                          CREATED AT</span></span><br><span class="line"><span class="comment"># mpijobs.kubeflow.org                          2020-10-23T08:40:15Z</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="参数选项"><a href="#参数选项" class="headerlink" title="参数选项"></a>参数选项</h3><p>在使用 <strong>v1</strong> 版本时，需要注意几个选项:</p>
-<ul>
-<li><strong>-namespace</strong>: 不为空时，只监控指定 <strong>namespace</strong> 的 <strong>MPIJob</strong>，否则将监控所有的 <strong>namespace</strong></li>
-<li><strong>-gang-scheduling</strong>: 指定使用的 <strong>gang scheduler</strong> 的名字，此时会启动 <strong>gang scheduling</strong> 调度策略</li>
-<li><strong>launcher-runs-workloads</strong>: 在 <strong>launcher</strong> 拥有 <strong>GPU</strong> 时执行任务</li>
-</ul>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>创建一个 <strong>MPIJob</strong> 的配置文件:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">/helloworld/mpi_hello_world</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                 <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br></pre></td></tr></table></figure>
-
-<p>部署到 <strong>Kubernetes</strong> 上:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f ./openmpi-helloworld.yml</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://github.com/kubeflow/mpi-operator" target="_blank" rel="noopener">GitHub: MPI Operator</a></li>
-<li><a href="https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-296d5f2e6edc" target="_blank" rel="noopener">Introduction to Kubeflow MPI Operator and Industry Adoption</a></li>
-<li><a href="https://www.kubeflow.org/docs/components/training/mpi/" target="_blank" rel="noopener">MPI Training</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">mpi</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">operator</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/24/mpi-operator/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
@@ -1640,6 +1637,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -1656,7 +1657,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1665,10 +1666,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1688,14 +1685,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">container</a>
               </li>
              
@@ -1712,6 +1701,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
@@ -1725,10 +1722,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1752,7 +1745,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1764,19 +1761,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1796,11 +1785,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1816,11 +1809,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">network</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1832,19 +1833,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
             
             <div class="clearfix"></div>

@@ -170,6 +170,122 @@
             
 
   
+    <article id="post-mpi-operator" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/24/mpi-operator/" target="_blank">MPI Operator</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/24/mpi-operator/" class="archive-article-date">
+        <time datetime="2020-10-24T10:17:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>部署默认配置的 <strong>mpi-operator</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/kubeflow/mpi-operator</span><br><span class="line"><span class="built_in">cd</span> mpi-operator</span><br><span class="line">kubectl create -f deploy/v1/mpi-operator.yaml</span><br></pre></td></tr></table></figure>
+
+<p>验证是否安装成功:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get crd</span><br><span class="line"><span class="comment"># NAME                                          CREATED AT</span></span><br><span class="line"><span class="comment"># mpijobs.kubeflow.org                          2020-10-23T08:40:15Z</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="参数选项"><a href="#参数选项" class="headerlink" title="参数选项"></a>参数选项</h3><p>在使用 <strong>v1</strong> 版本时，需要注意几个选项:</p>
+<ul>
+<li><strong>-namespace</strong>: 不为空时，只监控指定 <strong>namespace</strong> 的 <strong>MPIJob</strong>，否则将监控所有的 <strong>namespace</strong></li>
+<li><strong>-gang-scheduling</strong>: 指定使用的 <strong>gang scheduler</strong> 的名字，此时会启动 <strong>gang scheduling</strong> 调度策略</li>
+<li><strong>launcher-runs-workloads</strong>: 在 <strong>launcher</strong> 拥有 <strong>GPU</strong> 时执行任务</li>
+</ul>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>创建一个 <strong>MPIJob</strong> 的配置文件:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">/helloworld/mpi_hello_world</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                 <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">openmpi-helloworld</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">                <span class="attr">memory:</span> <span class="string">1Gi</span></span><br></pre></td></tr></table></figure>
+
+<p>部署到 <strong>Kubernetes</strong> 上:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f ./openmpi-helloworld.yml</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://github.com/kubeflow/mpi-operator" target="_blank" rel="noopener">GitHub: MPI Operator</a></li>
+<li><a href="https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-296d5f2e6edc" target="_blank" rel="noopener">Introduction to Kubeflow MPI Operator and Industry Adoption</a></li>
+<li><a href="https://www.kubeflow.org/docs/components/training/mpi/" target="_blank" rel="noopener">MPI Training</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">mpi</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">operator</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/24/mpi-operator/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-openmpi-in-docker" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -860,15 +976,15 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">windows</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">wsl2</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
         		</li>
       		
 		</ul>
@@ -1131,186 +1247,6 @@
 
 
   
-    <article id="post-kubernetes-volumes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/07/kubernetes-volumes/" target="_blank">Kubernetes 存储卷</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/07/kubernetes-volumes/" class="archive-article-date">
-        <time datetime="2020-10-07T09:37:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-07</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 <strong>Docker</strong> 中，<strong><a href="https://docs.docker.com/storage/" target="_blank" rel="noopener">Volume</a></strong> 概念表示磁盘上或者另外一个容器内的一个目录。 直到最近，Docker 才支持对基于本地磁盘的 Volume 的生存期进行管理。 虽然 Docker 现在也能提供 Volume 驱动程序，但是目前功能还非常有限 （例如，截至 Docker 1.7，每个容器只允许有一个 Volume 驱动程序，并且无法将参数传递给 Volume）。</p>
-<p>而在 <strong>Kubernetes</strong> 中，<strong>Volume</strong> 具有明确的生命周期——与其所属 <strong>Pod</strong> 相同。 因此，<strong>Volume 比 Pod 中运行的任何容器的存活期都长</strong>，在容器重新启动时数据也会得到保留。 当然，<strong>当一个 Pod 不再存在时，卷也将不再存在</strong>。 更重要的是，<strong>Kubernetes 可以支持许多类型的卷，Pod 也能同时使用任意数量的卷</strong>。</p>
-<p><strong>Volume</strong> 的核心是包含一些数据的目录，Pod 中的容器可以访问该目录。 特定的卷类型可以决定这个目录是如何形成的，并能决定它支持何种介质，以及目录中存放什么内容。</p>
-<p>使用 <strong>Volume</strong> 时, Pod 声明中需要提供卷的类型 (<strong>.spec.volumes</strong> 字段) 和 <strong>Volume</strong> 挂载的位置 (<strong>.spec.containers.volumeMounts</strong> 字段).</p>
-<p>容器中的进程能看到由它们的 Docker 镜像和卷组成的文件系统视图。 <a href="https://docs.docker.com/userguide/dockerimages/" target="_blank" rel="noopener">Docker 镜像</a> 位于文件系统层次结构的根部，并且任何 Volume 都挂载在镜像内的指定路径上。 卷不能挂载到其他卷，也不能与其他卷有硬链接。 Pod 中的每个容器必须独立地指定每个卷的挂载位置(<strong>Volumes</strong> 之间的挂载点应该相互独立)。</p>
-<h2 id="Volume-的类型"><a href="#Volume-的类型" class="headerlink" title="Volume 的类型"></a>Volume 的类型</h2><p>Kubernetes 支持下列类型的卷:</p>
-<ul>
-<li><a href="#Cephfs">cephfs</a></li>
-<li><a href="#ConfigMap">configMap</a></li>
-<li><a href="#CSI">csi</a></li>
-<li><a href="#DownwardAPI">downwardAPI</a></li>
-<li><a href="#EmptyDir">emptyDir</a></li>
-<li><a href="#HostPath">hostPath</a></li>
-<li><a href="#Local">local</a></li>
-<li><a href="#Nfs">nfs</a></li>
-<li><a href="#PersistentVolumeClaim">persistentVolumeClaim</a></li>
-<li><a href="#Projected">projected</a></li>
-<li><a href="#Secret">secret</a></li>
-</ul>
-<h3 id="Cephfs"><a href="#Cephfs" class="headerlink" title="Cephfs"></a>Cephfs</h3><p><strong>cephfs</strong> 允许用户将现存的 <strong>CephFS</strong> 卷挂载到 <strong>Pod</strong> 中。 与 <strong><a href="#EmptyDir">emptyDir</a></strong> 不同的是，<strong>emptyDir</strong> 会在删除 Pod 的同时<strong>一并被删除</strong>，<strong>cephfs</strong> 卷的内容在删除 Pod 时会被保留，卷只是被卸载掉了。 这意味着 <strong>CephFS 卷可以被预先填充数据，并且这些数据可以在 Pod 之间”传递”</strong>。CephFS 卷可同时被多个写者挂载。</p>
-<blockquote>
-<p>注意： 在您使用 Ceph 卷之前，您的 Ceph 服务器必须正常运行并且要使用的 share 被导出（exported）。</p>
-</blockquote>
-<p>更多信息请参考 <a href="https://github.com/kubernetes/examples/tree/master/volumes/cephfs/" target="_blank" rel="noopener">CephFS 示例</a>。</p>
-<h3 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h3><p><strong>configMap</strong> 资源提供了向 Pod <strong>注入配置数据</strong>的方法。 ConfigMap 对象中存储的数据可以被 configMap 类型的卷引用，然后被应用到 Pod 中运行的容器化应用。</p>
-<p>当引用 configMap 对象时，你可以简单的在 Volume 中通过它名称来引用。 还可以自定义 ConfigMap 中特定条目所要使用的路径。 例如，要将名为 log-config 的 ConfigMap 挂载到名为 configmap-pod 的 Pod 中，您可以使用下面的 YAML:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">configmap-pod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/etc/config</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">      <span class="attr">configMap:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">log-config</span></span><br><span class="line">        <span class="attr">items:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">log_level</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">log_level</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="CSI"><a href="#CSI" class="headerlink" title="CSI"></a>CSI</h3><p><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">容器存储接口 (CSI)</a> 为容器编排系统（如 Kubernetes）定义标准接口，以将任意存储系统暴露给它们的容器工作负载。</p>
-<p>更多详情请阅读 <a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/storage/container-storage-interface.md" target="_blank" rel="noopener">CSI 设计方案</a>。</p>
-<p>CSI 的支持在 Kubernetes v1.9 中作为 alpha 特性引入，在 Kubernetes v1.10 中转为 beta 特性，并在 Kubernetes v1.13 正式 GA。</p>
-<blockquote>
-<p><strong>说明:</strong> CSI驱动程序可能并非在所有Kubernetes版本中都兼容。 请查看特定CSI驱动程序的文档，以获取每个 Kubernetes 版本所支持的部署步骤以及兼容性列表。</p>
-</blockquote>
-<p>一旦在 <strong>Kubernetes</strong> 集群上部署了 CSI 兼容卷驱动程序，用户就可以使用 <strong>csi</strong> 作为卷类型来关联、挂载 <strong>CSI Driver</strong> 暴露出来的卷。</p>
-<p>允许如下三种方式，在 Pod 中使用 <strong>csi</strong> 类型的卷:</p>
-<ul>
-<li>通过 <strong>PersistentVolumeClaim</strong></li>
-<li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes" target="_blank" rel="noopener">Generic ephemeral volumes</a></strong></li>
-<li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#csi-ephemeral-volumes" target="_blank" rel="noopener">CSI ephemeral volumes</a></strong></li>
-</ul>
-<p>存储管理员可以使用以下字段来配置 CSI 持久卷(CSI persistent volume):</p>
-<ul>
-<li><p><strong>driver</strong>：指定要使用的卷 驱动程序(CSI Driver) 名称的字符串值。 这个值必须与 <strong>CSI Driver</strong> 的 <strong><a href="(https://github.com/container-storage-interface/spec/blob/master/spec.md#getplugininfo)">GetPluginInfoResponse</a></strong> 的 <strong>name</strong> 字段相同。 <strong>Kubernetes</strong> 使用所给的值来标识要调用的 <strong>CSI Driver</strong>；<strong>CSI Driver</strong> 也使用该值来<strong>辨识哪些 PV 对象属于该 CSI Driver</strong>。</p>
-</li>
-<li><p><strong>volumeHandle</strong>：唯一标识卷的字符串值。 该值必须与 <strong>CSI Driver</strong> 的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 的 <strong>volume.id</strong> 字段相同。 在所有对 <strong>CSI Driver</strong> 的调用中，引用该 <strong>Volume</strong> 时都使用此值作为 <strong>volume_id</strong> 参数。</p>
-</li>
-<li><p><strong>readOnly</strong>：一个可选的布尔值，指示通过 <strong>ControllerPublished</strong> 关联该卷时是否设置该卷为只读。 <strong>默认值是 false</strong>。 该值通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong> 中的 <strong>readonly</strong> 字段传递给 <strong>CSI Driver</strong>。</p>
-</li>
-<li><p><strong>fsType</strong>：如果 <strong>PV</strong> 的 <strong>VolumeMode</strong> 为 <strong>Filesystem</strong>，则该字段指定挂载卷时应该使用的文件系统。 倘若 <strong>Volume</strong> 尚未完成格式化，且支持格式化，则该值将被用于格式化。 可以通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 的 <strong>volume_capability</strong> 字段将该值传递给 <strong>CSI Driver</strong>。</p>
-</li>
-<li><p><strong>volumeAttributes</strong>：一个 <strong>map[string]string</strong> 类型的映射表，用来设置 <strong>Volume</strong> 的静态属性。 该映射表必须与 <strong>CSI Driver</strong> 返回的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 中的 volume.attributes 字段的映射相对应。 该映射表通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong>、和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 中的 <strong>volume_attributes</strong> 字段传递给 <strong>CSI Driver</strong>。</p>
-<ul>
-<li><strong>注意</strong>: 在 <a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">spec</a> 中只看到了 <strong>volume_context</strong>，并没有 <strong>attributes</strong>，根据注释与数据类型来分析，或许是指这个字段？</li>
-</ul>
-</li>
-<li><p><strong>controllerPublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用；该敏感信息会被传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolume</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerunpublishvolume" target="_blank" rel="noopener">ControllerUnpublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
-</li>
-<li><p><strong>nodeStageSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
-</li>
-<li><p><strong>nodePublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
-</li>
-</ul>
-<h3 id="DownwardAPI"><a href="#DownwardAPI" class="headerlink" title="DownwardAPI"></a>DownwardAPI</h3><p><strong>downwardAPI</strong> 类型的 <strong>Volume</strong> 被用于使 <strong>downward API</strong> 数据对应用程序可见。其表现形式为，挂载一个目录，并将请求的数据写入到纯文本文件中。</p>
-<h3 id="EmptyDir"><a href="#EmptyDir" class="headerlink" title="EmptyDir"></a>EmptyDir</h3><p>当 <strong>Pod</strong> 被指定到某个节点上时，首先创建的是一个 <strong>emptyDir</strong> 类型的 <strong>Volume</strong>，并且只要 <strong>Pod</strong> 保持在该节点上运行，<strong>Volume</strong> 就一直存在。正如名字所说的那样，<strong>Volume</strong> 的初始状态为空。虽然 <strong>Pod</strong> 中的容器挂载 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 的路径可能不尽相同，但这都不重要，重要的是，这些容器都可以读写 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 中的相同的文件。 无论因何种原因，只要 <strong>Pod</strong> 从节点上被删除，<strong>emptyDir</strong> 类型的 <strong>Volume</strong> 中的数据也会被永久删除。</p>
-<blockquote>
-<p><strong>说明</strong>: 容器崩溃并不会导致 <strong>Pod</strong> 从节点上被移除，因此容器崩溃时 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 中的数据是安全的。</p>
-</blockquote>
-<p>有如下需求可以考虑使用 <strong>emptyDir</strong> 类型 <strong>Volume</strong>:</p>
-<ul>
-<li>缓存空间，例如基于磁盘的归并排序。</li>
-<li>为耗时较长的计算任务提供检查点，以便任务能方便地从崩溃前状态恢复执行。</li>
-<li>在 Web 服务器容器服务数据时，保存内容管理器容器获取的文件。</li>
-</ul>
-<p>默认情况下， <strong>emptyDir volume</strong> 所使用的的实际存储介质由节点使用何种存储介质决定: 可以是 <strong>HDD</strong> 或 <strong>SSD</strong> 或 <strong>NFS</strong> 等。但是，可以令 <strong>emptyDir.medium = Memory</strong> 使 <strong>Kubernetes</strong> 安装 <strong>tmpfs</strong>。但需要考虑到，<strong>tmpfs</strong> 的优势与劣势都很突出:</p>
-<ul>
-<li>优势: 基于 <strong>RAM</strong> 的文件系统，速度非常快</li>
-<li>劣势: 随节点重启被清除，且写入的所有文件都会计入容器的内存消耗，受容器内存限制约束</li>
-</ul>
-<h4 id="EmptyDir-示例"><a href="#EmptyDir-示例" class="headerlink" title="EmptyDir 示例"></a>EmptyDir 示例</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">test-pd</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">k8s.gcr.io/test-webserver</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">test-container</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/cache</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">cache-volume</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">cache-volume</span></span><br><span class="line">    <span class="attr">emptyDir:</span> <span class="string">&#123;&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="HostPath"><a href="#HostPath" class="headerlink" title="HostPath"></a>HostPath</h3><p>A hostPath volume mounts a file or directory from the host node’s filesystem into your Pod. This is not something that most Pods will need, but it offers a powerful escape hatch for some applications.</p>
-<p><strong>hostPath</strong> 类型的 <strong>Volume</strong> 会将宿主机节点的路径挂载到</p>
-<p>For example, some uses for a hostPath are:</p>
-<p>running a Container that needs access to Docker internals; use a hostPath of /var/lib/docker<br>running cAdvisor in a Container; use a hostPath of /sys<br>allowing a Pod to specify whether a given hostPath should exist prior to the Pod running, whether it should be created, and what it should exist as<br>In addition to the required path property, user can optionally specify a type for a hostPath volume.</p>
-<p>The supported values for field type are:</p>
-<p>Value    Behavior        Empty string (default) is for backward compatibility, which means that no checks will be performed before mounting the hostPath volume.    DirectoryOrCreate    If nothing exists at the given path, an empty directory will be created there as needed with permission set to 0755, having the same group and ownership with Kubelet.    Directory    A directory must exist at the given path    FileOrCreate    If nothing exists at the given path, an empty file will be created there as needed with permission set to 0644, having the same group and ownership with Kubelet.    File    A file must exist at the given path    Socket    A UNIX socket must exist at the given path    CharDevice    A character device must exist at the given path    BlockDevice    A block device must exist at the given path<br>Watch out when using this type of volume, because:</p>
-<p>Pods with identical configuration (such as created from a podTemplate) may behave differently on different nodes due to different files on the nodes<br>when Kubernetes adds resource-aware scheduling, as is planned, it will not be able to account for resources used by a hostPath<br>the files or directories created on the underlying hosts are only writable by root. You either need to run your process as root in a privileged Container or modify the file permissions on the host to be able to write to a hostPath volume</p>
-<h3 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h3><h3 id="Nfs"><a href="#Nfs" class="headerlink" title="Nfs"></a>Nfs</h3><h3 id="PersistentVolumeClaim"><a href="#PersistentVolumeClaim" class="headerlink" title="PersistentVolumeClaim"></a>PersistentVolumeClaim</h3><h3 id="Projected"><a href="#Projected" class="headerlink" title="Projected"></a>Projected</h3><h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://kubernetes.io/docs/concepts/storage/volumes/" target="_blank" rel="noopener">Volumes</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">storage</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/07/kubernetes-volumes/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
@@ -1452,6 +1388,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -1468,7 +1408,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1477,10 +1417,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1500,14 +1436,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">container</a>
               </li>
              
@@ -1524,6 +1452,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
@@ -1537,10 +1473,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1564,7 +1496,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1576,19 +1512,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1608,11 +1536,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1628,11 +1560,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">network</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1644,19 +1584,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
             
             <div class="clearfix"></div>

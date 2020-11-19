@@ -6,16 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Tag: namespace | お可愛いこと</title>
+  <title>测试节点之间的网络带宽 | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="お可愛いこと">
-<meta property="og:url" content="http://divinerapier.github.io/tags/namespace/index.html">
+  <meta name="description" content="昨天同事找到我，说 nfs 太慢了，通过 iostat 看只有 1-2MB&#x2F;s 的写入速度。在通过 fio 测试磁盘顺序写入速度，得到结果为 300MB&#x2F;s 之后，遂怀疑是网络的问题。 iperf iperf is a tool for performing network throughput measurements.  It can test either TCP or UDP throug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="测试节点之间的网络带宽">
+<meta property="og:url" content="http://divinerapier.github.io/2020/11/19/testing-the-bandwidth-between-two-nodes/index.html">
 <meta property="og:site_name" content="お可愛いこと">
+<meta property="og:description" content="昨天同事找到我，说 nfs 太慢了，通过 iostat 看只有 1-2MB&#x2F;s 的写入速度。在通过 fio 测试磁盘顺序写入速度，得到结果为 300MB&#x2F;s 之后，遂怀疑是网络的问题。 iperf iperf is a tool for performing network throughput measurements.  It can test either TCP or UDP throug">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-19T05:14:30.000Z">
+<meta property="article:modified_time" content="2020-11-19T08:05:50.160Z">
 <meta property="article:author" content="A">
+<meta property="article:tag" content="network">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -163,73 +168,262 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-testing-the-bandwidth-between-two-nodes" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/17/namespace-and-cgroup/" class="archive-article-date">
-        <time datetime="2020-08-17T12:25:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-17</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/17/namespace-and-cgroup/" target="_blank">容器 - 隔离与限制</a>
   
+    <h1 class="article-title" itemprop="name">
+      测试节点之间的网络带宽
     </h1>
   
 
 
-        <div class="article-info info-on-right">
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2020/11/19/testing-the-bandwidth-between-two-nodes/" class="archive-article-date">
+        <time datetime="2020-11-19T05:14:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-19</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">843字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">4分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>昨天同事找到我，说 <strong>nfs</strong> 太慢了，通过 <strong>iostat</strong> 看只有 <strong>1-2MB/s</strong> 的写入速度。在通过 <strong>fio</strong> 测试磁盘顺序写入速度，得到结果为 <strong>300MB/s</strong> 之后，遂怀疑是网络的问题。</p>
+<h2 id="iperf"><a href="#iperf" class="headerlink" title="iperf"></a>iperf</h2><blockquote>
+<p>iperf is a tool for performing network throughput measurements.  It can test either TCP or UDP throughput.  To perform an iperf test the user must establish both a server (to discard traffic) and a client (to generate traffic).</p>
+</blockquote>
+<p>此处省略安装过程。</p>
+<h3 id="测试网络带宽"><a href="#测试网络带宽" class="headerlink" title="测试网络带宽"></a>测试网络带宽</h3><p><strong>iperf</strong> 通过使用不同的命令行参数，支持分别作为 <strong>服务端</strong> 或 <strong>客户端</strong>。</p>
+<h4 id="启动服务端"><a href="#启动服务端" class="headerlink" title="启动服务端"></a>启动服务端</h4><p>监听默认端口 <strong>5001</strong>，启动服务端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -s</span><br></pre></td></tr></table></figure>
+
+<p>或者，监听指定端口，启动服务端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -s -p &lt;port&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动客户端"><a href="#启动客户端" class="headerlink" title="启动客户端"></a>启动客户端</h4><p>连接默认端口 <strong>5001</strong>，启动客户端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt;</span><br></pre></td></tr></table></figure>
+
+<p>或者，连接指定端口，启动客户端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt;</span><br></pre></td></tr></table></figure>
+
+<p>同时，<strong>iperf</strong> 也支持多线程的客户端:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt; -P &lt;threadiness&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>单线程客户端的测试结果:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size:  170 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37290 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.6 sec  24.0 MBytes  19.0 Mbits/sec</span><br></pre></td></tr></table></figure>
+
+<p>多线程客户端的测试结果，两个节点都有 <strong>16</strong> 个 <strong>CPU</strong> 核心:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size: 85.0 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[ 18] <span class="built_in">local</span> 172.29.60.164 port 37392 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 17] <span class="built_in">local</span> 172.29.60.164 port 37390 connected with 10.33.28.26 port 9999</span><br><span class="line">[  4] <span class="built_in">local</span> 172.29.60.164 port 37364 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 11] <span class="built_in">local</span> 172.29.60.164 port 37378 connected with 10.33.28.26 port 9999</span><br><span class="line">[  9] <span class="built_in">local</span> 172.29.60.164 port 37374 connected with 10.33.28.26 port 9999</span><br><span class="line">[  8] <span class="built_in">local</span> 172.29.60.164 port 37372 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 10] <span class="built_in">local</span> 172.29.60.164 port 37376 connected with 10.33.28.26 port 9999</span><br><span class="line">[  6] <span class="built_in">local</span> 172.29.60.164 port 37366 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 13] <span class="built_in">local</span> 172.29.60.164 port 37382 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 14] <span class="built_in">local</span> 172.29.60.164 port 37384 connected with 10.33.28.26 port 9999</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37362 connected with 10.33.28.26 port 9999</span><br><span class="line">[  5] <span class="built_in">local</span> 172.29.60.164 port 37368 connected with 10.33.28.26 port 9999</span><br><span class="line">[  7] <span class="built_in">local</span> 172.29.60.164 port 37370 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 15] <span class="built_in">local</span> 172.29.60.164 port 37386 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 16] <span class="built_in">local</span> 172.29.60.164 port 37388 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 12] <span class="built_in">local</span> 172.29.60.164 port 37380 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.2 sec  2.62 MBytes  2.17 Mbits/sec</span><br><span class="line">[ 13]  0.0-10.2 sec  2.88 MBytes  2.36 Mbits/sec</span><br><span class="line">[ 15]  0.0-10.2 sec  1.88 MBytes  1.54 Mbits/sec</span><br><span class="line">[  7]  0.0-10.9 sec  1.50 MBytes  1.15 Mbits/sec</span><br><span class="line">[  6]  0.0-11.0 sec  1.75 MBytes  1.34 Mbits/sec</span><br><span class="line">[ 17]  0.0-11.2 sec  1.88 MBytes  1.40 Mbits/sec</span><br><span class="line">[  5]  0.0-11.3 sec  1.50 MBytes  1.12 Mbits/sec</span><br><span class="line">[ 10]  0.0-11.6 sec  1.88 MBytes  1.35 Mbits/sec</span><br><span class="line">[  9]  0.0-12.4 sec  1.62 MBytes  1.10 Mbits/sec</span><br><span class="line">[  4]  0.0-13.0 sec  2.88 MBytes  1.85 Mbits/sec</span><br><span class="line">[ 11]  0.0-13.0 sec  4.62 MBytes  2.98 Mbits/sec</span><br><span class="line">[ 14]  0.0-13.1 sec  4.88 MBytes  3.12 Mbits/sec</span><br><span class="line">[  8]  0.0-13.9 sec  2.12 MBytes  1.28 Mbits/sec</span><br><span class="line">[ 16]  0.0-14.1 sec  2.00 MBytes  1.19 Mbits/sec</span><br><span class="line">[ 18]  0.0-14.1 sec  2.12 MBytes  1.26 Mbits/sec</span><br><span class="line">[ 12]  0.0-14.3 sec  1.73 MBytes  1.01 Mbits/sec</span><br><span class="line">[SUM]  0.0-14.3 sec  37.9 MBytes  22.1 Mbits/sec</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>瓶颈在网络带宽，悲哀。</p>
+
+    
+
+    
+    <div class="page-reward">
+      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
+        <div class="tooltip tooltip-east">
+          <span class="tooltip-item">
+            赏
+          </span>
+          <span class="tooltip-content">
+            <span class="tooltip-text">
+              <span class="tooltip-inner">
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
+                    class="icon icon-quo-right"></i></p>
+                <div class="reward-box">
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/alipay.jpg">
+                    <span class="reward-type">支付宝</span>
+                  </div>
+                  
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/wechatpay.png">
+                    <span class="reward-type">微信</span>
+                  </div>
+                  
+                </div>
+              </span>
+            </span>
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          A
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="http://divinerapier.github.io/2020/11/19/testing-the-bandwidth-between-two-nodes/" title="测试节点之间的网络带宽" target="_blank">http://divinerapier.github.io/2020/11/19/testing-the-bandwidth-between-two-nodes/</a>
+        </li>
+        
+        <li>
+          <strong>版权声明： </strong>
           
+          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">container</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">namespace</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">cgroup</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">network</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+    
 
     
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/11/19/testing-the-bandwidth-between-two-nodes/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+
+<nav id="article-nav">
+  
+  
+    <a href="/2020/11/16/volcano/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Volcano</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
           </div>
@@ -270,9 +464,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
