@@ -170,6 +170,119 @@
             
 
   
+    <article id="post-opt-cni-is-readonly-directory" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/26/opt-cni-is-readonly-directory/" target="_blank">/opt/cni - readonly filesystem</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/26/opt-cni-is-readonly-directory/" class="archive-article-date">
+        <time datetime="2020-10-26T03:44:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-26</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在部署 <a href="https://docs.projectcalico.org/getting-started/kubernetes/flannel/flannel" target="_blank" rel="noopener">Canal</a> 时遇到如下错误:</p>
+<ol>
+<li><p>查看 <strong>Pod</strong> 状态:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pods --all-namespaces</span><br><span class="line"></span><br><span class="line">NAMESPACE     NAME                                                              READY   STATUS                   RESTARTS   AGE</span><br><span class="line">kube-system   canal-5qk26                                                       0/2     Init:RunContainerError   0          10m</span><br><span class="line">kube-system   kube-proxy-tt2qn                                                  0/1     CrashLoopBackOff         10         11m</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 <strong>canal-5qk26</strong> 事件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system describe pod canal-5qk26</span><br><span class="line"></span><br><span class="line">Events:</span><br><span class="line">  Type     Reason          Age                     From                Message</span><br><span class="line">  ----     ------          ----                    ----                -------</span><br><span class="line">  Normal   Scheduled       6m41s                   default-scheduler   Successfully assigned kube-system/canal-5qk26 to ubuntu-01</span><br><span class="line">  Warning  Failed          6m40s                   kubelet, ubuntu-01  Error: failed to start container <span class="string">"install-cni"</span>: Error response from daemon: can<span class="string">'t join IPC of container 1f3affaa9eba3f1087ac2309f7c4147a54e2cbad09be733e9c394ce7a8ba583b: container 1f3affaa9eba3f1087ac2309f7c4147a54e2cbad09be733e9c394ce7a8ba583b is not running</span></span><br><span class="line"><span class="string">  Warning  Failed          6m39s                   kubelet, ubuntu-01  Error: failed to start container "install-cni": Error response from daemon: cannot join network of a non running container: 1861c340dfadba101b333af1163329a88a8e02fd25e5d657b4e0954acd09d3d5</span></span><br><span class="line"><span class="string">  Warning  Failed          6m37s                   kubelet, ubuntu-01  Error: failed to start container "install-cni": Error response from daemon: error while creating mount source path '</span>/opt/cni/bin<span class="string">': mkdir /opt/cni: read-only file system</span></span><br><span class="line"><span class="string">  Warning  BackOff         6m34s (x3 over 6m38s)   kubelet, ubuntu-01  Back-off restarting failed container</span></span><br><span class="line"><span class="string">  Normal   Pulled          6m33s (x5 over 6m40s)   kubelet, ubuntu-01  Container image "calico/cni:v3.16.4" already present on machine</span></span><br><span class="line"><span class="string">  Normal   Created         6m33s (x5 over 6m40s)   kubelet, ubuntu-01  Created container install-cni</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  Normal   SandboxChanged  100s (x269 over 6m39s)  kubelet, ubuntu-01  Pod sandbox changed, it will be killed and re-created.</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 <strong>kube-proxy-tt2qn</strong> 事件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system describe pod kube-proxy-tt2qn</span><br><span class="line"></span><br><span class="line">Events:</span><br><span class="line">  Type     Reason          Age                      From                Message</span><br><span class="line">  ----     ------          ----                     ----                -------</span><br><span class="line">  Normal   Scheduled       11m                      default-scheduler   Successfully assigned kube-system/kube-proxy-tt2qn to ubuntu-01</span><br><span class="line">  Normal   Pulled          11m (x2 over 11m)        kubelet, ubuntu-01  Container image <span class="string">"registry.aliyuncs.com/google_containers/kube-proxy:v1.19.3"</span> already present on machine</span><br><span class="line">  Normal   Created         11m (x2 over 11m)        kubelet, ubuntu-01  Created container kube-proxy</span><br><span class="line">  Warning  Failed          11m                      kubelet, ubuntu-01  Error: failed to start container <span class="string">"kube-proxy"</span>: Error response from daemon: cannot join network of a non running container: 119388927b173ad23226c1049db0c1269ada343b133774807a1615cc79442246</span><br><span class="line">  Warning  BackOff         11m (x9 over 11m)        kubelet, ubuntu-01  Back-off restarting failed container</span><br><span class="line">  Normal   SandboxChanged  11m (x10 over 11m)       kubelet, ubuntu-01  Pod sandbox changed, it will be killed and re-created.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 <strong>Worker</strong> 节点上 <strong>Kubelet</strong> 与 <strong>Docker</strong> 日志:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ journalctl -f</span><br><span class="line"></span><br><span class="line">  -- Logs begin at Mon 2020-10-19 10:09:50 UTC. --</span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 docker.dockerd[1781]: time=<span class="string">"2020-10-26T02:31:35.429587085Z"</span> level=error msg=<span class="string">"Handler for POST /v1.40/containers/aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18/start returned error: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474035  281110 remote_runtime.go:248] StartContainer <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span> from runtime service failed: rpc error: code = Unknown desc = failed to start container <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span>: Error response from daemon: error <span class="keyword">while</span> creating mount <span class="built_in">source</span> path <span class="string">'/opt/cni/bin'</span>: mkdir /opt/cni: <span class="built_in">read</span>-only file system</span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474175  281110 pod_workers.go:191] Error syncing pod 5f45d450-c4e9-45dc-b2c6-52a95570ba71 (<span class="string">"canal-5qk26_kube-system(5f45d450-c4e9-45dc-b2c6-52a95570ba71)"</span>), skipping: failed to <span class="string">"StartContainer"</span> <span class="keyword">for</span> <span class="string">"install-cni"</span> with RunContainerError: <span class="string">"failed to start container \"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18\": Error response from daemon: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 audit[315954]: AVC apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 kernel: audit: <span class="built_in">type</span>=1400 audit(1603679496.465:6039): apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 kubelet[281110]: W1026 02:31:36.635730  281110 cni.go:239] Unable to update cni config: no networks found <span class="keyword">in</span> /etc/cni/net.d</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>根据上述日志信息，可以确认根本错误出现在 <strong>Docker</strong> 中:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error while creating mount source path &#39;&#x2F;opt&#x2F;cni&#x2F;bin&#39;: mkdir &#x2F;opt&#x2F;cni: read-only file system</span><br></pre></td></tr></table></figure>
+
+<p>但宿主机目录 <strong>/opt/cni</strong> 的权限为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">stat</span> /opt/cni/</span><br><span class="line"></span><br><span class="line">  File: /opt/cni/</span><br><span class="line">  Size: 4096            Blocks: 8          IO Block: 4096   directory</span><br><span class="line">Device: fd00h/64768d    Inode: 917533      Links: 3</span><br><span class="line">Access: (0755/drwxr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2020-10-26 01:41:07.222221020 +0000</span><br><span class="line">Modify: 2020-10-20 13:00:36.461719609 +0000</span><br><span class="line">Change: 2020-10-20 13:00:36.461719609 +0000</span><br><span class="line"> Birth: -</span><br></pre></td></tr></table></figure>
+
+<p>因此，推测为 <strong>Docker</strong> 服务的问题。最终，通过重启 <strong>Docker</strong> 解决问题:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart docker.service</span><br></pre></td></tr></table></figure>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">faq</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/26/opt-cni-is-readonly-directory/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-mpi-operator" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1135,118 +1248,6 @@
 
 
   
-    <article id="post-readings-about-training-system" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/11/readings-about-training-system/" target="_blank">训练系统相关读物</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/11/readings-about-training-system/" class="archive-article-date">
-        <time datetime="2020-10-11T03:44:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-11</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <ul>
-<li><a href="https://images.nvidia.com/events/sc15/pdfs/NCCL-Woolley.pdf" target="_blank" rel="noopener">NCCL: ACCELERATED MULTI-GPU COLLECTIVE COMMUNICATIONS</a></li>
-<li><a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.95.2490&rep=rep1&type=pdf" target="_blank" rel="noopener">Message Passing, Remote Procedure Calls and Distributed Shared Memory as Communication Paradigms for Distributed Systems</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/50116885" target="_blank" rel="noopener">分布式训练的方案和效率对比</a></li>
-<li><a href="http://gaocegege.com/Blog/mpi-1" target="_blank" rel="noopener">MPI，OpenMPI 与深度学习</a></li>
-<li><a href="https://mpitutorial.com/tutorials/mpi-introduction/zh_cn/" target="_blank" rel="noopener">MPI 教程介绍</a></li>
-<li><a href="https://www.mpi-forum.org/" target="_blank" rel="noopener">MPI Forum</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/149771261" target="_blank" rel="noopener">2020 Rethinking GPU 集群上的分布式训练</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/40578792" target="_blank" rel="noopener">Horovod-基于TensorFlow分布式深度学习框架</a></li>
-<li><a href="https://github.com/horovod/horovod" target="_blank" rel="noopener">Github: Horovod</a></li>
-<li><a href="https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/" target="_blank" rel="noopener">Schedule GPUs</a></li>
-<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/" target="_blank" rel="noopener">Device Plugins</a></li>
-<li><a href="https://towardsdatascience.com/distributed-deep-learning-training-with-horovod-on-kubernetes-6b28ac1d6b5d" target="_blank" rel="noopener">Distributed Deep Learning Training with Horovod on Kubernetes</a></li>
-<li><a href="https://developer.nvidia.com/kubernetes-gpu" target="_blank" rel="noopener">Kubernetes on NVIDIA GPUs</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">gpu</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">mpi</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">rdma</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/11/readings-about-training-system/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
@@ -1380,18 +1381,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -1405,6 +1394,18 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">index</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1436,6 +1437,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">container</a>
               </li>
              
@@ -1452,14 +1461,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
@@ -1468,11 +1469,23 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1496,19 +1509,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1536,15 +1549,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1556,11 +1565,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1568,11 +1573,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">network</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1580,11 +1581,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1592,11 +1593,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
             
             <div class="clearfix"></div>

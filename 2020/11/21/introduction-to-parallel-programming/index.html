@@ -6,16 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>Tag: select statements | お可愛いこと</title>
+  <title>并行程序设计 | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="お可愛いこと">
-<meta property="og:url" content="http://divinerapier.github.io/tags/select-statements/index.html">
+  <meta name="description" content="为什么需要并行程序单核心的性能不满足需求。 如何设计并行程序在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: 任务并行 和 数据并行。 以如下问题解释说明: 试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。 任务并行将待解决的问题所需要执行的各个任务分配到各个核心上执行。 对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并行程序设计">
+<meta property="og:url" content="http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/index.html">
 <meta property="og:site_name" content="お可愛いこと">
+<meta property="og:description" content="为什么需要并行程序单核心的性能不满足需求。 如何设计并行程序在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: 任务并行 和 数据并行。 以如下问题解释说明: 试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。 任务并行将待解决的问题所需要执行的各个任务分配到各个核心上执行。 对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-21T06:24:38.000Z">
+<meta property="article:modified_time" content="2020-11-21T16:28:00.155Z">
 <meta property="article:author" content="A">
+<meta property="article:tag" content="parallel programming">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -163,73 +168,242 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-introduction-to-parallel-programming" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/07/28/optimizing-select-statements/" class="archive-article-date">
-        <time datetime="2020-07-28T13:45:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/07/28/optimizing-select-statements/" target="_blank">优化 SELECT 语句</a>
   
+    <h1 class="article-title" itemprop="name">
+      并行程序设计
     </h1>
   
 
 
-        <div class="article-info info-on-right">
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2020/11/21/introduction-to-parallel-programming/" class="archive-article-date">
+        <time datetime="2020-11-21T06:24:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-21</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">316字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">1分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="为什么需要并行程序"><a href="#为什么需要并行程序" class="headerlink" title="为什么需要并行程序"></a>为什么需要并行程序</h2><p>单核心的性能不满足需求。</p>
+<h2 id="如何设计并行程序"><a href="#如何设计并行程序" class="headerlink" title="如何设计并行程序"></a>如何设计并行程序</h2><p>在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: <strong>任务并行</strong> 和 <strong>数据并行</strong>。</p>
+<p>以如下问题解释说明:</p>
+<p>试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。</p>
+<h3 id="任务并行"><a href="#任务并行" class="headerlink" title="任务并行"></a>任务并行</h3><p>将待解决的问题所需要执行的各个任务分配到各个核心上执行。</p>
+<p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道题是一个任务。则将任务分配到核心的含义是: 每一名教师只需要负责批阅固定的一道题目。</p>
+<h2 id="数据并行"><a href="#数据并行" class="headerlink" title="数据并行"></a>数据并行</h2><p>将待解决问题所需要处理的数据分配给各个处理核心，每个处理核心执行相同的操作。</p>
+<p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，将试卷 —— 也就是数据分配给教师，教师负责试卷的整个批阅过程。各个老师是做的工作是相同的。</p>
+
+    
+
+    
+    <div class="page-reward">
+      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
+        <div class="tooltip tooltip-east">
+          <span class="tooltip-item">
+            赏
+          </span>
+          <span class="tooltip-content">
+            <span class="tooltip-text">
+              <span class="tooltip-inner">
+                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
+                    class="icon icon-quo-right"></i></p>
+                <div class="reward-box">
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/alipay.jpg">
+                    <span class="reward-type">支付宝</span>
+                  </div>
+                  
+                  
+                  <div class="reward-box-item">
+                    <img class="reward-img" src="/img/wechatpay.png">
+                    <span class="reward-type">微信</span>
+                  </div>
+                  
+                </div>
+              </span>
+            </span>
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          A
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/" title="并行程序设计" target="_blank">http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/</a>
+        </li>
+        
+        <li>
+          <strong>版权声明： </strong>
           
+          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">select statements</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">parallel programming</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+    
 
     
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+
+<nav id="article-nav">
+  
+  
+    <a href="/2020/11/19/testing-the-bandwidth-between-two-nodes/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">测试节点之间的网络带宽</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
           </div>
@@ -270,9 +444,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
