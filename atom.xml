@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-11-21T16:28:00.155Z</updated>
+  <updated>2020-11-21T16:28:12.145Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/"/>
     <id>http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/</id>
     <published>2020-11-21T06:24:38.000Z</published>
-    <updated>2020-11-21T16:28:00.155Z</updated>
+    <updated>2020-11-21T16:28:12.145Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="为什么需要并行程序"><a href="#为什么需要并行程序" class="headerlink" title="为什么需要并行程序"></a>为什么需要并行程序</h2><p>单核心的性能不满足需求。</p><h2 id="如何设计并行程序"><a href="#如何设计并行程序" class="headerlink" title="如何设计并行程序"></a>如何设计并行程序</h2><p>在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: <strong>任务并行</strong> 和 <strong>数据并行</strong>。</p><p>以如下问题解释说明:</p><p>试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。</p><h3 id="任务并行"><a href="#任务并行" class="headerlink" title="任务并行"></a>任务并行</h3><p>将待解决的问题所需要执行的各个任务分配到各个核心上执行。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道题是一个任务。则将任务分配到核心的含义是: 每一名教师只需要负责批阅固定的一道题目。</p><h2 id="数据并行"><a href="#数据并行" class="headerlink" title="数据并行"></a>数据并行</h2><p>将待解决问题所需要处理的数据分配给各个处理核心，每个处理核心执行相同的操作。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，将试卷 —— 也就是数据分配给教师，教师负责试卷的整个批阅过程。各个老师是做的工作是相同的。</p>]]></content>
+    <content type="html"><![CDATA[<h2 id="为什么需要并行程序"><a href="#为什么需要并行程序" class="headerlink" title="为什么需要并行程序"></a>为什么需要并行程序</h2><p>单核心的性能不满足需求。</p><h2 id="如何设计并行程序"><a href="#如何设计并行程序" class="headerlink" title="如何设计并行程序"></a>如何设计并行程序</h2><p>在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: <strong>任务并行</strong> 和 <strong>数据并行</strong>。</p><p>以如下问题解释说明:</p><p>试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。</p><h3 id="任务并行"><a href="#任务并行" class="headerlink" title="任务并行"></a>任务并行</h3><p>将待解决的问题所需要执行的各个任务分配到各个核心上执行。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道题是一个任务。则将任务分配到核心的含义是: 每一名教师只需要负责批阅固定的一道题目。</p><h3 id="数据并行"><a href="#数据并行" class="headerlink" title="数据并行"></a>数据并行</h3><p>将待解决问题所需要处理的数据分配给各个处理核心，每个处理核心执行相同的操作。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，将试卷 —— 也就是数据分配给教师，教师负责试卷的整个批阅过程。各个老师是做的工作是相同的。</p>]]></content>
     
     
       
@@ -465,11 +465,11 @@
     
     
     
-    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
-    
     <category term="windows" scheme="http://divinerapier.github.io/tags/windows/"/>
     
     <category term="wsl2" scheme="http://divinerapier.github.io/tags/wsl2/"/>
+    
+    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
     
   </entry>
   
