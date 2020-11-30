@@ -170,6 +170,117 @@
             
 
   
+    <article id="post-started-with-mpi" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/11/started-with-mpi/" target="_blank">初识 MPI</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/11/started-with-mpi/" class="archive-article-date">
+        <time datetime="2020-10-11T04:10:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-11</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="消息传递模型"><a href="#消息传递模型" class="headerlink" title="消息传递模型"></a>消息传递模型</h2><p><strong>消息传递模型(Message Passing Model)</strong> 指程序通过在进程间传递消息（消息可以理解成带有一些信息和数据的一个数据结构）来完成某些任务。在实践中，基于此模型，很容易开发 <strong>并发程序</strong>。</p>
+<p>举例来说:</p>
+<ol>
+<li>主进程(manager process) 可以通过向从进程(worker process) 发送一个描述工作的消息的方式，将工作分配给从进程。</li>
+<li>一个并发的排序程序可以在当前进程中对当前进程可见的(我们称作本地的，locally) 数据进行排序，然后把排好序的数据发送到邻居进程上面来进行合并的操作。</li>
+</ol>
+<p>几乎所有的并行程序可以使用消息传递模型来描述。</p>
+<p>之后，业界统一制定了一套消息传递模型的接口标准，即 <strong>Message Passing Interface —— MPI</strong>。</p>
+<h2 id="MPI-基础概念"><a href="#MPI-基础概念" class="headerlink" title="MPI 基础概念"></a>MPI 基础概念</h2><h3 id="Communicator"><a href="#Communicator" class="headerlink" title="Communicator"></a>Communicator</h3><p><strong>通讯器(communicator)</strong> 定义了一组能够互相发消息的进程。</p>
+<h3 id="Rank"><a href="#Rank" class="headerlink" title="Rank"></a>Rank</h3><p>在 <strong>通讯器(communicator)</strong> 中，每个进程会被分配一个序号，称作 <strong>秩(rank)</strong>，进程间显性地通过指定 <strong>rank</strong> 来进行通信。</p>
+<h3 id="Tag"><a href="#Tag" class="headerlink" title="Tag"></a>Tag</h3><p>不同进程之间发送、接收操作是通信的基础。</p>
+<p>作为发送者时，进程可以通过指定另一个进程的 <strong>rank</strong> 和一个独一无二的 <strong>消息标签(tag)</strong> 来发送消息给另一个进程。</p>
+<p>作为接受者时，进程可以发送一个 <strong>接收特定标签标记的消息的请求 (或者忽略标签，接收任何消息)</strong>，然后依次处理接收到的数据。</p>
+<h3 id="Point-to-Point-Communications"><a href="#Point-to-Point-Communications" class="headerlink" title="Point-to-Point Communications"></a>Point-to-Point Communications</h3><p>一个发送者，一个接受者的通信被称作 <strong>点对点(point-to-point) 通信</strong>。</p>
+<h3 id="Collective-Communications"><a href="#Collective-Communications" class="headerlink" title="Collective Communications"></a>Collective Communications</h3><p>在很多情况下，某个进程可能需要跟所有其他进程通信。比如主进程想发一个广播给所有的从进程。在这种情况下，如果通过写代码的方式来完成所有的发送和接收过程会很麻烦。并且，事实上，这种方式往往也不会以最佳方式使用网络。MPI 可以处理各种各样的这些涉及所有进程的 <strong>集体(Collective)通信</strong> 类型。</p>
+<h2 id="使用-MPI"><a href="#使用-MPI" class="headerlink" title="使用 MPI"></a>使用 MPI</h2><p><strong>MPI</strong> 只是一套接口标准，无法直接使用。对此不必担心，业内已经存在很多符合标准的实现。其中 <strong>OpenMPI</strong> 就是最受欢迎的实现之一。因此，之后的内容基于 <strong>OpenMPI</strong> 展开。</p>
+<h3 id="安装-OpenMPI"><a href="#安装-OpenMPI" class="headerlink" title="安装 OpenMPI"></a>安装 OpenMPI</h3><p>从 <a href="https://www.open-mpi.org/software/ompi/v4.0/" target="_blank" rel="noopener">这里</a> 可以找到最新的版本，本文基于版本 <a href="https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz" target="_blank" rel="noopener">4.0.5</a>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># download package</span></span><br><span class="line">$ wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># extract files</span></span><br><span class="line">$ tar xzf openmpi-4.0.5.tar.gz</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cd</span> openmpi-4.0.5</span><br><span class="line"></span><br><span class="line"><span class="comment"># configure project</span></span><br><span class="line">$ mkdir -p build; ./configure --prefix=$(<span class="built_in">pwd</span>)/build</span><br><span class="line"></span><br><span class="line"><span class="comment"># build</span></span><br><span class="line">$ make -j; make -j install</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://mpitutorial.com/tutorials/mpi-introduction/" target="_blank" rel="noopener">MPI Tutorial Introduction</a></li>
+<li><a href="https://www.open-mpi.org/faq/" target="_blank" rel="noopener">OpenMPI FAQ</a></li>
+<li><a href="https://www.mpi-forum.org/" target="_blank" rel="noopener">MPI Forum</a></li>
+<li><a href="https://www.citutor.org//browse.php" target="_blank" rel="noopener">The “Introduction to MPI” and “Intermediate MPI” tutorials</a></li>
+<li><a href="http://hpc.mediawiki.hull.ac.uk/Applications/OpenMPI" target="_blank" rel="noopener">UNIVERSITY OF HULL HPC: OpenMPI</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">mpi</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/11/started-with-mpi/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-readings-about-training-system" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1500,108 +1611,6 @@
 
 
   
-    <article id="post-play-with-k8s" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/09/04/play-with-k8s/" target="_blank">Play with Kubernetes</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/09/04/play-with-k8s/" class="archive-article-date">
-        <time datetime="2020-09-04T00:08:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-04</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><a href="http://labs.play-with-k8s.com/" target="_blank" rel="noopener">Play with Kubernetes</a> 是一个可以在浏览器使用的 <code>CentOS</code> 虚拟机环境，允许用户通过 <code>github</code> 账号登录。在这里，用户可以部署，学习使用 <code>k8s</code>。</p>
-<p>跳过前面一些很简单的操作。在左侧添加 4 台虚拟机。每一台新创建的虚拟机控制台界面会有如下的提示:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> 1. Initializes cluster master node:</span><br><span class="line"></span><br><span class="line"> kubeadm init --apiserver-advertise-address $(hostname -i) --pod-network-cidr 10.5.0.0&#x2F;16</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> 2. Initialize cluster networking:</span><br><span class="line"></span><br><span class="line">kubectl apply -f https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;cloudnativelabs&#x2F;kube-router&#x2F;master&#x2F;daemonset&#x2F;kubeadm-kuberouter.yaml</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> 3. (Optional) Create an nginx deployment:</span><br><span class="line"></span><br><span class="line"> kubectl apply -f https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;kubernetes&#x2F;website&#x2F;master&#x2F;content&#x2F;en&#x2F;examples&#x2F;application&#x2F;nginx-app.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="搭建-Kubernetes-环境"><a href="#搭建-Kubernetes-环境" class="headerlink" title="搭建 Kubernetes 环境"></a>搭建 Kubernetes 环境</h2><p>在 <code>node-1</code> 中执行第一条命令，创建 <code>Master</code> 节点(虽然有 BLM 运动，但我不在乎)</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ kubeadm init --apiserver-advertise-address $(hostname -i) --pod-network-cidr 10.5.0.0/16</span><br><span class="line">...</span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"></span><br><span class="line">  mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run <span class="string">"kubectl apply -f [podnetwork].yaml"</span> with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"></span><br><span class="line">kubeadm join 192.168.0.38:6443 --token xguam5.v5vgzeifjipno115 \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:6ea81a284c1b7a5aeec9eb01c8856602f1f3e6f2edd5593816c27224bbccb960</span><br><span class="line">Waiting <span class="keyword">for</span> api server to startup</span><br><span class="line">Warning: kubectl apply should be used on resource created by either kubectl create --save-config or kubectl apply</span><br><span class="line">daemonset.apps/kube-proxy configured</span><br><span class="line">No resources found</span><br></pre></td></tr></table></figure>
-
-<p>然后，从上述命令的输出中找到 <code>Worker</code> 节点加入 <code>Master</code> 节点的命令，在 <code>node[2-4]</code> 节点分别执行命令:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join 192.168.0.38:6443 --token xguam5.v5vgzeifjipno115 \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:6ea81a284c1b7a5aeec9eb01c8856602f1f3e6f2edd5593816c27224bbccb960</span><br></pre></td></tr></table></figure>
-
-<p>执行完成之后，<code>node[2-4]</code> 就成功加入了 <code>Kubernetes</code> 集群中。在 <code>Master</code> 节点，即 <code>node-1</code> 上执行命令验证:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get nodes</span><br><span class="line">NAME    STATUS     ROLES    AGE   VERSION</span><br><span class="line">node1   Ready      master   14m   v1.18.4</span><br><span class="line">node2   Ready      &lt;none&gt;   12m   v1.18.4</span><br><span class="line">node3   NotReady   &lt;none&gt;   13s   v1.18.4</span><br><span class="line">node4   NotReady   &lt;none&gt;   5s    v1.18.4</span><br></pre></td></tr></table></figure>
-
-<p>最后部署网络插件 <code>kube-router</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter.yaml</span><br><span class="line">configmap/kube-router-cfg unchanged</span><br><span class="line">daemonset.apps/kube-router configured</span><br><span class="line">serviceaccount/kube-router unchanged</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/kube-router unchanged</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/kube-router unchanged</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>部署完了，用去吧。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/09/04/play-with-k8s/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/2/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/">Next &amp;raquo;</a>
@@ -1763,6 +1772,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">windows</a>
               </li>
              
@@ -1771,7 +1784,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1783,11 +1800,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1815,11 +1832,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1847,15 +1860,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1863,11 +1868,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1879,11 +1888,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1903,10 +1912,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
@@ -1915,11 +1920,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
+                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1927,11 +1932,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1943,19 +1948,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
             
             <div class="clearfix"></div>

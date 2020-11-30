@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-11-21T16:28:12.145Z</updated>
+  <updated>2020-11-30T02:35:53.992Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -17,13 +17,38 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>设置容器内的 locale</title>
+    <link href="http://divinerapier.github.io/2020/11/30/set-locale-inside-a-container/"/>
+    <id>http://divinerapier.github.io/2020/11/30/set-locale-inside-a-container/</id>
+    <published>2020-11-30T02:22:26.000Z</published>
+    <updated>2020-11-30T02:35:53.992Z</updated>
+    
+    <content type="html"><![CDATA[<p>解决办法面向 <strong>Ubuntu/Debian</strong> 系列，<strong>CentOS</strong> 系列方法类似。</p><h2 id="在容器内处理"><a href="#在容器内处理" class="headerlink" title="在容器内处理"></a>在容器内处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">apt update --fix-missing</span><br><span class="line">apt install -y locales</span><br><span class="line">sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen</span><br><span class="line">locale-gen</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANG=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANGUAGE =en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LC_ALL =en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure><h2 id="在-Dockerfile-中处理"><a href="#在-Dockerfile-中处理" class="headerlink" title="在 Dockerfile 中处理"></a>在 Dockerfile 中处理</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update --fix-missing \</span></span><br><span class="line"><span class="bash">    &amp;&amp; apt install -y locales \</span></span><br><span class="line"><span class="bash">    &amp;&amp; sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen \</span></span><br><span class="line"><span class="bash">    &amp;&amp; locale-gen</span></span><br><span class="line"><span class="keyword">ENV</span> LANG en_US.UTF-<span class="number">8</span>  </span><br><span class="line"><span class="keyword">ENV</span> LANGUAGE en_US.UTF-<span class="number">8</span>  </span><br><span class="line"><span class="keyword">ENV</span> LC_ALL en_US.UTF-<span class="number">8</span></span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;解决办法面向 &lt;strong&gt;Ubuntu/Debian&lt;/strong&gt; 系列，&lt;strong&gt;CentOS&lt;/strong&gt; 系列方法类似。&lt;/p&gt;
+&lt;h2 id=&quot;在容器内处理&quot;&gt;&lt;a href=&quot;#在容器内处理&quot; class=&quot;headerlink&quot; title=&quot;</summary>
+      
+    
+    
+    
+    
+    <category term="linux" scheme="http://divinerapier.github.io/tags/linux/"/>
+    
+    <category term="container" scheme="http://divinerapier.github.io/tags/container/"/>
+    
+  </entry>
+  
+  <entry>
     <title>并行程序设计</title>
     <link href="http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/"/>
     <id>http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/</id>
     <published>2020-11-21T06:24:38.000Z</published>
-    <updated>2020-11-21T16:28:12.145Z</updated>
+    <updated>2020-11-23T02:10:49.040Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="为什么需要并行程序"><a href="#为什么需要并行程序" class="headerlink" title="为什么需要并行程序"></a>为什么需要并行程序</h2><p>单核心的性能不满足需求。</p><h2 id="如何设计并行程序"><a href="#如何设计并行程序" class="headerlink" title="如何设计并行程序"></a>如何设计并行程序</h2><p>在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: <strong>任务并行</strong> 和 <strong>数据并行</strong>。</p><p>以如下问题解释说明:</p><p>试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。</p><h3 id="任务并行"><a href="#任务并行" class="headerlink" title="任务并行"></a>任务并行</h3><p>将待解决的问题所需要执行的各个任务分配到各个核心上执行。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道题是一个任务。则将任务分配到核心的含义是: 每一名教师只需要负责批阅固定的一道题目。</p><h3 id="数据并行"><a href="#数据并行" class="headerlink" title="数据并行"></a>数据并行</h3><p>将待解决问题所需要处理的数据分配给各个处理核心，每个处理核心执行相同的操作。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，将试卷 —— 也就是数据分配给教师，教师负责试卷的整个批阅过程。各个老师是做的工作是相同的。</p>]]></content>
+    <content type="html"><![CDATA[<h2 id="为什么需要并行程序"><a href="#为什么需要并行程序" class="headerlink" title="为什么需要并行程序"></a>为什么需要并行程序</h2><p>单核心的性能不满足需求。</p><h2 id="如何设计并行程序"><a href="#如何设计并行程序" class="headerlink" title="如何设计并行程序"></a>如何设计并行程序</h2><p>在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: <strong>任务并行</strong> 和 <strong>数据并行</strong>。</p><p>以如下问题解释说明:</p><p>试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。</p><h3 id="任务并行"><a href="#任务并行" class="headerlink" title="任务并行"></a>任务并行</h3><p>将待解决的问题所需要执行的各个任务分配到各个核心上执行。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道题是一个任务。则将任务分配到核心的含义是: 每一名教师只需要负责批阅固定的一道题目。</p><h3 id="数据并行"><a href="#数据并行" class="headerlink" title="数据并行"></a>数据并行</h3><p>将待解决问题所需要处理的数据分配给各个处理核心，每个处理核心执行相同的操作。</p><p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，将试卷 —— 也就是数据分配给教师，教师负责试卷的整个批阅过程。各个老师是做的工作是相同的。</p><h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p>如何衡量并行程序的性能指标。</p><h3 id="加速比和效率"><a href="#加速比和效率" class="headerlink" title="加速比和效率"></a>加速比和效率</h3>]]></content>
     
     
       
@@ -465,33 +490,11 @@
     
     
     
+    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
+    
     <category term="windows" scheme="http://divinerapier.github.io/tags/windows/"/>
     
     <category term="wsl2" scheme="http://divinerapier.github.io/tags/wsl2/"/>
-    
-    <category term="docker" scheme="http://divinerapier.github.io/tags/docker/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>初识 MPI</title>
-    <link href="http://divinerapier.github.io/2020/10/11/started-with-mpi/"/>
-    <id>http://divinerapier.github.io/2020/10/11/started-with-mpi/</id>
-    <published>2020-10-11T04:10:37.000Z</published>
-    <updated>2020-10-11T13:08:47.240Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="消息传递模型"><a href="#消息传递模型" class="headerlink" title="消息传递模型"></a>消息传递模型</h2><p><strong>消息传递模型(Message Passing Model)</strong> 指程序通过在进程间传递消息（消息可以理解成带有一些信息和数据的一个数据结构）来完成某些任务。在实践中，基于此模型，很容易开发 <strong>并发程序</strong>。</p><p>举例来说:</p><ol><li>主进程(manager process) 可以通过向从进程(worker process) 发送一个描述工作的消息的方式，将工作分配给从进程。</li><li>一个并发的排序程序可以在当前进程中对当前进程可见的(我们称作本地的，locally) 数据进行排序，然后把排好序的数据发送到邻居进程上面来进行合并的操作。</li></ol><p>几乎所有的并行程序可以使用消息传递模型来描述。</p><p>之后，业界统一制定了一套消息传递模型的接口标准，即 <strong>Message Passing Interface —— MPI</strong>。</p><h2 id="MPI-基础概念"><a href="#MPI-基础概念" class="headerlink" title="MPI 基础概念"></a>MPI 基础概念</h2><h3 id="Communicator"><a href="#Communicator" class="headerlink" title="Communicator"></a>Communicator</h3><p><strong>通讯器(communicator)</strong> 定义了一组能够互相发消息的进程。</p><h3 id="Rank"><a href="#Rank" class="headerlink" title="Rank"></a>Rank</h3><p>在 <strong>通讯器(communicator)</strong> 中，每个进程会被分配一个序号，称作 <strong>秩(rank)</strong>，进程间显性地通过指定 <strong>rank</strong> 来进行通信。</p><h3 id="Tag"><a href="#Tag" class="headerlink" title="Tag"></a>Tag</h3><p>不同进程之间发送、接收操作是通信的基础。</p><p>作为发送者时，进程可以通过指定另一个进程的 <strong>rank</strong> 和一个独一无二的 <strong>消息标签(tag)</strong> 来发送消息给另一个进程。</p><p>作为接受者时，进程可以发送一个 <strong>接收特定标签标记的消息的请求 (或者忽略标签，接收任何消息)</strong>，然后依次处理接收到的数据。</p><h3 id="Point-to-Point-Communications"><a href="#Point-to-Point-Communications" class="headerlink" title="Point-to-Point Communications"></a>Point-to-Point Communications</h3><p>一个发送者，一个接受者的通信被称作 <strong>点对点(point-to-point) 通信</strong>。</p><h3 id="Collective-Communications"><a href="#Collective-Communications" class="headerlink" title="Collective Communications"></a>Collective Communications</h3><p>在很多情况下，某个进程可能需要跟所有其他进程通信。比如主进程想发一个广播给所有的从进程。在这种情况下，如果通过写代码的方式来完成所有的发送和接收过程会很麻烦。并且，事实上，这种方式往往也不会以最佳方式使用网络。MPI 可以处理各种各样的这些涉及所有进程的 <strong>集体(Collective)通信</strong> 类型。</p><h2 id="使用-MPI"><a href="#使用-MPI" class="headerlink" title="使用 MPI"></a>使用 MPI</h2><p><strong>MPI</strong> 只是一套接口标准，无法直接使用。对此不必担心，业内已经存在很多符合标准的实现。其中 <strong>OpenMPI</strong> 就是最受欢迎的实现之一。因此，之后的内容基于 <strong>OpenMPI</strong> 展开。</p><h3 id="安装-OpenMPI"><a href="#安装-OpenMPI" class="headerlink" title="安装 OpenMPI"></a>安装 OpenMPI</h3><p>从 <a href="https://www.open-mpi.org/software/ompi/v4.0/" target="_blank" rel="noopener">这里</a> 可以找到最新的版本，本文基于版本 <a href="https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz" target="_blank" rel="noopener">4.0.5</a>。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># download package</span></span><br><span class="line">$ wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># extract files</span></span><br><span class="line">$ tar xzf openmpi-4.0.5.tar.gz</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cd</span> openmpi-4.0.5</span><br><span class="line"></span><br><span class="line"><span class="comment"># configure project</span></span><br><span class="line">$ mkdir -p build; ./configure --prefix=$(<span class="built_in">pwd</span>)/build</span><br><span class="line"></span><br><span class="line"><span class="comment"># build</span></span><br><span class="line">$ make -j; make -j install</span><br></pre></td></tr></table></figure><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul><li><a href="https://mpitutorial.com/tutorials/mpi-introduction/" target="_blank" rel="noopener">MPI Tutorial Introduction</a></li><li><a href="https://www.open-mpi.org/faq/" target="_blank" rel="noopener">OpenMPI FAQ</a></li><li><a href="https://www.mpi-forum.org/" target="_blank" rel="noopener">MPI Forum</a></li><li><a href="https://www.citutor.org//browse.php" target="_blank" rel="noopener">The “Introduction to MPI” and “Intermediate MPI” tutorials</a></li><li><a href="http://hpc.mediawiki.hull.ac.uk/Applications/OpenMPI" target="_blank" rel="noopener">UNIVERSITY OF HULL HPC: OpenMPI</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;消息传递模型&quot;&gt;&lt;a href=&quot;#消息传递模型&quot; class=&quot;headerlink&quot; title=&quot;消息传递模型&quot;&gt;&lt;/a&gt;消息传递模型&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;消息传递模型(Message Passing Model)&lt;/strong&gt; 指程序通过在进</summary>
-      
-    
-    
-    
-    
-    <category term="mpi" scheme="http://divinerapier.github.io/tags/mpi/"/>
     
   </entry>
   
