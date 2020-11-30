@@ -10,15 +10,15 @@
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="解决办法面向 Ubuntu&#x2F;Debian 系列，CentOS 系列方法类似。 在容器内处理1234567apt update --fix-missingapt install -y localessed -i &#39;&#x2F;en_US.UTF-8&#x2F;s&#x2F;^# &#x2F;&#x2F;g&#39; &#x2F;etc&#x2F;locale.genlocale-genecho &quot;export LANG&#x3D;en_US.UTF-8&quot; &gt;&gt; ~&#x2F;.bas">
+  <meta name="description" content="解决办法面向 Ubuntu&#x2F;Debian 系列，CentOS 系列方法类似。 在容器内处理12345678910apt update --fix-missingapt install -y localessed -i &#39;&#x2F;en_US.UTF-8&#x2F;s&#x2F;^# &#x2F;&#x2F;g&#39; &#x2F;etc&#x2F;locale.genlocale-genecho &quot;export LANG&#x3D;en_US.UTF-8&quot; &gt;&gt; ~&#x2F;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="设置容器内的 locale">
 <meta property="og:url" content="http://divinerapier.github.io/2020/11/30/set-locale-inside-a-container/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="解决办法面向 Ubuntu&#x2F;Debian 系列，CentOS 系列方法类似。 在容器内处理1234567apt update --fix-missingapt install -y localessed -i &#39;&#x2F;en_US.UTF-8&#x2F;s&#x2F;^# &#x2F;&#x2F;g&#39; &#x2F;etc&#x2F;locale.genlocale-genecho &quot;export LANG&#x3D;en_US.UTF-8&quot; &gt;&gt; ~&#x2F;.bas">
+<meta property="og:description" content="解决办法面向 Ubuntu&#x2F;Debian 系列，CentOS 系列方法类似。 在容器内处理12345678910apt update --fix-missingapt install -y localessed -i &#39;&#x2F;en_US.UTF-8&#x2F;s&#x2F;^# &#x2F;&#x2F;g&#39; &#x2F;etc&#x2F;locale.genlocale-genecho &quot;export LANG&#x3D;en_US.UTF-8&quot; &gt;&gt; ~&#x2F;">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-11-30T02:22:26.000Z">
-<meta property="article:modified_time" content="2020-11-30T02:37:45.532Z">
+<meta property="article:modified_time" content="2020-11-30T06:17:58.252Z">
 <meta property="article:author" content="A">
 <meta property="article:tag" content="linux">
 <meta property="article:tag" content="container">
@@ -202,7 +202,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">110字</span>
+      <span class="post-count">169字</span>
     </span>
   </span>
 
@@ -223,9 +223,9 @@
   <div class="article-entry" itemprop="articleBody">
     
     <p>解决办法面向 <strong>Ubuntu/Debian</strong> 系列，<strong>CentOS</strong> 系列方法类似。</p>
-<h2 id="在容器内处理"><a href="#在容器内处理" class="headerlink" title="在容器内处理"></a>在容器内处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">apt update --fix-missing</span><br><span class="line">apt install -y locales</span><br><span class="line">sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen</span><br><span class="line">locale-gen</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANG=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANGUAGE=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LC_ALL=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+<h2 id="在容器内处理"><a href="#在容器内处理" class="headerlink" title="在容器内处理"></a>在容器内处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">apt update --fix-missing</span><br><span class="line">apt install -y locales</span><br><span class="line">sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen</span><br><span class="line">locale-gen</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANG=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANGUAGE=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LC_ALL=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936"</span> &gt;&gt; ~/.vimrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"set termencoding=utf-8"</span> &gt;&gt; ~/.vimrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"set encoding=utf-8"</span> &gt;&gt; ~/.vimrc</span><br></pre></td></tr></table></figure>
 
-<h2 id="在-Dockerfile-中处理"><a href="#在-Dockerfile-中处理" class="headerlink" title="在 Dockerfile 中处理"></a>在 Dockerfile 中处理</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update --fix-missing \</span></span><br><span class="line"><span class="bash">    &amp;&amp; apt install -y locales \</span></span><br><span class="line"><span class="bash">    &amp;&amp; sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen \</span></span><br><span class="line"><span class="bash">    &amp;&amp; locale-gen</span></span><br><span class="line"><span class="keyword">ENV</span> LANG en_US.UTF-<span class="number">8</span>  </span><br><span class="line"><span class="keyword">ENV</span> LANGUAGE en_US.UTF-<span class="number">8</span>  </span><br><span class="line"><span class="keyword">ENV</span> LC_ALL en_US.UTF-<span class="number">8</span></span><br></pre></td></tr></table></figure>
+<h2 id="在-Dockerfile-中处理"><a href="#在-Dockerfile-中处理" class="headerlink" title="在 Dockerfile 中处理"></a>在 Dockerfile 中处理</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update --fix-missing \</span></span><br><span class="line"><span class="bash">    &amp;&amp; apt install -y locales \</span></span><br><span class="line"><span class="bash">    &amp;&amp; sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen \</span></span><br><span class="line"><span class="bash">    &amp;&amp; locale-gen</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936"</span> &gt;&gt; ~/.vimrc \</span></span><br><span class="line"><span class="bash">    &amp;&amp; <span class="built_in">echo</span> <span class="string">"set termencoding=utf-8"</span> &gt;&gt; ~/.vimrc \</span></span><br><span class="line"><span class="bash">    &amp;&amp; <span class="built_in">echo</span> <span class="string">"set encoding=utf-8"</span> &gt;&gt; ~/.vimrc</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENV</span> LANG en_US.UTF-<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> LANGUAGE en_US.UTF-<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> LC_ALL en_US.UTF-<span class="number">8</span></span><br></pre></td></tr></table></figure>
 
     
 
@@ -533,15 +533,15 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -669,19 +669,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
               </li>
              
               <li class="article-tag-list-item">
