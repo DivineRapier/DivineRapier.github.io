@@ -18,7 +18,7 @@
 <meta property="og:description" content="解决办法面向 Ubuntu&#x2F;Debian 系列，CentOS 系列方法类似。 在容器内处理1234567apt update --fix-missingapt install -y localessed -i &#39;&#x2F;en_US.UTF-8&#x2F;s&#x2F;^# &#x2F;&#x2F;g&#39; &#x2F;etc&#x2F;locale.genlocale-genecho &quot;export LANG&#x3D;en_US.UTF-8&quot; &gt;&gt; ~&#x2F;.bas">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-11-30T02:22:26.000Z">
-<meta property="article:modified_time" content="2020-11-30T02:35:53.992Z">
+<meta property="article:modified_time" content="2020-11-30T02:37:45.532Z">
 <meta property="article:author" content="A">
 <meta property="article:tag" content="linux">
 <meta property="article:tag" content="container">
@@ -223,7 +223,7 @@
   <div class="article-entry" itemprop="articleBody">
     
     <p>解决办法面向 <strong>Ubuntu/Debian</strong> 系列，<strong>CentOS</strong> 系列方法类似。</p>
-<h2 id="在容器内处理"><a href="#在容器内处理" class="headerlink" title="在容器内处理"></a>在容器内处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">apt update --fix-missing</span><br><span class="line">apt install -y locales</span><br><span class="line">sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen</span><br><span class="line">locale-gen</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANG=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANGUAGE =en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LC_ALL =en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+<h2 id="在容器内处理"><a href="#在容器内处理" class="headerlink" title="在容器内处理"></a>在容器内处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">apt update --fix-missing</span><br><span class="line">apt install -y locales</span><br><span class="line">sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen</span><br><span class="line">locale-gen</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANG=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANGUAGE=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LC_ALL=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
 
 <h2 id="在-Dockerfile-中处理"><a href="#在-Dockerfile-中处理" class="headerlink" title="在 Dockerfile 中处理"></a>在 Dockerfile 中处理</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update --fix-missing \</span></span><br><span class="line"><span class="bash">    &amp;&amp; apt install -y locales \</span></span><br><span class="line"><span class="bash">    &amp;&amp; sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen \</span></span><br><span class="line"><span class="bash">    &amp;&amp; locale-gen</span></span><br><span class="line"><span class="keyword">ENV</span> LANG en_US.UTF-<span class="number">8</span>  </span><br><span class="line"><span class="keyword">ENV</span> LANGUAGE en_US.UTF-<span class="number">8</span>  </span><br><span class="line"><span class="keyword">ENV</span> LC_ALL en_US.UTF-<span class="number">8</span></span><br></pre></td></tr></table></figure>
 
@@ -561,10 +561,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">windows</a>
               </li>
              
@@ -573,11 +569,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -589,11 +581,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -621,7 +613,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -649,7 +645,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -657,7 +661,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">volume</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -677,14 +685,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
@@ -701,15 +701,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">select statements</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -729,6 +729,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
@@ -737,23 +741,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
             
             <div class="clearfix"></div>
