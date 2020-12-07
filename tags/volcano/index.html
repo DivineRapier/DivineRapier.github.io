@@ -6,22 +6,16 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://divinerapier.github.io">
-  <title>使用 kubeadm 创建 kubernetes 集群 | お可愛いこと</title>
+  <title>Tag: volcano | お可愛いこと</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="在 Ubuntu 20.04 系统上搭建 Kubernetes 集群。 安装 Docker123456789101112131415161718192021222324252627282930sudo apt-get remove docker docker-engine docker.io containerd runcsudo apt-get updatesudo apt-get instal">
-<meta property="og:type" content="article">
-<meta property="og:title" content="使用 kubeadm 创建 kubernetes 集群">
-<meta property="og:url" content="http://divinerapier.github.io/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="お可愛いこと">
+<meta property="og:url" content="http://divinerapier.github.io/tags/volcano/index.html">
 <meta property="og:site_name" content="お可愛いこと">
-<meta property="og:description" content="在 Ubuntu 20.04 系统上搭建 Kubernetes 集群。 安装 Docker123456789101112131415161718192021222324252627282930sudo apt-get remove docker docker-engine docker.io containerd runcsudo apt-get updatesudo apt-get instal">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-10-19T12:38:25.000Z">
-<meta property="article:modified_time" content="2020-10-26T04:14:58.976Z">
 <meta property="article:author" content="A">
-<meta property="article:tag" content="kubernetes">
-<meta property="article:tag" content="kubeadm">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="お可愛いこと" type="application/atom+xml">
@@ -169,169 +163,41 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-using-kubeadm-to-create-a-kubernetes-cluster" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
+            
+  
+  
     
-      <header class="article-header">
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2020" class="archive-year">2020</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	
+<a href="/2020/12/07/volcano-plugin-binpack/" class="archive-article-date">
+        <time datetime="2020-12-07T07:17:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-12-07</time>
+</a>
+
+        </div>
+    	 
   
+    <h1 itemprop="name">
+	
+	  <a class="archive-article-title" href="/2020/12/07/volcano-plugin-binpack/" target="_blank">Volcano Plugin - binpack</a>
   
-    <h1 class="article-title" itemprop="name">
-      使用 kubeadm 创建 kubernetes 集群
     </h1>
   
 
 
-  
-  
-        
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
-        </span>
-
-<a href="/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/" class="archive-article-date">
-        <time datetime="2020-10-19T12:38:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-19</time>
-</a>
-
-  
-  
-    
-<div style="margin-top:10px;">
-  <span class="post-time">
-    <span class="post-meta-item-icon">
-      <!-- fonts.scss -->
-      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
-      <i class="icon-statistics"></i>
-      <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">815字</span>
-    </span>
-  </span>
-
-  <span class="post-time">
-    &nbsp; | &nbsp;
-    <span class="post-meta-item-icon">
-      <i class="icon-book icon"></i>
-      <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">4分</span>
-    </span>
-  </span>
-</div>
-
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>在 <strong>Ubuntu 20.04</strong> 系统上搭建 <strong>Kubernetes</strong> 集群。</p>
-<h2 id="安装-Docker"><a href="#安装-Docker" class="headerlink" title="安装 Docker"></a>安装 Docker</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get remove docker docker-engine docker.io containerd runc</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y \</span><br><span class="line">    apt-transport-https \</span><br><span class="line">    ca-certificates \</span><br><span class="line">    curl \</span><br><span class="line">    gnupg-agent \</span><br><span class="line">    software-properties-common</span><br><span class="line">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -</span><br><span class="line">sudo apt-key fingerprint 0EBFCD88</span><br><span class="line">sudo add-apt-repository \</span><br><span class="line">   <span class="string">"deb [arch=amd64] https://download.docker.com/linux/ubuntu \</span></span><br><span class="line"><span class="string">   <span class="variable">$(lsb_release -cs)</span> \</span></span><br><span class="line"><span class="string">   stable"</span></span><br><span class="line">sudo apt-get update --fix-missing</span><br><span class="line">sudo apt-get install -y docker-ce docker-ce-cli containerd.io</span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"exec-opts"</span>: [<span class="string">"native.cgroupdriver=systemd"</span>],</span><br><span class="line">  <span class="string">"log-driver"</span>: <span class="string">"json-file"</span>,</span><br><span class="line">  <span class="string">"log-opts"</span>: &#123;</span><br><span class="line">    <span class="string">"max-size"</span>: <span class="string">"100m"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"storage-driver"</span>: <span class="string">"overlay2"</span></span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">sudo mkdir -p /etc/systemd/system/docker.service.d</span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br><span class="line">sudo systemctl <span class="built_in">enable</span> docker</span><br></pre></td></tr></table></figure>
-
-<h2 id="下载-Kubernetes-相关程序"><a href="#下载-Kubernetes-相关程序" class="headerlink" title="下载 Kubernetes 相关程序"></a>下载 Kubernetes 相关程序</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update &amp;&amp; sudo apt-get install -y apt-transport-https curl</span><br><span class="line">curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -</span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list</span><br><span class="line">deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main</span><br><span class="line">EOF</span><br><span class="line">sudo apt-get update --fix-missing</span><br><span class="line">sudo apt-get install -y kubelet kubeadm kubectl</span><br><span class="line">sudo apt-mark hold kubelet kubeadm kubectl</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置桥接网络防火墙"><a href="#配置桥接网络防火墙" class="headerlink" title="配置桥接网络防火墙"></a>配置桥接网络防火墙</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 1</span><br><span class="line">EOF</span><br><span class="line">sudo sysctl --system</span><br></pre></td></tr></table></figure>
-
-<h2 id="关闭-swap"><a href="#关闭-swap" class="headerlink" title="关闭 swap"></a>关闭 swap</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 临时关闭</span></span><br><span class="line">swapoff -a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久关闭，注释 swap 配置</span></span><br><span class="line">vi /etc/fstab</span><br></pre></td></tr></table></figure>
-
-<h2 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure>
-
-<h2 id="关闭-selinux"><a href="#关闭-selinux" class="headerlink" title="关闭 selinux"></a>关闭 selinux</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'s/enforcing/disabled/'</span> /etc/selinux/config</span><br><span class="line">sudo setenforce 0</span><br></pre></td></tr></table></figure>
-
-<h2 id="拉取-gcr-镜像"><a href="#拉取-gcr-镜像" class="headerlink" title="拉取 gcr 镜像"></a>拉取 gcr 镜像</h2><p>需要在所有的 <strong>Master</strong> 节点与 <strong>Worker</strong> 节点拉取镜像。</p>
-<p><strong>bash</strong> 环境使用如下脚本:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">image_list=$(kubeadm config images list)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> image <span class="keyword">in</span> <span class="variable">$&#123;image_list&#125;</span> ; <span class="keyword">do</span></span><br><span class="line">  name=$(<span class="built_in">echo</span> <span class="variable">$&#123;image&#125;</span> | cut -d<span class="string">'/'</span> -f2)</span><br><span class="line">  docker pull registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line">  docker image tag registry.aliyuncs.com/google_containers/<span class="variable">$name</span> k8s.gcr.io/<span class="variable">$name</span></span><br><span class="line">  docker image rm registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>zsh</strong> 环境使用如下脚本:</p>
-<figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">image_list=$(kubeadm config images list)</span><br><span class="line">images=(`<span class="built_in">echo</span> <span class="variable">$&#123;image_list&#125;</span> | tr <span class="string">'\n'</span> <span class="string">' '</span>`)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> image <span class="keyword">in</span> <span class="variable">$&#123;images&#125;</span> ; <span class="keyword">do</span></span><br><span class="line">  name=$(<span class="built_in">echo</span> <span class="variable">$&#123;image&#125;</span> | cut -d<span class="string">'/'</span> -f2)</span><br><span class="line">  docker pull registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line">  docker image tag registry.aliyuncs.com/google_containers/<span class="variable">$name</span> k8s.gcr.io/<span class="variable">$name</span></span><br><span class="line">  docker image rm registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="初始化-Master-节点"><a href="#初始化-Master-节点" class="headerlink" title="初始化 Master 节点"></a>初始化 Master 节点</h2><p>在 <strong>Master</strong> 节点执行命令:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm init \</span><br><span class="line">  --apiserver-advertise-address $(hostname -i) \</span><br><span class="line">  --pod-network-cidr 10.244.0.0/16 --v=5</span><br><span class="line"></span><br><span class="line">Your Kubernetes control-plane has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"></span><br><span class="line">  mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run <span class="string">"kubectl apply -f [podnetwork].yaml"</span> with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"></span><br><span class="line">kubeadm join 192.168.50.5:6443 --token 7zjyq9.x3xkoatt6pb1cbsu \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:1c78c44bc57e6e887c5f81e7a9c6c3e52f098e1ba9255f5303ac78129d410774</span><br></pre></td></tr></table></figure>
-
-<p>或者省略下载镜像步骤，直接创建集群:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm init \</span><br><span class="line">  --apiserver-advertise-address=$(hostname -i) \</span><br><span class="line">  --image-repository registry.aliyuncs.com/google_containers \</span><br><span class="line">  --service-cidr=10.5.0.0/16 \</span><br><span class="line">  --pod-network-cidr=10.244.0.0/16</span><br></pre></td></tr></table></figure>
-
-<p>然后配置 <strong>kubeconfig</strong>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h2><h3 id="Calico"><a href="#Calico" class="headerlink" title="Calico"></a>Calico</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://docs.projectcalico.org/manifests/canal.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="添加-Worker-节点"><a href="#添加-Worker-节点" class="headerlink" title="添加 Worker 节点"></a>添加 Worker 节点</h2><p>在 <strong>Worker</strong> 节点执行命令:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm join 192.168.50.5:6443 --token 4n2pwp.hq9jyo3auaibma3q     --discovery-token-ca-cert-hash sha256:750da2c87a67b96bfec73ade40888d22b61e045fdd28bbb7a4ff2c6ce3e0309c</span><br><span class="line"></span><br><span class="line">This node has joined the cluster:</span><br><span class="line">* Certificate signing request was sent to apiserver and a response was received.</span><br><span class="line">* The Kubelet was informed of the new secure connection details.</span><br><span class="line"></span><br><span class="line">Run <span class="string">'kubectl get nodes'</span> on the control-plane to see this node join the cluster.</span><br></pre></td></tr></table></figure>
-
-<h2 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/website/master/content/en/examples/application/nginx-app.yaml</span><br></pre></td></tr></table></figure>
-
-<h2 id="清理集群"><a href="#清理集群" class="headerlink" title="清理集群"></a>清理集群</h2><p>在期望清理的节点执行:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm reset</span><br><span class="line">sudo rm -rf /etc/cni/net.d</span><br><span class="line">rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener">Install Docker Engine on Ubuntu</a></li>
-<li><a href="https://kubernetes.io/docs/setup/production-environment/container-runtimes/" target="_blank" rel="noopener">Container runtimes</a></li>
-<li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/" target="_blank" rel="noopener">Installing kubeadm</a></li>
-<li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/" target="_blank" rel="noopener">Creating a cluster with kubeadm</a></li>
-<li><a href="https://github.com/cloudnativelabs/kube-router/blob/master/docs/kubeadm.md" target="_blank" rel="noopener">Deploying kube-router with kubeadm</a></li>
-<li><a href="https://docs.projectcalico.org/getting-started/kubernetes/flannel/flannel" target="_blank" rel="noopener">Install Calico for policy and flannel (aka Canal) for networking</a></li>
-</ul>
-
-    
-
-    
-    <div class="page-reward">
-      <a href="javascript:void(0);" class="page-reward-btn tooltip-top" target="_self">
-        <div class="tooltip tooltip-east">
-          <span class="tooltip-item">
-            赏
-          </span>
-          <span class="tooltip-content">
-            <span class="tooltip-text">
-              <span class="tooltip-inner">
-                <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i
-                    class="icon icon-quo-right"></i></p>
-                <div class="reward-box">
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/alipay.jpg">
-                    <span class="reward-type">支付宝</span>
-                  </div>
-                  
-                  
-                  <div class="reward-box-item">
-                    <img class="reward-img" src="/img/wechatpay.png">
-                    <span class="reward-type">微信</span>
-                  </div>
-                  
-                </div>
-              </span>
-            </span>
-          </span>
-        </div>
-      </a>
-    </div>
-    
-
-    
-    <div class="declare"> 
-      <ul class="post-copyright">
-        <li>
-          <strong>本文作者：</strong>
-          A
-        </li>
-        <li>
-          <strong>本文链接：</strong>
-          <a href="http://divinerapier.github.io/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/" title="使用 kubeadm 创建 kubernetes 集群" target="_blank">http://divinerapier.github.io/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/</a>
-        </li>
-        
-        <li>
-          <strong>版权声明： </strong>
+        <div class="article-info info-on-right">
           
-          本博客所有文章除特别声明外，均采用 <a href="https://github.com/JoeyBling/hexo-theme-yilia-plus/blob/master/LICENSE" rel="external nofollow" target="_blank">MIT</a> 许可协议。转载请注明出处！
-        </li>
-        
-      </ul>
-    </div>
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -341,122 +207,25 @@
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">kubeadm</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">volcano</a>
         		</li>
       		
 		</ul>
 	</div>
 
-    
+          
 
-    
-
-    
-    
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a> -->
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://divinerapier.github.io/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/" alt="微信分享二维码"> -->
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-
-    
-    <div class="clearfix"></div>
-  </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-
-<nav id="article-nav">
-  
-    <a href="/2020/10/20/upgrade-ubuntu-release/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          升级 Ubuntu 发行版
-        
-      </div>
-    </a>
   
   
-    <a href="/2020/10/19/configure-networks-on-ubuntu-20-04/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Ubuntu 20.04 配置静态网络</div>
-      <i class="icon-circle-right"></i>
-    </a>
+    </div></section>
   
-</nav>
 
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
           </div>
@@ -497,9 +266,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
+		isPost: false,
 		isArchive: false,
-		isTag: false,
+		isTag: true,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,

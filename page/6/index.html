@@ -170,6 +170,121 @@
             
 
   
+    <article id="post-signing-git-commits-with-gpg" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/07/26/signing-git-commits-with-gpg/" target="_blank">使用 GPG 签名认证 git 提交</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/07/26/signing-git-commits-with-gpg/" class="archive-article-date">
+        <time datetime="2020-07-26T01:43:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-26</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="Install-GPG"><a href="#Install-GPG" class="headerlink" title="Install GPG"></a>Install GPG</h2><h3 id="MacOS"><a href="#MacOS" class="headerlink" title="MacOS"></a>MacOS</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">brew install pinentry-mac gpg2</span><br><span class="line">touch  ~/.gnupg/gpg-agent.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"pinentry-program /usr/local/bin/pinentry-mac"</span> &gt;&gt; ~/.gnupg/gpg-agent.conf</span><br></pre></td></tr></table></figure>
+
+<h3 id="Archlinux"><a href="#Archlinux" class="headerlink" title="Archlinux"></a>Archlinux</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yay -S gunpg</span><br></pre></td></tr></table></figure>
+
+<h2 id="Configure"><a href="#Configure" class="headerlink" title="Configure"></a>Configure</h2><h3 id="Generate-key"><a href="#Generate-key" class="headerlink" title="Generate key"></a>Generate key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpg --full-gen-key</span><br></pre></td></tr></table></figure>
+
+<h3 id="List-keys"><a href="#List-keys" class="headerlink" title="List keys"></a>List keys</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">gpg --list-secret-keys --keyid-format LONG</span><br><span class="line"></span><br><span class="line"><span class="comment"># /home/username/.gnupg/pubring.kbx</span></span><br><span class="line"><span class="comment"># -------------------------------------</span></span><br><span class="line"><span class="comment"># sec   rsa4096/1111111111111111 2019-08-07 [SC]</span></span><br><span class="line"><span class="comment">#       2222222222222222222222221111111111111111</span></span><br><span class="line"><span class="comment"># uid                 [ultimate] realname (comment) &lt;example@gmail.com&gt;</span></span><br><span class="line"><span class="comment"># ssb   rsa4096/3333333333333333 2019-08-07 [E]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Export-public-key"><a href="#Export-public-key" class="headerlink" title="Export public key"></a>Export public key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gpg --armor --<span class="built_in">export</span> 1111111111111111</span><br><span class="line"></span><br><span class="line"><span class="comment"># -----BEGIN PGP PUBLIC KEY BLOCK-----</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># CONTENT</span></span><br><span class="line"><span class="comment"># -----END PGP PUBLIC KEY BLOCK-----</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Register-public-key"><a href="#Register-public-key" class="headerlink" title="Register public key"></a>Register public key</h3><p>将上面的 <code>public key</code> 拷贝到 <a href="https://github.com/settings/keys" target="_blank" rel="noopener">github settings</a></p>
+<h2 id="Associating-your-GPG-key-with-Git"><a href="#Associating-your-GPG-key-with-Git" class="headerlink" title="Associating your GPG key with Git"></a>Associating your GPG key with Git</h2><h3 id="Set-gpg-key"><a href="#Set-gpg-key" class="headerlink" title="Set gpg key"></a>Set gpg key</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --<span class="built_in">local</span> user.signingKey 1111111111111111</span><br></pre></td></tr></table></figure>
+
+<h3 id="Signing-commits"><a href="#Signing-commits" class="headerlink" title="Signing commits"></a>Signing commits</h3><p>在提交时，使用 <code>-S</code> 标志</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -S -m <span class="string">'commit message'</span></span><br></pre></td></tr></table></figure>
+
+<p>或者通过配置避免每次都要输入 <code>-S</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global commit.gpgsign <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="FQA"><a href="#FQA" class="headerlink" title="FQA"></a>FQA</h2><ol>
+<li><p>gpg: signing failed: Inappropriate ioctl for device</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"export GPG_TTY=<span class="variable">$(tty)</span>"</span> &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>GPG Hangs When Private Keys are Accessed</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpgconf --<span class="built_in">kill</span> gpg-agent</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>secret key not available</code> or <code>gpg: signing failed: secret key not available</code></p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global gpg.program gpg2</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/07/26/signing-git-commits-with-gpg/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -390,10 +505,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">windows</a>
               </li>
              
@@ -403,14 +514,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -430,6 +533,18 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
@@ -446,35 +561,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">container</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">docker image</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mount namespace</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -506,6 +605,22 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">container</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">docker image</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mount namespace</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">unionfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -518,14 +633,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
@@ -534,11 +641,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -562,11 +677,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -586,11 +701,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">network</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">network</a>
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -602,11 +721,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
