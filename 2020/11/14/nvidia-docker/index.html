@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://divinerapier.github.io/images/nvidia-docker/nvidia-container-toolkit.png">
 <meta property="og:image" content="http://divinerapier.github.io/images/nvidia-docker/nvidia-docker-arch.png">
 <meta property="article:published_time" content="2020-11-14T10:21:01.000Z">
-<meta property="article:modified_time" content="2020-11-14T14:17:09.039Z">
+<meta property="article:modified_time" content="2020-12-08T05:23:13.580Z">
 <meta property="article:author" content="A">
 <meta property="article:tag" content="gpu">
 <meta property="article:tag" content="docker">
@@ -206,7 +206,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">947字</span>
+      <span class="post-count">953字</span>
     </span>
   </span>
 
@@ -243,7 +243,7 @@
 <p>该组件之前的名字是 nvidia-container-runtime-hook，现在系统上的 nvidia-container-runtime-hook 是 nvidia-container-toolkit 的符号链接。</p>
 <h4 id="nvidia-container-runtime"><a href="#nvidia-container-runtime" class="headerlink" title="nvidia-container-runtime"></a>nvidia-container-runtime</h4><p>曾经，nvidia-container-runtime 以 runC 作为基础，添加了 NVIDIA 特定的代码。2019 年，更改为对宿主机上原生 runC 做简单的封装。nvidia-container-runtime 将 runC spec 作为输入，将 nvidia-container-toolkit 脚本作为 prestart hook 注入到 runC spec 中。然后，将修改后的带有该 hook set 的 runC spec 传递给原生 runC 并调用 runC。需要注意的是，该组件不一定是针对 docker 的(但它是针对runC的)。</p>
 <p>当该 package 完成安装后，Docker 的 daemon.json 文件会被更新为指向这个二进制文件:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"default-runtime"</span>: <span class="string">"nvidia"</span>,</span><br><span class="line"><span class="string">"runtimes"</span>: &#123;</span><br><span class="line">    <span class="string">"nvidia"</span>: &#123;</span><br><span class="line">        <span class="string">"path"</span>: <span class="string">"/usr/bin/nvidia-container-runtime"</span>,</span><br><span class="line">        <span class="string">"runtimeArgs"</span>: []</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"exec-opts"</span>: [<span class="string">"native.cgroupdriver=systemd"</span>],</span><br><span class="line">  <span class="string">"default-runtime"</span>: <span class="string">"nvidia"</span>,</span><br><span class="line">  <span class="string">"runtimes"</span>: &#123;</span><br><span class="line">    <span class="string">"nvidia"</span>: &#123;</span><br><span class="line">        <span class="string">"path"</span>: <span class="string">"/usr/bin/nvidia-container-runtime"</span>,</span><br><span class="line">        <span class="string">"runtimeArgs"</span>: []</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="nvidia-docker2"><a href="#nvidia-docker2" class="headerlink" title="nvidia-docker2"></a>nvidia-docker2</h4><p>这个 package 是架构中唯一的 docker 专用包。它采用与 nvidia-container-runtime 相关的脚本，并将其安装到 docker 的 /etc/docker/daemon.json 文件中。这样，使用者就可以运行 <strong>docker run –runtime=nvidia …</strong> 来自动为容器添加对 GPU 的支持。这个 package 还安装了一个封装了原生 docker CLI 的脚本，名为 nvidia-docker，避免每次都指定 –runtime=nvidia 来调用 docker。它还允许用户在宿主机上设置环境变量 NV_GPU 来指定将哪些 GPU 注入到容器中。</p>
 <h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><h3 id="Pre-Requisites"><a href="#Pre-Requisites" class="headerlink" title="Pre-Requisites"></a>Pre-Requisites</h3><ul>
@@ -590,15 +590,15 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -630,10 +630,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
               </li>
              
@@ -646,31 +642,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -690,11 +670,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -714,6 +694,26 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -730,15 +730,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -782,11 +782,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
+                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -798,15 +798,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -815,6 +811,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
              
               <li class="article-tag-list-item">

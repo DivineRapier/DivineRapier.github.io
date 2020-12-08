@@ -201,6 +201,7 @@
     
     <h2 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ /home/sihao$ cat /etc/os-release</span><br><span class="line"></span><br><span class="line">NAME=<span class="string">"Ubuntu"</span></span><br><span class="line">VERSION=<span class="string">"18.04.4 LTS (Bionic Beaver)"</span></span><br><span class="line">ID=ubuntu</span><br><span class="line">ID_LIKE=debian</span><br><span class="line">PRETTY_NAME=<span class="string">"Ubuntu 18.04.4 LTS"</span></span><br><span class="line">VERSION_ID=<span class="string">"18.04"</span></span><br><span class="line">HOME_URL=<span class="string">"https://www.ubuntu.com/"</span></span><br><span class="line">SUPPORT_URL=<span class="string">"https://help.ubuntu.com/"</span></span><br><span class="line">BUG_REPORT_URL=<span class="string">"https://bugs.launchpad.net/ubuntu/"</span></span><br><span class="line">PRIVACY_POLICY_URL=<span class="string">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span></span><br><span class="line">VERSION_CODENAME=bionic</span><br><span class="line">UBUNTU_CODENAME=bionic</span><br></pre></td></tr></table></figure>
 
+<p><strong>GPU: GTX 2080Ti</strong>。</p>
 <h2 id="下载安装程序"><a href="#下载安装程序" class="headerlink" title="下载安装程序"></a>下载安装程序</h2><p><strong>cuda</strong> 版本为 <a href="https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal" target="_blank" rel="noopener">cuda10.0</a></p>
 <p><strong>NVIDIA Driver</strong> 版本为 440.82</p>
 <h2 id="安装-CUDA"><a href="#安装-CUDA" class="headerlink" title="安装 CUDA"></a>安装 CUDA</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sh cuda_10.0.130_410.48_linux.run</span><br></pre></td></tr></table></figure>
@@ -212,6 +213,8 @@
 <h3 id="安装新-NVIDIA-Driver"><a href="#安装新-NVIDIA-Driver" class="headerlink" title="安装新 NVIDIA Driver"></a>安装新 NVIDIA Driver</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sh NVIDIA-Linux-x86_64-440.82.run</span><br></pre></td></tr></table></figure>
 
 <h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://forums.developer.nvidia.com/t/libcublas-so-10-0-cannot-be-found/69629" target="_blank" rel="noopener">libcublas-so-10-0-cannot-be-found</a></p>
 
     
 
@@ -305,7 +308,10 @@
 <h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>如下代码来自: <code>pkg/scheduler/plugins/binpack/binpack.go</code>。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BinPackingScore use the best fit polices during scheduling.</span></span><br><span class="line"><span class="comment">// Goals:</span></span><br><span class="line"><span class="comment">// - Schedule Jobs using BestFit Policy using Resource Bin Packing Priority Function</span></span><br><span class="line"><span class="comment">// - Reduce Fragmentation of scarce resources on the Cluster</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BinPackingScore</span><span class="params">(task *api.TaskInfo, node *api.NodeInfo, weight priorityWeight)</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">    score := <span class="number">0.0</span></span><br><span class="line">    weightSum := <span class="number">0</span></span><br><span class="line">    requested := task.Resreq</span><br><span class="line">    allocatable := node.Allocatable</span><br><span class="line">    used := node.Used</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> _, resource := <span class="keyword">range</span> requested.ResourceNames() &#123;</span><br><span class="line">        request := requested.Get(resource)</span><br><span class="line">        <span class="keyword">if</span> request == <span class="number">0</span> &#123;</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">        allocate := allocatable.Get(resource)</span><br><span class="line">        nodeUsed := used.Get(resource)</span><br><span class="line"></span><br><span class="line">        resourceWeight := <span class="number">0</span></span><br><span class="line">        found := <span class="literal">false</span></span><br><span class="line">        <span class="keyword">switch</span> resource &#123;</span><br><span class="line">        <span class="keyword">case</span> v1.ResourceCPU:</span><br><span class="line">            resourceWeight = weight.BinPackingCPU</span><br><span class="line">            found = <span class="literal">true</span></span><br><span class="line">        <span class="keyword">case</span> v1.ResourceMemory:</span><br><span class="line">            resourceWeight = weight.BinPackingMemory</span><br><span class="line">            found = <span class="literal">true</span></span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            resourceWeight, found = weight.BinPackingResources[resource]</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> !found &#123;</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        resourceScore := ResourceBinPackingScore(request, allocate, nodeUsed, resourceWeight)</span><br><span class="line">        klog.V(<span class="number">5</span>).Infof(<span class="string">"task %s/%s on node %s resource %s, need %f, used %f, allocatable %f, weight %d, score %f"</span>, task.Namespace, task.Name, node.Name, resource, request, nodeUsed, allocate, resourceWeight, resourceScore)</span><br><span class="line"></span><br><span class="line">        score += resourceScore</span><br><span class="line">        weightSum += resourceWeight</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// mapping the result from [0, weightSum] to [0, 10(MaxPriority)]</span></span><br><span class="line">    <span class="keyword">if</span> weightSum &gt; <span class="number">0</span> &#123;</span><br><span class="line">        score /= <span class="keyword">float64</span>(weightSum)</span><br><span class="line">    &#125;</span><br><span class="line">    score *= <span class="keyword">float64</span>(v1alpha1.MaxNodeScore * <span class="keyword">int64</span>(weight.BinPackingWeight))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> score</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ResourceBinPackingScore calculate the binpack score for resource with provided info</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ResourceBinPackingScore</span><span class="params">(requested, capacity, used <span class="keyword">float64</span>, weight <span class="keyword">int</span>)</span> <span class="title">float64</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> capacity == <span class="number">0</span> || weight == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    usedFinally := requested + used</span><br><span class="line">    <span class="keyword">if</span> usedFinally &gt; capacity &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    score := usedFinally * <span class="keyword">float64</span>(weight) / capacity</span><br><span class="line">    <span class="keyword">return</span> score</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">volcano-scheduler-configmap</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">volcano-system</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">volcano-scheduler.conf:</span> <span class="string">|</span></span><br><span class="line">    <span class="attr">actions:</span> <span class="string">"enqueue, allocate, backfill"</span></span><br><span class="line">    <span class="attr">tiers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">plugins:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">priority</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">gang</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">conformance</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">plugins:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">drf</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">predicates</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">proportion</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nodeorder</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">binpack</span></span><br><span class="line">        <span class="attr">arguments:</span></span><br><span class="line">        <span class="comment"># binpack 插件权重</span></span><br><span class="line">        <span class="attr">binpack.weight:</span> <span class="number">10</span></span><br><span class="line">        <span class="comment"># cpu 资源权重</span></span><br><span class="line">        <span class="attr">binpack.cpu:</span> <span class="number">5</span></span><br><span class="line">        <span class="comment"># memory 资源权重</span></span><br><span class="line">        <span class="attr">binpack.memory:</span> <span class="number">1</span></span><br><span class="line">        <span class="comment"># gpu 等其他资源类型</span></span><br><span class="line">        <span class="attr">binpack.resources:</span> <span class="string">nvidia.com/gpu</span></span><br><span class="line">        <span class="comment"># gpu 等其他资源权重配置</span></span><br><span class="line">        <span class="attr">binpack.resources.nvidia.com/gpu:</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">volcano-scheduler-configmap</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">volcano-system</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="attr">volcano-scheduler.conf:</span> <span class="string">|</span></span><br><span class="line">    <span class="attr">actions:</span> <span class="string">"enqueue, allocate, backfill"</span></span><br><span class="line">    <span class="attr">tiers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">plugins:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">priority</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">gang</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">conformance</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">plugins:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">drf</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">predicates</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">proportion</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nodeorder</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">binpack</span></span><br><span class="line">        <span class="attr">arguments:</span></span><br><span class="line">          <span class="comment"># binpack 插件权重</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">binpack.weight:</span> <span class="number">10</span></span><br><span class="line">          <span class="comment"># cpu 资源权重</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">binpack.cpu:</span> <span class="number">1</span></span><br><span class="line">          <span class="comment"># memory 资源权重</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">binpack.memory:</span> <span class="number">1</span></span><br><span class="line">          <span class="comment"># gpu 等其他资源类型</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">binpack.resources:</span> <span class="string">nvidia.com/gpu</span></span><br><span class="line">          <span class="comment"># gpu 等其他资源权重配置</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">binpack.resources.nvidia.com/gpu:</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Volcano-Scheduler-日志"><a href="#Volcano-Scheduler-日志" class="headerlink" title="Volcano Scheduler 日志"></a>Volcano Scheduler 日志</h3><p><strong>Volcano Scheduler</strong> 中可以看到 <strong>binpack plugin</strong> 加载的配置文件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n volcano-system logs -f volcano-scheduler-566b6f749d-4wr6m</span><br><span class="line"></span><br><span class="line">I1208 07:27:43.875761       1 binpack.go:161] Leaving binpack plugin. binpack.weight[10], binpack.cpu[1], binpack.memory[1], nvidia.com/gpu[2] ...</span><br></pre></td></tr></table></figure>
 
     
 
@@ -1187,7 +1193,7 @@
 <p>该组件之前的名字是 nvidia-container-runtime-hook，现在系统上的 nvidia-container-runtime-hook 是 nvidia-container-toolkit 的符号链接。</p>
 <h4 id="nvidia-container-runtime"><a href="#nvidia-container-runtime" class="headerlink" title="nvidia-container-runtime"></a>nvidia-container-runtime</h4><p>曾经，nvidia-container-runtime 以 runC 作为基础，添加了 NVIDIA 特定的代码。2019 年，更改为对宿主机上原生 runC 做简单的封装。nvidia-container-runtime 将 runC spec 作为输入，将 nvidia-container-toolkit 脚本作为 prestart hook 注入到 runC spec 中。然后，将修改后的带有该 hook set 的 runC spec 传递给原生 runC 并调用 runC。需要注意的是，该组件不一定是针对 docker 的(但它是针对runC的)。</p>
 <p>当该 package 完成安装后，Docker 的 daemon.json 文件会被更新为指向这个二进制文件:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line"><span class="string">"default-runtime"</span>: <span class="string">"nvidia"</span>,</span><br><span class="line"><span class="string">"runtimes"</span>: &#123;</span><br><span class="line">    <span class="string">"nvidia"</span>: &#123;</span><br><span class="line">        <span class="string">"path"</span>: <span class="string">"/usr/bin/nvidia-container-runtime"</span>,</span><br><span class="line">        <span class="string">"runtimeArgs"</span>: []</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"exec-opts"</span>: [<span class="string">"native.cgroupdriver=systemd"</span>],</span><br><span class="line">  <span class="string">"default-runtime"</span>: <span class="string">"nvidia"</span>,</span><br><span class="line">  <span class="string">"runtimes"</span>: &#123;</span><br><span class="line">    <span class="string">"nvidia"</span>: &#123;</span><br><span class="line">        <span class="string">"path"</span>: <span class="string">"/usr/bin/nvidia-container-runtime"</span>,</span><br><span class="line">        <span class="string">"runtimeArgs"</span>: []</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="nvidia-docker2"><a href="#nvidia-docker2" class="headerlink" title="nvidia-docker2"></a>nvidia-docker2</h4><p>这个 package 是架构中唯一的 docker 专用包。它采用与 nvidia-container-runtime 相关的脚本，并将其安装到 docker 的 /etc/docker/daemon.json 文件中。这样，使用者就可以运行 <strong>docker run –runtime=nvidia …</strong> 来自动为容器添加对 GPU 的支持。这个 package 还安装了一个封装了原生 docker CLI 的脚本，名为 nvidia-docker，避免每次都指定 –runtime=nvidia 来调用 docker。它还允许用户在宿主机上设置环境变量 NV_GPU 来指定将哪些 GPU 注入到容器中。</p>
 <h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><h3 id="Pre-Requisites"><a href="#Pre-Requisites" class="headerlink" title="Pre-Requisites"></a>Pre-Requisites</h3><ul>
@@ -1411,15 +1417,15 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1451,10 +1457,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
               </li>
              
@@ -1467,31 +1469,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1511,11 +1497,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1535,6 +1521,26 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -1551,15 +1557,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1603,11 +1609,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
+                <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1619,15 +1625,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1636,6 +1638,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
              
               <li class="article-tag-list-item">

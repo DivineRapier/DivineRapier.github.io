@@ -2,14 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://divinerapier.github.io/2020/12/08/install-nvidia-driver-and-cuda/</loc>
+    <loc>http://divinerapier.github.io/2020/12/07/volcano-plugin-binpack/</loc>
     
     <lastmod>2020-12-08</lastmod>
     
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/2020/12/07/volcano-plugin-binpack/</loc>
+    <loc>http://divinerapier.github.io/2020/11/14/nvidia-docker/</loc>
+    
+    <lastmod>2020-12-08</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/12/08/install-nvidia-driver-and-cuda/</loc>
     
     <lastmod>2020-12-08</lastmod>
     
@@ -68,13 +75,6 @@
     <loc>http://divinerapier.github.io/2020/11/15/kubernetes-device-plugin/</loc>
     
     <lastmod>2020-11-15</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/14/nvidia-docker/</loc>
-    
-    <lastmod>2020-11-14</lastmod>
     
   </url>
   
@@ -382,13 +382,6 @@
 
   
   <url>
-    <loc>http://divinerapier.github.io/tags/gpu/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/linux/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
@@ -397,6 +390,13 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/hard-drive/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/gpu/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -452,13 +452,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/kubernetes/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/ubuntu/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
@@ -480,6 +473,13 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/kubernetes/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/I-O/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
@@ -488,41 +488,6 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/principles-of-i-o-hardware/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/hexo/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/rss/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/nvidia/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/cuda/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/parallel-programming/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -557,14 +522,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/nfs/</loc>
+    <loc>http://divinerapier.github.io/tags/hexo/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/filesystem/</loc>
+    <loc>http://divinerapier.github.io/tags/rss/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -599,6 +564,41 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/nfs/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/filesystem/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/nvidia/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/cuda/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/parallel-programming/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/controllers/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
@@ -627,6 +627,13 @@
   </url>
   
   <url>
+    <loc>http://divinerapier.github.io/tags/cpu-performance/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/tags/lsm-tree/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
@@ -635,13 +642,6 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/sstable/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/cpu-performance/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -718,14 +718,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/scheduling/</loc>
+    <loc>http://divinerapier.github.io/tags/rdma/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/rdma/</loc>
+    <loc>http://divinerapier.github.io/tags/scheduling/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -746,13 +746,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/volcano/</loc>
-    <lastmod>2020-12-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/kubeadm/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
@@ -760,7 +753,7 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/where-clause/</loc>
+    <loc>http://divinerapier.github.io/tags/volcano/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -775,6 +768,13 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/paas/</loc>
+    <lastmod>2020-12-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/where-clause/</loc>
     <lastmod>2020-12-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
