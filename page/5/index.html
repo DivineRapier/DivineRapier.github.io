@@ -170,6 +170,197 @@
             
 
   
+    <article id="post-load-average" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/22/load-average/" target="_blank">CPU 平均工作负载</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/22/load-average/" class="archive-article-date">
+        <time datetime="2020-08-22T14:48:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-22</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>当程序的性能未达到预期时，大多数开发者会选择使用 <code>top</code> 指令查看指标 <code>CPU</code> 使用率。其实，还有另一个有关 <code>CPU</code> 的重要指标: 平均负责 <code>(load average)</code>。</p>
+<p>可以使用 <code>top</code> 指令，或者 <code>uptime</code> 指令查看:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$top</span></span><br><span class="line"></span><br><span class="line">top - 23:11:02 up 19 days, 12:05,  1 user,  load average: 1.25, 1.42, 1.29</span><br><span class="line">Tasks: 258 total,   2 running, 197 sleeping,   0 stopped,   0 zombie</span><br><span class="line">%Cpu(s):  9.1 us,  6.8 sy,  0.3 ni, 78.1 id,  5.2 wa,  0.0 hi,  0.5 si,  0.0 st</span><br><span class="line">KiB Mem : 15871204 total,   508880 free,  1675924 used, 13686400 buff/cache</span><br><span class="line">KiB Swap:  2097148 total,  2096112 free,     1036 used. 14133480 avail Mem</span><br><span class="line"></span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND</span><br><span class="line"> 4812 root      20   0  271208 155208  36668 S  14.6  1.0   1078:57 rancher</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ uptime</span><br><span class="line"> 23:10:12 up 19 days, 12:05,  1 user,  load average: 1.65, 1.50, 1.31</span><br></pre></td></tr></table></figure>
+
+<p>可以发现，<code>uptime</code> 指令的输出与 <code>top</code> 指令输出的第一行几乎一致。具体每一部分的含义为:</p>
+<ul>
+<li><strong>当前时间</strong>: 23:10:12</li>
+<li><strong>运行时间</strong>: up 19 days, 12:05</li>
+<li><strong>登录用户数量</strong>: 1 user</li>
+<li><strong>平均负载</strong>: 过去 <strong>1min</strong>，<strong>3min</strong>，<strong>5min</strong> 的平均负载</li>
+</ul>
+<h2 id="什么是平均负载"><a href="#什么是平均负载" class="headerlink" title="什么是平均负载"></a>什么是平均负载</h2><p>首先，需要强调:</p>
+<ul>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+<li><strong>平均负载不等于 <code>CPU</code> 使用率！！！</strong></li>
+</ul>
+<p>而是，系统处于 <strong>可运行状态</strong> 和 <strong>不可中断状态</strong> 的平均进程数，即 <strong>平均活跃进程数</strong>。与 <code>CPU</code> 使用率没有直接关系。</p>
+<ul>
+<li><strong>可运行状态</strong>: 正在使用 <code>CPU</code> 或者正在等待 <code>CPU</code> 的进程。即 <code>ps</code> 指令显示为 <code>R</code> 状态 <code>(Running/Runable)</code> 的进程。</li>
+<li><strong>不可中断状态</strong>: 处于内核态关键流程中的进程，且不可打断。比如最常见的是等待硬件设备的 <code>I/O</code> 响应，即 <code>ps</code> 指令中中看到的 <code>D</code> 状态 <code>(Uninterruptible Sleep/Disk Sleep)</code> 的进程。</li>
+</ul>
+<p>比如，当一个进程向磁盘读写数据时，为了保证数据的一致性，在得到磁盘回复前，它是不能被其他 <strong>进程</strong> 或者 <strong>中断</strong> 打断的，这个时候的进程就处于不可中断状态。如果此时的进程被打断了，就容易出现磁盘数据与进程数据不一致的问题。</p>
+<p>所以，<strong>不可中断状态实际上是系统对进程和硬件设备的一种保护机制</strong>。</p>
+<h2 id="评估平均负载"><a href="#评估平均负载" class="headerlink" title="评估平均负载"></a>评估平均负载</h2><p>可以简单的认为，平均负载就是活跃的进程数。所以，最理想的场景是每个 <code>CPU</code> 都只需要处理一个进程，即 <code>CPU</code> 数量等于平均负载值。</p>
+<p>因此，在分析系统平均负载是否合理时，首先应该知道当前系统的 <code>CPU</code> 数量。</p>
+<p>平均负载可以简单的认为是活跃进程数:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat /proc/cpuinfo | grep -i <span class="string">'model name'</span> | wc -l</span><br><span class="line">16</span><br></pre></td></tr></table></figure>
+
+<p>之后，就可以通过比较 <code>CPU</code> 的数量与平均负载大小关系，确认系统是否过载。</p>
+<p>同时，结合过去 <code>1min</code>，<code>5min</code>，<code>15min</code> 的系统负载，就可以推测出系统负载的变化趋势。</p>
+<p>当平均负载超过 <code>CPU</code> <code>50%</code> 时，可以认为负载较高；当超过 <code>70%</code> 时，就应该开发分析导致高负载的原因。同时，也应该将平均负载作为一项监控指标。只有结合历史数据来分析才更有意义。</p>
+<h2 id="平均负载与-CPU-使用率"><a href="#平均负载与-CPU-使用率" class="headerlink" title="平均负载与 CPU 使用率"></a>平均负载与 CPU 使用率</h2><p><strong>平均负载</strong> 表示为一定时间内，处于 <strong>可运行状态</strong> 和 <strong>不可中断状态</strong> 的进程数量。核心在于 <strong>进程数量</strong>。</p>
+<ul>
+<li><code>R</code> 状态: 运行状态，会使用到 <code>CPU</code></li>
+<li><code>D</code> 状态: 不可中断状态，处于内核态等待 <code>I/O</code> 响应，不使用 <code>CPU</code>。</li>
+</ul>
+<p><strong><code>CPU</code> 使用率</strong> 表示为一定时间内 <code>CPU</code> 的繁忙情况。核心在于进程占用 <code>CPU</code> 的时间占总时间的百分比。</p>
+<p>因此，应该将二者结合一起使用:</p>
+<ul>
+<li><code>CPU</code> 密集型进程，使用大量 <code>CPU</code> 会导致平均负载升高，此时这两者是一致的</li>
+<li><code>I/O</code> 密集型进程，等待 <code>I/O</code> 会导致平均负载升高，但 <code>CPU</code> 使用率不一定很高</li>
+<li>大量等待 <code>CPU</code> 的进程调度也会导致平均负载升高，此时的 <code>CPU</code> 使用率也会比较高。</li>
+</ul>
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><p>系统初始状态为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ uptime</span><br><span class="line"> 16:39:57 up 1 day,  2:52,  0 users,  load average: 0.10, 0.05, 0.06</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装工具"><a href="#安装工具" class="headerlink" title="安装工具"></a>安装工具</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pacman -S stress sysstat</span><br></pre></td></tr></table></figure>
+
+<h3 id="CPU-密集型"><a href="#CPU-密集型" class="headerlink" title="CPU 密集型"></a>CPU 密集型</h3><p>首先，在 <code>Terminal No.1</code> 使用 <code>stress</code> 模拟一个 <code>CPU</code> 密集型进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ stress --cpu 1 --timeout 6000</span><br><span class="line">stress: info: [5049] dispatching hogs: 1 cpu, 0 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>然后，在 <code>Terminal No.2</code> 查看平均负载:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ watch -d uptime</span><br><span class="line">Every 2.0s: uptime                zephyrus: Sun Aug 23 16:44:30 2020</span><br><span class="line"></span><br><span class="line"> 16:44:30 up 1 day,  2:56,  0 users,  load average: 0.99, 0.62, 0.30</span><br></pre></td></tr></table></figure>
+
+<p>可以观察到，<code>1min</code> 的平均负载有较大的变化。</p>
+<p>接着，在 <code>Terminal No.3</code> 监控 <code>CPU</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ mpstat -P ALL 5</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">04:44:59 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle</span><br><span class="line">04:45:04 PM  all    6.29    0.00    0.06    0.00    0.00    0.08    0.00    0.00    0.00   93.57</span><br><span class="line">04:45:04 PM    0    0.00    0.00    0.00    0.00    0.00    1.19    0.00    0.00    0.00   98.81</span><br><span class="line">04:45:04 PM    1  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">04:45:04 PM    2    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM    3    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM    4    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM    5    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM    6    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM    7    0.40    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">04:45:04 PM    8    0.00    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">04:45:04 PM    9    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   10    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM   11    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   12    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">04:45:04 PM   13    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   14    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">04:45:04 PM   15    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br></pre></td></tr></table></figure>
+
+<p><code>#1 CPU</code> 的 <code>%usr</code> 使用率为 <code>100。00</code>，而 <code>%sys</code> 与 <code>%iowait</code> 都是 <code>0.00</code>，说明 <code>#1 CPU</code> 正在处理 <code>CPU</code> 密集型的任务。</p>
+<p>最后，在 <code>Terminal No.4</code> 中查找占用 <code>CPU</code> 的进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ pidstat -u 5 1</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">04:46:58 PM   UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">04:47:03 PM   977      5050  100.00    0.00    0.00    0.00  100.00     1  stress</span><br><span class="line">04:47:03 PM   977      5054    0.00    0.20    0.00    0.00    0.20     4  watch</span><br><span class="line"></span><br><span class="line">Average:      UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">Average:      977      5050  100.00    0.00    0.00    0.00  100.00     -  stress</span><br><span class="line">Average:      977      5054    0.00    0.20    0.00    0.00    0.20     -  watch</span><br></pre></td></tr></table></figure>
+
+<p>确认 <code>pid=5050</code> 的 <code>stress</code> 进程占用了 <code>100%</code> 的 <code>CPU</code>。</p>
+<h3 id="I-O-密集型"><a href="#I-O-密集型" class="headerlink" title="I/O 密集型"></a>I/O 密集型</h3><p>等待一段时间，平均负载恢复正常之后。</p>
+<p>首先，在 <code>Terminal No.1</code> 使用 <code>stress</code> 模拟一个 <code>I/O</code> 密集型进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ stress -i 1</span><br><span class="line">stress: info: [7126] dispatching hogs: 0 cpu, 1 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>然后，在 <code>Terminal No.2</code> 查看平均负载:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ watch -d uptime</span><br><span class="line">Every 2.0s: uptime                zephyrus: Sun Aug 23 17:11:31 2020</span><br><span class="line"></span><br><span class="line"> 17:11:31 up 1 day,  3:23,  0 users,  load average: 0.98, 0.60, 0.54</span><br></pre></td></tr></table></figure>
+
+<p><code>1min</code> 的平均负载有所增加。</p>
+<p>接着，在 <code>Terminal No.3</code> 监控 <code>CPU</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ mpstat -P ALL 5</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:11:53 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle</span><br><span class="line">05:11:58 PM  all    0.09    0.00    0.64    0.01    0.00    0.05    0.00    0.00    0.00   99.21</span><br><span class="line">05:11:58 PM    0    0.00    0.00    0.20    0.00    0.00    0.20    0.00    0.00    0.00   99.59</span><br><span class="line">05:11:58 PM    1    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM    2    0.20    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">05:11:58 PM    3    0.00    0.00    6.76    0.20    0.00    0.00    0.00    0.00    0.00   93.04</span><br><span class="line">05:11:58 PM    4    0.00    0.00    0.43    0.00    0.00    0.65    0.00    0.00    0.00   98.92</span><br><span class="line">05:11:58 PM    5    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">05:11:58 PM    6    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM    7    1.00    0.00    1.40    0.00    0.00    0.00    0.00    0.00    0.00   97.60</span><br><span class="line">05:11:58 PM    8    0.00    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00   99.60</span><br><span class="line">05:11:58 PM    9    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   10    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   11    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   12    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   13    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00</span><br><span class="line">05:11:58 PM   14    0.00    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00   99.80</span><br><span class="line">05:11:58 PM   15    0.20    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00   99.40</span><br></pre></td></tr></table></figure>
+
+<p>很遗憾，相比于 <code>CPU</code> 密集型的测试，<code>I/O</code> 本次测试的 <code>CPU</code> 变化不是特别明显。不过，还是可以发现 <code>#3 CPU</code> 的数据与其他 <code>CPU</code> 有一定的差别。</p>
+<ol>
+<li><code>%idle</code> 为 <code>93.04</code>，而其他的 <code>CPU</code> 该项数值均处于较高的水平</li>
+<li><code>%sys</code> 为 <code>6.76</code>，远高于其他 <code>CPU</code></li>
+<li><code>%iowait</code> 为 <code>0.20</code>，相对于其他 <code>CPU</code> 最高只有 <code>0.01</code>，可谓是高出了 <code>2000%</code></li>
+</ol>
+<p>最后，使用 <code>pidstat</code> 查找具体进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ pidstat -u 5 1</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:13:36 PM   UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">05:13:41 PM   977      3196    0.20    0.00    0.00    0.00    0.20     7  node</span><br><span class="line">05:13:41 PM   977      7127    0.00   15.00    0.00    0.20   15.00     3  stress</span><br><span class="line"></span><br><span class="line">Average:      UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">Average:      977      3196    0.20    0.00    0.00    0.00    0.20     -  node</span><br><span class="line">Average:      977      7127    0.00   15.00    0.00    0.20   15.00     -  stress</span><br></pre></td></tr></table></figure>
+
+<p>发现 <code>stress</code> 进程的指标为 <code>%system = 15.00</code>，<code>%wait = 0.20</code>，<code>%CPU = 15.00</code>。</p>
+<h3 id="大量进程"><a href="#大量进程" class="headerlink" title="大量进程"></a>大量进程</h3><p>因为，测试机有 16 个 <code>CPU</code> 核心，所以，在 <code>Terminal 1</code> 上模拟 <code>64</code> 个进程:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ stress -c 64 --timeout 6000</span><br><span class="line">stress: info: [7847] dispatching hogs: 64 cpu, 0 io, 0 vm, 0 hdd</span><br></pre></td></tr></table></figure>
+
+<p>然后，在 <code>Terminal 2</code> 上查看平均负载:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ watch -d uptime</span><br><span class="line">Every 2.0s: uptime                      zephyrus: Sun Aug 23 17:32:28 2020</span><br><span class="line"></span><br><span class="line"> 17:32:28 up 1 day,  3:44,  0 users,  load average: 62.89, 35.44, 14.80</span><br></pre></td></tr></table></figure>
+
+<p>接着，在 <code>Terminal 3</code> 查看 <code>CPU</code> 的状态:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ mpstat -P ALL 5</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:31:42 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle</span><br><span class="line">05:31:47 PM  all   99.92    0.00    0.07    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    0   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    1  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    2  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    3   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    4  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    5  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    6   99.60    0.00    0.40    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    7  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    8  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM    9  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   10  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   11  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   12   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   13  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   14   99.80    0.00    0.20    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br><span class="line">05:31:47 PM   15  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00</span><br></pre></td></tr></table></figure>
+
+<p>所有的 <code>CPU</code> 都处于满负载工作状态，除了 <code>%usr</code> 之外，只有 <code>%sys</code> 有少量数值。</p>
+<p>最后，在 <code>Terminal 4</code> 查看进程状态:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line">$ pidstat -u 5 1</span><br><span class="line">Linux 4.19.104-microsoft-standard (zephyrus)    08/23/2020      _x86_64_        (16 CPU)</span><br><span class="line"></span><br><span class="line">05:33:00 PM   UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">05:33:05 PM   977      7848   25.00    0.00    0.00   75.00   25.00     4  stress</span><br><span class="line">05:33:05 PM   977      7849   25.00    0.00    0.00   74.60   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7850   25.00    0.00    0.00   74.40   25.00     9  stress</span><br><span class="line">05:33:05 PM   977      7851   25.00    0.00    0.00   75.00   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7852   25.00    0.00    0.00   75.20   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7853   24.80    0.00    0.00   75.20   24.80     6  stress</span><br><span class="line">05:33:05 PM   977      7854   24.80    0.20    0.00   75.40   25.00     0  stress</span><br><span class="line">05:33:05 PM   977      7855   25.00    0.00    0.00   74.80   25.00     4  stress</span><br><span class="line">05:33:05 PM   977      7856   25.00    0.00    0.00   75.20   25.00     6  stress</span><br><span class="line">05:33:05 PM   977      7857   25.20    0.00    0.00   75.20   25.20     9  stress</span><br><span class="line">05:33:05 PM   977      7858   25.00    0.00    0.00   75.00   25.00    10  stress</span><br><span class="line">05:33:05 PM   977      7859   25.00    0.00    0.00   75.00   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7860   25.00    0.00    0.00   75.00   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7861   25.00    0.00    0.00   75.00   25.00     1  stress</span><br><span class="line">05:33:05 PM   977      7863   25.00    0.00    0.00   75.00   25.00     5  stress</span><br><span class="line">05:33:05 PM   977      7864   25.00    0.00    0.00   75.40   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7865   25.00    0.00    0.00   75.00   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7866   25.00    0.00    0.00   75.00   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7867   24.80    0.00    0.00   75.00   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7868   24.80    0.00    0.00   75.00   24.80    14  stress</span><br><span class="line">05:33:05 PM   977      7869   25.00    0.00    0.00   74.80   25.00     0  stress</span><br><span class="line">05:33:05 PM   977      7870   25.00    0.00    0.00   75.00   25.00     5  stress</span><br><span class="line">05:33:05 PM   977      7871   25.00    0.00    0.00   74.40   25.00     6  stress</span><br><span class="line">05:33:05 PM   977      7872   25.00    0.00    0.00   75.20   25.00     9  stress</span><br><span class="line">05:33:05 PM   977      7873   24.80    0.00    0.00   75.40   24.80    10  stress</span><br><span class="line">05:33:05 PM   977      7874   25.00    0.00    0.00   75.40   25.00    12  stress</span><br><span class="line">05:33:05 PM   977      7875   25.00    0.00    0.00   75.00   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7876   25.00    0.00    0.00   75.00   25.00     1  stress</span><br><span class="line">05:33:05 PM   977      7877   24.60    0.20    0.00   75.00   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7878   25.00    0.00    0.00   75.40   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7879   24.80    0.00    0.00   75.60   24.80     8  stress</span><br><span class="line">05:33:05 PM   977      7880   25.00    0.00    0.00   75.00   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7881   25.00    0.00    0.00   75.00   25.00    12  stress</span><br><span class="line">05:33:05 PM   977      7882   25.00    0.00    0.00   75.80   25.00    14  stress</span><br><span class="line">05:33:05 PM   977      7883   25.20    0.00    0.00   74.80   25.20     1  stress</span><br><span class="line">05:33:05 PM   977      7884   25.00    0.00    0.00   75.00   25.00     4  stress</span><br><span class="line">05:33:05 PM   977      7885   25.00    0.00    0.00   75.20   25.00     6  stress</span><br><span class="line">05:33:05 PM   977      7886   25.00    0.00    0.00   74.80   25.00     8  stress</span><br><span class="line">05:33:05 PM   977      7887   25.00    0.00    0.00   75.40   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7888   25.20    0.00    0.00   74.80   25.20    12  stress</span><br><span class="line">05:33:05 PM   977      7889   24.80    0.00    0.00   75.20   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7890   24.80    0.00    0.00   75.20   24.80     0  stress</span><br><span class="line">05:33:05 PM   977      7891   25.00    0.00    0.00   74.80   25.00     5  stress</span><br><span class="line">05:33:05 PM   977      7892   25.00    0.00    0.00   75.40   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7893   25.00    0.00    0.00   74.80   25.00     8  stress</span><br><span class="line">05:33:05 PM   977      7894   25.20    0.00    0.00   74.60   25.20    10  stress</span><br><span class="line">05:33:05 PM   977      7895   25.00    0.00    0.00   75.20   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7896   25.00    0.00    0.00   75.00   25.00    14  stress</span><br><span class="line">05:33:05 PM   977      7897   24.80    0.00    0.00   75.60   24.80     2  stress</span><br><span class="line">05:33:05 PM   977      7898   25.00    0.00    0.00   74.80   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7899   24.80    0.00    0.00   75.20   24.80     8  stress</span><br><span class="line">05:33:05 PM   977      7900   25.00    0.00    0.00   74.80   25.00    10  stress</span><br><span class="line">05:33:05 PM   977      7901   25.00    0.00    0.00   74.80   25.00    13  stress</span><br><span class="line">05:33:05 PM   977      7902   24.80    0.00    0.00   74.80   24.80    14  stress</span><br><span class="line">05:33:05 PM   977      7903   24.80    0.00    0.00   75.20   24.80     1  stress</span><br><span class="line">05:33:05 PM   977      7904   25.00    0.00    0.00   74.80   25.00     3  stress</span><br><span class="line">05:33:05 PM   977      7905   24.80    0.00    0.00   75.00   24.80     4  stress</span><br><span class="line">05:33:05 PM   977      7906   25.00    0.00    0.00   75.00   25.00     7  stress</span><br><span class="line">05:33:05 PM   977      7907   24.80    0.00    0.00   75.00   24.80     9  stress</span><br><span class="line">05:33:05 PM   977      7908   25.00    0.00    0.00   74.40   25.00    11  stress</span><br><span class="line">05:33:05 PM   977      7909   25.00    0.00    0.00   75.20   25.00    12  stress</span><br><span class="line">05:33:05 PM   977      7910   25.00    0.00    0.00   75.00   25.00    15  stress</span><br><span class="line">05:33:05 PM   977      7911   25.00    0.00    0.00   74.80   25.00     0  stress</span><br><span class="line">05:33:05 PM   977      7912   25.00    0.00    0.00   75.20   25.00     5  stress</span><br><span class="line"></span><br><span class="line">Average:      UID       PID    %usr %system  %guest   %<span class="built_in">wait</span>    %CPU   CPU  Command</span><br><span class="line">Average:      977      7848   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7849   25.00    0.00    0.00   74.60   25.00     -  stress</span><br><span class="line">Average:      977      7850   25.00    0.00    0.00   74.40   25.00     -  stress</span><br><span class="line">Average:      977      7851   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7852   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7853   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7854   24.80    0.20    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7855   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7856   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7857   25.20    0.00    0.00   75.20   25.20     -  stress</span><br><span class="line">Average:      977      7858   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7859   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7860   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7861   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7863   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7864   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7865   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7866   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7867   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7868   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7869   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7870   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7871   25.00    0.00    0.00   74.40   25.00     -  stress</span><br><span class="line">Average:      977      7872   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7873   24.80    0.00    0.00   75.40   24.80     -  stress</span><br><span class="line">Average:      977      7874   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7875   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7876   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7877   24.60    0.20    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7878   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7879   24.80    0.00    0.00   75.60   24.80     -  stress</span><br><span class="line">Average:      977      7880   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7881   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7882   25.00    0.00    0.00   75.80   25.00     -  stress</span><br><span class="line">Average:      977      7883   25.20    0.00    0.00   74.80   25.20     -  stress</span><br><span class="line">Average:      977      7884   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7885   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7886   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7887   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7888   25.20    0.00    0.00   74.80   25.20     -  stress</span><br><span class="line">Average:      977      7889   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7890   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7891   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7892   25.00    0.00    0.00   75.40   25.00     -  stress</span><br><span class="line">Average:      977      7893   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7894   25.20    0.00    0.00   74.60   25.20     -  stress</span><br><span class="line">Average:      977      7895   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7896   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7897   24.80    0.00    0.00   75.60   24.80     -  stress</span><br><span class="line">Average:      977      7898   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7899   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7900   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7901   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7902   24.80    0.00    0.00   74.80   24.80     -  stress</span><br><span class="line">Average:      977      7903   24.80    0.00    0.00   75.20   24.80     -  stress</span><br><span class="line">Average:      977      7904   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7905   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7906   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7907   24.80    0.00    0.00   75.00   24.80     -  stress</span><br><span class="line">Average:      977      7908   25.00    0.00    0.00   74.40   25.00     -  stress</span><br><span class="line">Average:      977      7909   25.00    0.00    0.00   75.20   25.00     -  stress</span><br><span class="line">Average:      977      7910   25.00    0.00    0.00   75.00   25.00     -  stress</span><br><span class="line">Average:      977      7911   25.00    0.00    0.00   74.80   25.00     -  stress</span><br><span class="line">Average:      977      7912   25.00    0.00    0.00   75.20   25.00     -  stress</span><br></pre></td></tr></table></figure>
+
+<p>64 个进程，基本都占用了 <code>25%</code> 的 <code>CPU</code> 使用率。与设想中的一致，每个 <code>CPU</code> 核心要服务于 4 个进程。</p>
+<h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><p><a href="https://jingwei.link/2018/12/23/linux-cpu-load-d-process.html" target="_blank" rel="noopener">Linux的CPU-Load虚高之进程的D状态</a><br><a href="https://www.cnblogs.com/gatsby123/p/11127158.html" target="_blank" rel="noopener">CPU使用率原理及计算方式</a><br><a href="https://www.cnblogs.com/xiaotengyi/p/7644336.html" target="_blank" rel="noopener">Linux 进程的 Uninterruptible sleep(D) 状态</a><br><a href="https://blog.csdn.net/wudebao5220150/article/details/12919453" target="_blank" rel="noopener">Linux进程状态解析</a></p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">linux performance</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">cpu performance</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/22/load-average/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-linux-performance-guide" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1507,105 +1698,6 @@
 
 
   
-    <article id="post-optimizing-sql-statements" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/07/28/optimizing-sql-statements/" target="_blank">优化SQL语句</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/07/28/optimizing-sql-statements/" class="archive-article-date">
-        <time datetime="2020-07-28T11:41:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-28</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <ol>
-<li>Optimizing SELECT Statements</li>
-<li>Optimizing Subqueries, Derived Tables, View References, and Common Table Expressions</li>
-<li>Optimizing INFORMATION_SCHEMA Queries</li>
-<li>Optimizing Performance Schema Queries</li>
-<li>Optimizing Data Change Statements</li>
-<li>Optimizing Database Privileges</li>
-<li>Other Optimization Tips</li>
-</ol>
-<p>数据库应用程序的核心逻辑是通过 <code>SQL</code> 语句执行的，无论这些 <code>SQL</code> 语句是通过解释程序直接发出还是通过调用 <code>API</code> 提交。之后提到的调整准则有助于加快各种使用到 <code>MySQL</code> 应用程序的速度。指南涵盖了读写数据的 <code>SQL</code> 操作，通用 <code>SQL</code> 操作的底层开销以及在特定方案（例如数据库监视）中使用的操作。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/07/28/optimizing-sql-statements/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/4/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/">Next &amp;raquo;</a>
@@ -1739,6 +1831,14 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1747,7 +1847,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1767,26 +1875,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">networks</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
@@ -1795,11 +1883,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+                <a href="javascript:void(0)" class="js-tag color4">networks</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1827,19 +1915,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">tls</a>
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">https</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1863,6 +1943,22 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">tls</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -1871,11 +1967,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1891,19 +1987,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1947,11 +2043,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-12-08T04:33:22.970Z</updated>
+  <updated>2020-12-16T07:01:41.168Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>在 Archlinux 使用 diff cmp</title>
+    <link href="http://divinerapier.github.io/2020/12/16/archlinux-diffutils/"/>
+    <id>http://divinerapier.github.io/2020/12/16/archlinux-diffutils/</id>
+    <published>2020-12-16T06:59:09.000Z</published>
+    <updated>2020-12-16T07:01:41.168Z</updated>
+    
+    <content type="html"><![CDATA[<p>在 <a href="https://github.com/kubernetes/kubernetes" target="_blank" rel="noopener">kubernetes</a> 仓库中的脚本依赖于 <code>cmp &amp; diff</code> 命令。</p><p>这些命令在 <a href="https://www.archlinux.org/packages/core/x86_64/diffutils/files/" target="_blank" rel="noopener">diffutils</a> 中。</p><p>使用如下方式安装:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pacman -S diffutils</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;在 &lt;a href=&quot;https://github.com/kubernetes/kubernetes&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;kubernetes&lt;/a&gt; 仓库中的脚本依赖于 &lt;code&gt;cmp &amp;amp; diff&lt;/code&gt; </summary>
+      
+    
+    
+    
+    
+    <category term="archlinux" scheme="http://divinerapier.github.io/tags/archlinux/"/>
+    
+  </entry>
   
   <entry>
     <title>安装 NVIDIA Driver 和 CUDA</title>
@@ -469,31 +491,6 @@
     <category term="kubernetes" scheme="http://divinerapier.github.io/tags/kubernetes/"/>
     
     <category term="kubeadm" scheme="http://divinerapier.github.io/tags/kubeadm/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Ubuntu 20.04 配置静态网络</title>
-    <link href="http://divinerapier.github.io/2020/10/19/configure-networks-on-ubuntu-20-04/"/>
-    <id>http://divinerapier.github.io/2020/10/19/configure-networks-on-ubuntu-20-04/</id>
-    <published>2020-10-19T10:55:44.000Z</published>
-    <updated>2020-10-19T11:56:03.548Z</updated>
-    
-    <content type="html"><![CDATA[<p><strong>Ubuntu 20.04</strong> 的网络配置文件位于 <strong>/etc/netplan/00-installer-config.yaml</strong>:</p><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This is the network config written by 'subiquity'</span></span><br><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">ens33:</span></span><br><span class="line">      <span class="attr">dhcp4:</span> <span class="literal">false</span></span><br><span class="line">      <span class="attr">addresses:</span> <span class="string">[192.168.50.30/24]</span></span><br><span class="line">      <span class="attr">gateway4:</span> <span class="number">192.168</span><span class="number">.50</span><span class="number">.1</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span> <span class="string">[192.168.50.1,</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span><span class="string">]</span></span><br></pre></td></tr></table></figure><p>更新配置:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu-00:~<span class="comment"># netplan --debug apply</span></span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.734: Processing input file /etc/netplan/00-installer-config.yaml..</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.734: starting new processing pass</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.735: We have some netdefs, pass them through a final round of validation</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.735: ens33: setting default backend to 1</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.735: Configuration is valid</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.736: Generating output files..</span><br><span class="line">** (generate:3768): DEBUG: 11:49:11.736: NetworkManager: definition ens33 is not <span class="keyword">for</span> us (backend 1)</span><br><span class="line">(generate:3768): GLib-DEBUG: 11:49:11.736: posix_spawn avoided (fd close requested)</span><br><span class="line">DEBUG:netplan generated networkd configuration changed, restarting networkd</span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;&lt;strong&gt;Ubuntu 20.04&lt;/strong&gt; 的网络配置文件位于 &lt;strong&gt;/etc/netplan/00-installer-config.yaml&lt;/strong&gt;:&lt;/p&gt;
-&lt;figure class=&quot;highlight yaml&quot;&gt;&lt;table</summary>
-      
-    
-    
-    
-    
-    <category term="ubuntu" scheme="http://divinerapier.github.io/tags/ubuntu/"/>
-    
-    <category term="networks" scheme="http://divinerapier.github.io/tags/networks/"/>
     
   </entry>
   
