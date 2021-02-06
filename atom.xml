@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2020-12-31T03:06:25.302Z</updated>
+  <updated>2021-02-06T06:03:38.136Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>代码质量衡量标准</title>
+    <link href="http://divinerapier.github.io/2021/02/06/the-code-quality-metrics/"/>
+    <id>http://divinerapier.github.io/2021/02/06/the-code-quality-metrics/</id>
+    <published>2021-02-06T04:51:33.000Z</published>
+    <updated>2021-02-06T06:03:38.136Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="可维护性-maintainability"><a href="#可维护性-maintainability" class="headerlink" title="可维护性 (maintainability)"></a>可维护性 (maintainability)</h2><p>常见的代码维护工作，大体上包括: 修复 Bug，修改已有的代码，添加新的代码。可维护性就是用来衡量上述工作的难度。</p><p>显而易见地，修改配置的难度小于修改编译参数，小于增加代码，小于改动已有代码。改动一处代码的难度小于改动多出代码，更小于改动不知道多少处代码。</p><p>易于维护就要求，在不破坏原有代码设计、引入新 Bug 低风险的情况下，能够快速修改或者添加代码。反之，则是不易于维护。</p><p>易于维护代码应该在兼具 <strong>可读性</strong> 的前提下，具有良好的模块化设计，做到高内聚低耦合，遵从面向接口而非实现的程序设计原则。</p><p>但是，可维护性是一个偏主观的衡量标准。一段代码的可维护性依赖于代码量、业务复杂度、知识背景、文档完善度还有开发开发者水平等诸多方面的因素。</p><p>同一段代码对于不同的开发者会具有不同的可维护性。</p><h2 id="可读性-readability"><a href="#可读性-readability" class="headerlink" title="可读性 (readability)"></a>可读性 (readability)</h2><blockquote><p>Martin Fowler:”Any fool ccan write code that a computer can understand. Good programmers write code that humans can understand.”</p></blockquote><p>代码被阅读的次数远超过被编写的次数，无论是学习编程、修改代码、添加代码还是进行 Code Review 时，都需要对代码进行阅读。</p><p>很多人都听说过 <strong>可读性</strong>，知道 <strong>可读性</strong> 很重要，但却并不重视。在实际写代码的时候，会为了 <strong>编写上舒服</strong>，为了 <strong>自以为的高效</strong>，为了 <strong>炫技</strong> 或者是其他什么原因，写出让其他人难以理解，甚至无法理解的代码。更有甚者，<strong>看不懂若干月之前自己写的代码</strong>。</p><p>个人认为，可读性应被看做最重要的衡量标准。因为，无论是修复 Bug 还是开发新功能，只有先读懂代码，才能得到自己需要的信息去完成接下来的工作。若是读都读不懂，那么轻则工作效率事倍功半，加班成为常态；重则引入 Bug 影响绩效。</p><p>衡量可读性可以从编码规范、命名、函数长度、模块划分、注释等方面切入。</p><p>检测可读性可以通过 Code Review，如果同事读你的代码有很多疑问就表示需要提高可读性了。</p><h2 id="可扩展性-extensibility"><a href="#可扩展性-extensibility" class="headerlink" title="可扩展性 (extensibility)"></a>可扩展性 (extensibility)</h2><p>代码的可扩展性表示代码应对未来需求变化的能力。</p><p>在添加新功能时，扩展性的高低反比与对已有代码修改的数量。修改的内容越少，则表示扩展性越好。如果能做到只通过扩展的方式添加新代码，而无需修改已有代码时，则表示代码具有非常好的可扩展性。</p><h2 id="灵活性-flexibility"><a href="#灵活性-flexibility" class="headerlink" title="灵活性 (flexibility)"></a>灵活性 (flexibility)</h2><p>灵活性也是一个比较主观的衡量标准。例如:</p><ul><li>代码具有非常好的可扩展性</li><li>底层模块抽象度高，封装良好，已于复用代码</li><li>接口可以应对各种使用场景，满足各种不同的需求</li></ul><h2 id="简洁性-simplicity"><a href="#简洁性-simplicity" class="headerlink" title="简洁性 (simplicity)"></a>简洁性 (simplicity)</h2><blockquote><p>KISS 原则: Kepp It Simple, Stupid.</p></blockquote><p>保持代码简单、结构简洁、逻辑清晰。因为，越简单的代码，越易于理解。避免在代码中引入不必要的设计模式，或其他炫技的写法。</p><h2 id="可复用性-reusability"><a href="#可复用性-reusability" class="headerlink" title="可复用性 (reusability)"></a>可复用性 (reusability)</h2><p>大部分开发者一定听过可复用性，也一定听过 <strong>Don’t Repeat Yourself</strong>，也明白同样的代码只写一次，但却很少有人能真正做到，或者说是不知道如何做:</p><ul><li>面向对象的封装、继承、多态</li><li>单一职责原则</li><li>解耦，高内聚低耦合</li></ul><h2 id="可测试性-testability"><a href="#可测试性-testability" class="headerlink" title="可测试性 (testability)"></a>可测试性 (testability)</h2><p>编写已于单元测试的代码。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;可维护性-maintainability&quot;&gt;&lt;a href=&quot;#可维护性-maintainability&quot; class=&quot;headerlink&quot; title=&quot;可维护性 (maintainability)&quot;&gt;&lt;/a&gt;可维护性 (maintainability)&lt;/</summary>
+      
+    
+    
+    
+    
+    <category term="programming" scheme="http://divinerapier.github.io/tags/programming/"/>
+    
+  </entry>
   
   <entry>
     <title>删除已合并的分支</title>
@@ -463,31 +485,6 @@
     
     
     
-    
-  </entry>
-  
-  <entry>
-    <title>升级 Ubuntu 发行版</title>
-    <link href="http://divinerapier.github.io/2020/10/20/upgrade-ubuntu-release/"/>
-    <id>http://divinerapier.github.io/2020/10/20/upgrade-ubuntu-release/</id>
-    <published>2020-10-20T08:05:06.000Z</published>
-    <updated>2020-10-20T08:15:06.347Z</updated>
-    
-    <content type="html"><![CDATA[<p><strong>Install all available updates for your release before upgrading.</strong></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update &amp;&amp; sudo apt upgrade -y</span><br></pre></td></tr></table></figure><p><strong>Reboot system.</strong></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo reboot</span><br></pre></td></tr></table></figure><p><strong>Install the Ubuntu update tool.</strong></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y update-manager-core</span><br></pre></td></tr></table></figure><p><strong>Start the upgrade procdure.</strong></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="keyword">do</span>-release-upgrade</span><br></pre></td></tr></table></figure><p>不建议升级过程通过 <strong>ssh</strong> 连接运行，可以运行在 <strong>tmux</strong> 会话中。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="keyword">do</span>-release-upgrade</span><br><span class="line">Checking <span class="keyword">for</span> a new Ubuntu release</span><br><span class="line">Get:1 Upgrade tool signature [1,554 B]</span><br><span class="line">Get:2 Upgrade tool [1,336 kB]</span><br><span class="line">Fetched 1,338 kB <span class="keyword">in</span> 0s (0 B/s)</span><br><span class="line">authenticate <span class="string">'focal.tar.gz'</span> against <span class="string">'focal.tar.gz.gpg'</span></span><br><span class="line">extracting <span class="string">'focal.tar.gz'</span></span><br><span class="line"></span><br><span class="line">Reading cache</span><br><span class="line"></span><br><span class="line">Checking package manager</span><br><span class="line"></span><br><span class="line">Continue running under SSH?</span><br><span class="line"></span><br><span class="line">This session appears to be running under ssh. It is not recommended</span><br><span class="line">to perform a upgrade over ssh currently because <span class="keyword">in</span> <span class="keyword">case</span> of failure it</span><br><span class="line">is harder to recover.</span><br><span class="line"></span><br><span class="line">If you <span class="built_in">continue</span>, an additional ssh daemon will be started at port</span><br><span class="line"><span class="string">'1022'</span>.</span><br><span class="line">Do you want to <span class="built_in">continue</span>?</span><br><span class="line"></span><br><span class="line">Continue [yN]</span><br></pre></td></tr></table></figure><p><strong>Reboot the box.</strong></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;&lt;strong&gt;Install all available updates for your release before upgrading.&lt;/strong&gt;&lt;/p&gt;
-&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class</summary>
-      
-    
-    
-    
-    
-    <category term="linux" scheme="http://divinerapier.github.io/tags/linux/"/>
-    
-    <category term="ubuntu" scheme="http://divinerapier.github.io/tags/ubuntu/"/>
     
   </entry>
   

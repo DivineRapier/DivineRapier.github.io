@@ -170,6 +170,151 @@
             
 
   
+    <article id="post-scheduling-and-eviction-assigning-pods-to-nodes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/" target="_blank">调度与驱逐 —— 将 Pod 分配到节点上</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/" class="archive-article-date">
+        <time datetime="2020-11-15T10:47:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-15</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>Kubernetes 允许用户强制 Pod 只能在特定的 Node(s) 上，或者建议优先在特定的 Node(s) 上运行。常规方法是使用 <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/" target="_blank" rel="noopener">Labels and Selectors</a> 来选择。该约束为可选项，默认情况下调度器将自动进行合理的调度，比如，将 pod 分散到节点上，而非在可用资源不足的节点上。但在某些情况下，用户期望对调度 Pod 的 Node(s) 有更多控制，例如，确保 pod 最终落在有 SSD 的机器上，或者将若干有大量通信的服务的 pod 放置在同一个可用区。</p>
+<h2 id="nodeSelector"><a href="#nodeSelector" class="headerlink" title="nodeSelector"></a>nodeSelector</h2><p><strong>nodeSelector</strong> 是最简单推荐形式的节点选择约束。nodeSelector 是 PodSpec 的一个字段，其包含键值对映射。为了使 pod 可以在某个节点上运行，约束键值对构成的集合必须是节点标签集合的子集。</p>
+<h3 id="Get-nodes"><a href="#Get-nodes" class="headerlink" title="Get nodes"></a>Get nodes</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes</span><br></pre></td></tr></table></figure>
+
+<h3 id="Get-the-names-of-cluster’s-nodes"><a href="#Get-the-names-of-cluster’s-nodes" class="headerlink" title="Get the names of cluster’s nodes"></a>Get the names of cluster’s nodes</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes</span><br></pre></td></tr></table></figure>
+
+<h3 id="Attach-label-to-the-node"><a href="#Attach-label-to-the-node" class="headerlink" title="Attach label to the node"></a>Attach label to the node</h3><p>规则为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label nodes &lt;node-name&gt; &lt;label-key&gt;=&lt;label-value&gt;</span><br></pre></td></tr></table></figure>
+
+<p>例如，节点 ‘kubernetes-foo-node-1.c.a-robinson.internal’，标签 ‘disktype=ssd’，则可以执行:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label nodes kubernetes-foo-node-1.c.a-robinson.internal disktype=ssd</span><br></pre></td></tr></table></figure>
+
+<p>通过命令验证:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes --show-labels</span><br></pre></td></tr></table></figure>
+
+<p>或者:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl describe node &lt;node-name&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Add-a-nodeSelector-field-to-your-pod-configuration"><a href="#Add-a-nodeSelector-field-to-your-pod-configuration" class="headerlink" title="Add a nodeSelector field to your pod configuration"></a>Add a nodeSelector field to your pod configuration</h3><p>如下为原始 Pod 配置文件:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br></pre></td></tr></table></figure>
+
+<p>在此基础上，添加 nodeSelector:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">nodeSelector:</span></span><br><span class="line">    <span class="attr">disktype:</span> <span class="string">ssd</span></span><br></pre></td></tr></table></figure>
+
+<p>而改文件可以在 <a href="https://k8s.io/examples/pods/pod-nginx.yaml" target="_blank" rel="noopener">https://k8s.io/examples/pods/pod-nginx.yaml</a> 得到。因此，使用如下命令创建 Pod:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://k8s.io/examples/pods/pod-nginx.yaml</span><br></pre></td></tr></table></figure>
+
+<p>之后，查看 Pod 所在的 Node 并验证约束是否有效:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods -o wide</span><br><span class="line"></span><br><span class="line">kubectl describe node &lt;node-name&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Affinity-and-anti-affinity"><a href="#Affinity-and-anti-affinity" class="headerlink" title="Affinity and anti-affinity"></a>Affinity and anti-affinity</h3><p>Affinity and anti-affinity (亲和与反亲和) 是 nodeSelector 提供的一种非常简单的将 pod 约束到具有特定标签的节点上的方法，极大地扩展了用户可以表达约束的类型。关键增强表现为:</p>
+<ol>
+<li>语言更具表现力，不只是 “完全匹配的 AND” 语义</li>
+<li>规则可以是一种建议性的，而非硬性要求，即使调度器无法找到满足要求的 Node，依旧会调度该 pod</li>
+<li>除了可以使用 Node 本身的标签作为约束之外，还可以使用运行在 Node 上的 pod 的标签作为约束，表明可以或者不可以与哪些 pod 运行在同一 Node 上。</li>
+</ol>
+<p>Affinity 功能包含两种类型的 affinity: <strong>node affinity</strong> 与 <strong>inter-pod affinity/anti-affinity</strong>。<strong>node affinity</strong> 类似于 <strong>nodeSelector</strong>，对应上述 <strong>1,2</strong> 两点优势。而 <strong>inter-pod affinity/anti-affinity</strong> 具有上述 <strong>1,2,3</strong> 三点优势。</p>
+<h4 id="Node-affinity"><a href="#Node-affinity" class="headerlink" title="Node affinity"></a>Node affinity</h4><p><strong>Node affinity</strong> 概念上类似于 <strong>nodeSelector</strong>，可以根据节点上的标签来约束 pod 可以调度到哪些节点。</p>
+<p>目前有两种类型的 Node affinity，分别为 <strong>requiredDuringSchedulingIgnoredDuringExecution</strong> 和 <strong>preferredDuringSchedulingIgnoredDuringExecution</strong>。</p>
+<p><strong>requiredDuringSchedulingIgnoredDuringExecution</strong> 指定了将 pod 调度到一个节点上必须满足的规则，原则上等同于 nodeSelector，但语法更具有表现力。</p>
+<p><strong>preferredDuringSchedulingIgnoredDuringExecution</strong> 指定调度器将尝试执行但不能保证的偏好。</p>
+<p>名称中 <strong>IgnoredDuringExecution</strong> 类似于 <strong>nodeSelector</strong> 的用法，表明如果节点的标签在 Pod 运行时发生变更，从而不再满足 pod 上的 affinity 规则时，pod 将仍然继续运行在原节点上。<strong>requiredDuringSchedulingRequiredDuringExecution</strong> 还只存在于计划中。</p>
+<p>因此，在下面的示例中:</p>
+<ul>
+<li><strong>requiredDuringSchedulingIgnoredDuringExecution</strong> 的含义为: <strong>必须将 pod 运行在具有 kubernetes.io/e2e-az-name=e2e-az1 或 kubernetes.io/e2e-az-name=e2e-az2 标签的 Node 上</strong></li>
+<li><strong>preferredDuringSchedulingIgnoredDuringExecution</strong> 的含义为: <strong>尝试将 pod 运行具有 another-node-label-key=another-node-label-value 标签的 Node 上，如果这不可能的话，则允许 pod 在其他地方运行</strong></li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">with-node-affinity</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">nodeAffinity:</span></span><br><span class="line">      <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">        <span class="attr">nodeSelectorTerms:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">kubernetes.io/e2e-az-name</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">e2e-az1</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">e2e-az2</span></span><br><span class="line">      <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">1</span></span><br><span class="line">        <span class="attr">preference:</span></span><br><span class="line">          <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">another-node-label-key</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">another-node-label-value</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">with-node-affinity</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">k8s.gcr.io/pause:2.0</span></span><br></pre></td></tr></table></figure>
+
+<p>Node affinity 语法支持的操作符: In，NotIn，Exists，DoesNotExist，Gt，Lt。使用 NotIn 和 DoesNotExist 来实现 <strong>node anti-affinity</strong> 行为，或者使用 <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/" target="_blank" rel="noopener">node taints(节点污点将)</a> pod 从特定节点中驱逐。</p>
+<p>如果同时指定了 <strong>nodeSelector</strong> 和 <strong>nodeAffinity</strong>，则要求两者必须同时满足，才能将 pod 调度到候选 Node 上。</p>
+<p>如果指定了多个与 <strong>nodeAffinity</strong> 类型关联的 <strong>nodeSelectorTerms</strong>，则 Node 只需要满足其中任何一个 nodeSelectorTerms 即可将 pod 调度到 Node 上。</p>
+<p>如果指定了多个与 <strong>nodeSelectorTerms</strong> 关联的 <strong>matchExpressions</strong>，则当且仅当所有 <strong>matchExpressions</strong> 得到满足时才将 pod 调度到该 Node 上。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/" target="_blank" rel="noopener">Assigning Pods to Nodes</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">scheduling</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-kubernetes-device-plugin" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1330,112 +1475,6 @@
 
 
   
-    <article id="post-upgrade-ubuntu-release" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/20/upgrade-ubuntu-release/" target="_blank">升级 Ubuntu 发行版</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/20/upgrade-ubuntu-release/" class="archive-article-date">
-        <time datetime="2020-10-20T08:05:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-20</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><strong>Install all available updates for your release before upgrading.</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update &amp;&amp; sudo apt upgrade -y</span><br></pre></td></tr></table></figure>
-
-<p><strong>Reboot system.</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
-
-<p><strong>Install the Ubuntu update tool.</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y update-manager-core</span><br></pre></td></tr></table></figure>
-
-<p><strong>Start the upgrade procdure.</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="keyword">do</span>-release-upgrade</span><br></pre></td></tr></table></figure>
-
-<p>不建议升级过程通过 <strong>ssh</strong> 连接运行，可以运行在 <strong>tmux</strong> 会话中。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="keyword">do</span>-release-upgrade</span><br><span class="line">Checking <span class="keyword">for</span> a new Ubuntu release</span><br><span class="line">Get:1 Upgrade tool signature [1,554 B]</span><br><span class="line">Get:2 Upgrade tool [1,336 kB]</span><br><span class="line">Fetched 1,338 kB <span class="keyword">in</span> 0s (0 B/s)</span><br><span class="line">authenticate <span class="string">'focal.tar.gz'</span> against <span class="string">'focal.tar.gz.gpg'</span></span><br><span class="line">extracting <span class="string">'focal.tar.gz'</span></span><br><span class="line"></span><br><span class="line">Reading cache</span><br><span class="line"></span><br><span class="line">Checking package manager</span><br><span class="line"></span><br><span class="line">Continue running under SSH?</span><br><span class="line"></span><br><span class="line">This session appears to be running under ssh. It is not recommended</span><br><span class="line">to perform a upgrade over ssh currently because <span class="keyword">in</span> <span class="keyword">case</span> of failure it</span><br><span class="line">is harder to recover.</span><br><span class="line"></span><br><span class="line">If you <span class="built_in">continue</span>, an additional ssh daemon will be started at port</span><br><span class="line"><span class="string">'1022'</span>.</span><br><span class="line">Do you want to <span class="built_in">continue</span>?</span><br><span class="line"></span><br><span class="line">Continue [yN]</span><br></pre></td></tr></table></figure>
-
-<p><strong>Reboot the box.</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo reboot</span><br></pre></td></tr></table></figure>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">ubuntu</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/20/upgrade-ubuntu-release/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
@@ -1450,7 +1489,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2018-2020 <a href="http://divinerapier.github.io/" target="_blank">A</a>
+    		&copy; 2018-2021 <a href="http://divinerapier.github.io/" target="_blank">A</a>
     	</div>
       	<div class="footer-right">
 			
@@ -1573,10 +1612,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1597,19 +1632,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">storage engine</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">index</a>
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1629,11 +1652,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+                <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+                <a href="javascript:void(0)" class="js-tag color5">tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">storage engine</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">index</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1645,7 +1680,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1665,11 +1704,27 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1689,19 +1744,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1713,19 +1756,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1777,15 +1816,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
               </li>
              
               <li class="article-tag-list-item">
