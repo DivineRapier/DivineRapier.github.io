@@ -18,7 +18,7 @@
 <meta property="og:description" content="Program to an interface, not an implementation.  针对接口，而非实现编程 —— 出自 GoF《设计模式: 可复用面向对象软件基础》。接口 表示一组 协议 或 约定，是一组功能的集合。 接口在不同的语言中，有不同的称呼:  rust 中的 trait go 中的 interface swift 中的 protocol java 中的 interfac">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-02-06T08:22:31.000Z">
-<meta property="article:modified_time" content="2021-02-07T07:40:59.618Z">
+<meta property="article:modified_time" content="2021-02-07T08:04:28.208Z">
 <meta property="article:author" content="A">
 <meta property="article:tag" content="programming">
 <meta name="twitter:card" content="summary">
@@ -269,7 +269,7 @@
 <li>方法三，相比于方法二，更进一步提高了灵活性，每一个文件都可以有独立的源与目标。但这种方法只是看起来很美好，很灵活，实际上可能并没有真实的使用场景。原因是，如果每一个文件都可以具有独立的目标，那么完全可以将目标相同的文件聚合到一起，作为一个批量的任务，这样就演变为了 <strong>方法二</strong></li>
 </ul>
 <p>综上所述，下面实现 <strong>方法二</strong>:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Service <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Batch <span class="keyword">struct</span> &#123;</span><br><span class="line">  From    <span class="keyword">string</span></span><br><span class="line">  Targets []<span class="keyword">string</span></span><br><span class="line">  Names   []<span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sync</span><span class="params">(batch *Batch)</span></span> &#123;</span><br><span class="line">  from := NewStorage(batch.From)</span><br><span class="line">  targets := NewStorages(batch.Targets)</span><br><span class="line">  <span class="keyword">for</span> _, name := <span class="keyword">range</span> batch.Names &#123;</span><br><span class="line">    data := from.Download(name)</span><br><span class="line">    <span class="keyword">for</span> _, target := <span class="keyword">range</span> targets &#123;</span><br><span class="line">      target.Upload(name, data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Batch <span class="keyword">struct</span> &#123;</span><br><span class="line">  From    <span class="keyword">string</span></span><br><span class="line">  Targets []<span class="keyword">string</span></span><br><span class="line">  Names   []<span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sync</span><span class="params">(batch *Batch)</span></span> &#123;</span><br><span class="line">  from := NewStorage(batch.From)</span><br><span class="line">  targets := NewStorages(batch.Targets)</span><br><span class="line">  <span class="keyword">for</span> _, name := <span class="keyword">range</span> batch.Names &#123;</span><br><span class="line">    data := from.Download(name)</span><br><span class="line">    <span class="keyword">for</span> _, target := <span class="keyword">range</span> targets &#123;</span><br><span class="line">      target.Upload(name, data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>到此为止，所有代码都是面向接口编程，需求中提到的 <code>aws s3</code> 与 <code>aliyun oss</code> 还没有出现:</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> AwsS3 <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> AliyunOSS <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
@@ -598,15 +598,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -654,6 +654,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">container</a>
               </li>
              
@@ -678,11 +686,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -710,18 +714,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
               </li>
              
@@ -730,11 +722,27 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">storage</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -751,14 +759,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -782,10 +782,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">programming</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
@@ -794,15 +790,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -818,11 +818,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
