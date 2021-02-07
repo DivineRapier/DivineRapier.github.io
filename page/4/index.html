@@ -170,6 +170,95 @@
             
 
   
+    <article id="post-kubernetes-persistent-volume" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/07/kubernetes-persistent-volume/" target="_blank">Kubernetes 持久卷</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/07/kubernetes-persistent-volume/" class="archive-article-date">
+        <time datetime="2020-10-07T09:30:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-07</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">volume</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/07/kubernetes-persistent-volume/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-kubernetes-controllers" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1478,175 +1567,6 @@
 
 
   
-    <article id="post-why-do-we-need-pods" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/31/why-do-we-need-pods/" target="_blank">Pod 的意义</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/31/why-do-we-need-pods/" class="archive-article-date">
-        <time datetime="2020-08-31T08:34:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-31</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="容器的局限性"><a href="#容器的局限性" class="headerlink" title="容器的局限性"></a>容器的局限性</h2><p>既然要讨论 <code>Pod</code> 的意义，或许可以想象一个如果没有 <code>Pod</code> 会是什么样子。</p>
-<p>假设，有如下需求: 使用容器化来部署一个支持自动更新数据的文件服务。可以使用如下方法解决:</p>
-<ol>
-<li>在一个容器中，同时运行两个进程，一个进程提供文件服务，一个进程定时更新数据。<ul>
-<li>优点:<ol>
-<li>无论是编码，还是部署都十分的容易，就像在物理机或者虚拟机里面一样</li>
-</ol>
-</li>
-<li>缺点:<ol>
-<li>容器的本质是进程，对操作系统而言是那个由 <code>entrypoint</code> 指定的进程，其他进程都是其子进程，或子进程的子进程等。而且，<code>entrypoint</code> 没有回收僵尸进程的能力。</li>
-<li>耦合严重</li>
-</ol>
-</li>
-</ul>
-</li>
-<li>每个进程分别位于各自的容器，两个容器之间通过挂载相同的外部 <code>volume</code> 实现容器间共享文件系统。<ul>
-<li>优点:<ol>
-<li>将两个容器解耦，保证功能单一性</li>
-</ol>
-</li>
-<li>缺点:<ol>
-<li>通过共享外部 <code>volume</code> 的方式无法保证数据安全性，其他容器，或宿主机也能直接访问 <code>volume</code></li>
-</ol>
-</li>
-</ul>
-</li>
-<li>在上一个方法的基础上，通过 <code>--volume-from</code> 指定从其他的 <code>container</code> 挂载 <code>volume</code>。<ul>
-<li>优点:<ol>
-<li>避免对外直接暴露 <code>volume</code></li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-<p>到此为止，一切似乎很顺利，没有在创建 <code>Pod</code> 这样一个新的概念。</p>
-<p>但上述方案有一个局限性，<code>--volume-from</code> 的目标容器只能是本地的其他 <code>container</code>。</p>
-<p>假设，使用 <code>Docker Swarm</code> 部署服务。为了便于叙述，做出如下定义:</p>
-<ul>
-<li>集群中存在两个节点。<strong><code>node-0</code></strong> 剩余 <code>2G</code> 内存，<strong><code>node-1</code></strong> 剩余 <code>1.5G</code> 内存</li>
-<li>两个容器 <code>container-0</code> 与 <code>container-1</code> 各需要 <code>1G</code> 内存</li>
-<li>部署过程，先启动 <code>container-0</code>，后启动 <code>container-1</code></li>
-</ul>
-<p>因此，为了让两个容器能够运行在同一个 <code>Node</code> 上，需要在启动 <code>container-1</code> 时增加限制 <code>affinity=container-0</code>。</p>
-<p>此时，如果 <code>container-0</code> 被调度到了 <code>node-1</code> 上，<code>node-1</code> 将剩余 <code>0.5G</code> 内存。接下来，调度 <code>container-1</code> 时，<code>Docker Swarm</code> 就会发现无法找到一个合适的 <code>Node</code> 来启动 <code>container-1</code>。</p>
-<p>以上问题被称作 <a href="https://en.wikipedia.org/wiki/Gang_scheduling" target="_blank" rel="noopener">Gang Scheduling</a>。</p>
-<p>而 <code>Kuberntes</code> 则通过 <code>Pod</code> 解决了这个问题。</p>
-<p><code>Pod</code> 是 <code>Kubernetes</code> 中最小的可调度计算单元。在处理上述问题中，如果将 <code>container-0</code> 与 <code>container-1</code> 同时包含在一个 <code>Pod</code> 中，<code>Kubernetes</code> 在调度这个 <code>Pod</code> 时就只会考虑剩余内存不小于 <code>2G</code> 的 <code>node-0</code>。</p>
-<p>对于上面这种，相互之间直接访问文件系统、使用 <code>localhost</code> 或 <code>socket</code> 文件进行本地通信，共享某些 <code>Namespace</code> 的一组容器，称之为 <strong>超亲密关系</strong>。</p>
-<h2 id="Pod-实现原理"><a href="#Pod-实现原理" class="headerlink" title="Pod 实现原理"></a>Pod 实现原理</h2><p><code>Pod</code> 是一个逻辑概念。其本质是一组共享了 <code>Network Namespace</code>，并且可以声明共享同一个 <code>Volume</code> 的容器。</p>
-<p>比如，一个包含了 <code>A</code> 与 <code>B</code> 两个容器的 <code>Pod</code>，按照 <a href="https://kubernetes.io/docs/concepts/workloads/pods/#what-is-a-pod" target="_blank" rel="noopener">定义</a> 的描述，可以使用如下 <code>Docker</code> 命令模拟:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># start container A</span></span><br><span class="line">$ docker run --net=B --volumes-from=B --name=A image-A ...</span><br></pre></td></tr></table></figure>
-
-<p>但此时会发现，<code>Pod</code> 内的一组容器要遵循某个特定的顺序启动，容器与容器之间不再是对等关系，而是拓扑关系。</p>
-<p>所以，在 <code>Kubernetes</code> 项目里，通过增加一个被称作 <code>Infra</code> 的容器作为 <code>Pod</code> 里第一个启动的容器。用户定义的其他容器通过 <code>Join Network Namespace</code> 的方式，关联到 <code>Infra</code> 容器。这样的组织关系，可以用下面这样一个示意图来表达:</p>
-<p><img src="/images/why-do-we-need-pods/01.png" alt="pause container"></p>
-<p>如上图所示，这个 <code>Pod</code> 里有两个用户容器 <code>A</code> 和 <code>B</code>，还有一个 <code>Infra</code> 容器。这个特殊容器的镜像地址为 <code>k8s.gcr.io/pause</code>，源代码位于 <a href="https://github.com/kubernetes/kubernetes/blob/master/build/pause/pause.c" target="_blank" rel="noopener">github</a>。同时，<code>kubelet</code> 提供参数 <code>--pod-infra-container-image</code> 支持自定义镜像。</p>
-<p>所以，当容器 <code>A</code>、<code>B</code> 加入到 <code>Infra</code> 容器的 <code>Network Namespace</code> 后，对于容器 <code>A</code>、<code>B</code> 而言:</p>
-<ul>
-<li>可以直接使用 <code>localhost</code> 进行通信</li>
-<li>看到的网络设备跟 <code>Infra</code> 容器看到的完全一样</li>
-<li>一个 <code>Pod</code> 只有一个 <code>IP</code> 地址，也就是这个 <code>Pod</code> 的 <code>Network Namespace</code> 对应的 <code>IP</code> 地址</li>
-<li>其他的所有网络资源，都是一个 <code>Pod</code> 一份，并且被该 <code>Pod</code> 中的所有容器共享</li>
-<li><code>Pod</code> 的生命周期只跟 <code>Infra</code> 容器一致，而与容器 <code>A</code>、<code>B</code> 无关。</li>
-</ul>
-<p>而对于同一个 <code>Pod</code> 里面的所有用户容器来说，它们的进出流量，也可以认为都是通过 <code>Infra</code> 容器完成的。这一点很重要，因此为 <code>Kubernetes</code> 开发网络插件时，应该重点考虑的是如何配置这个 <code>Pod</code> 的 <code>Network Namespace</code>，而不是每一个用户容器如何使用网络配置。</p>
-<p>而且，在这这个设计模型之下，可以方便的共享 <code>volume</code>: <code>Kubernetes</code> 项目只要把所有 <code>volume</code> 的定义都设计在 <code>Pod</code> 层级即可。之后，<code>Pod</code> 内的容器再声明挂载这个 <code>volume</code> 从而达到共享 <code>volume</code> 的目的。</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">two-containers</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> <span class="string">Never</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">    <span class="attr">hostPath:</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">/data</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx-container</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">/usr/share/nginx/html</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">debian-container</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">debian</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">/pod-data</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">["/bin/sh"]</span></span><br><span class="line">    <span class="attr">args:</span> <span class="string">["-c",</span> <span class="string">"echo Hello from the debian container &gt; /pod-data/index.html"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="容器设计模式"><a href="#容器设计模式" class="headerlink" title="容器设计模式"></a>容器设计模式</h2><p><code>Pod</code> 这种 <strong>超亲密关系</strong> 容器的设计思想，实际上就是希望，当用户想在一个容器里运行多个功能并不相关的应用时，应该优先考虑它们是不是更应该被描述成一个 <code>Pod</code> 里的多个容器。</p>
-<p>要理解这个概念，也很容易。只需要将 <code>Pod</code> 理解为原来的虚拟机即可。</p>
-<p>在虚拟机时代，服务之间也存在一定的关系。有上述那样需要共享本地文件系统的关系，也有 <code>API Service</code> 与 <code>DB</code> 之间的关系。</p>
-<p>当需要考虑是否需要将多个容器描述成一个 <code>Pod</code> 时，可以想象一下: 如果使用虚拟机部署，是否应该将这些服务部署在同一台虚拟机上。如果需要部署在一台虚拟机才能工作，那么就需要描述为一个 <code>Pod</code>。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://kubernetes.io/docs/concepts/workloads/pods/" target="_blank" rel="noopener">Kuberntes Documentation: Pod</a></li>
-<li><a href="https://cloud.tencent.com/developer/article/1513369" target="_blank" rel="noopener">为什么说容器是单进程模型</a></li>
-<li><a href="https://forums.docker.com/t/use-affinity-filter-in-docker-service-create/78402" target="_blank" rel="noopener">Use “affinity filter” in “docker service create”</a></li>
-<li><a href="https://www.ianlewis.org/en/almighty-pause-container" target="_blank" rel="noopener">The Almighty Pause Container</a></li>
-<li><a href="https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods/" target="_blank" rel="noopener">Podman: Managing pods and containers in a local container runtime</a></li>
-<li><a href="https://www.usenix.org/system/files/conference/hotcloud16/hotcloud16_burns.pdf" target="_blank" rel="noopener">Design patterns for container-based distributed systems</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">pod</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/31/why-do-we-need-pods/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/5/">Next &amp;raquo;</a>
@@ -1784,43 +1704,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">networks</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1840,23 +1732,31 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">networks</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1884,19 +1784,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1916,7 +1816,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1924,7 +1840,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1933,6 +1849,18 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1956,15 +1884,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">faq</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1976,10 +1900,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
@@ -1988,7 +1908,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">programming</a>
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1996,11 +1916,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2009,10 +1933,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">

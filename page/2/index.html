@@ -170,6 +170,116 @@
             
 
   
+    <article id="post-volcano" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/11/16/volcano/" target="_blank">Volcano</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/11/16/volcano/" class="archive-article-date">
+        <time datetime="2020-11-16T06:43:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-16</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>从 <a href="https://github.com/volcano-sh/volcano/releases" target="_blank" rel="noopener">volocano release</a> 下载 <strong>Volcano</strong>，通过 <strong>yaml</strong> 文件创建 <strong>Deployment</strong> 等。</p>
+<p>以当前版本 <strong>v1.1.0</strong> 为例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://github.com/volcano-sh/volcano/releases/download/v1.1.0/volcano-v1.1.0-linux-gnu.tar.gz</span><br><span class="line"></span><br><span class="line">$ tar xzf volcano-v1.1.0-linux-gnu.tar.gz</span><br><span class="line"></span><br><span class="line">$ kubectl apply -f ./volcano-v1.1.0.yaml</span><br><span class="line">namespace/volcano-system created</span><br><span class="line">namespace/volcano-monitoring created</span><br><span class="line">configmap/volcano-scheduler-configmap created</span><br><span class="line">serviceaccount/volcano-scheduler created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/volcano-scheduler created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/volcano-scheduler-role created</span><br><span class="line">deployment.apps/volcano-scheduler created</span><br><span class="line">service/volcano-scheduler-service created</span><br><span class="line">serviceaccount/volcano-admission created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/volcano-admission created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/volcano-admission-role created</span><br><span class="line">deployment.apps/volcano-admission created</span><br><span class="line">service/volcano-admission-service created</span><br><span class="line">job.batch/volcano-admission-init created</span><br><span class="line">serviceaccount/volcano-controllers created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/volcano-controllers created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/volcano-controllers-role created</span><br><span class="line">deployment.apps/volcano-controllers created</span><br><span class="line">Warning: apiextensions.k8s.io/v1beta1 CustomResourceDefinition is deprecated <span class="keyword">in</span> v1.16+, unavailable <span class="keyword">in</span> v1.22+; use apiextensions.k8s.io/v1 CustomResourceDefinition</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/jobs.batch.volcano.sh created</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/commands.bus.volcano.sh created</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/podgroups.scheduling.volcano.sh created</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/queues.scheduling.volcano.sh created</span><br></pre></td></tr></table></figure>
+
+<p>验证 <strong>Volcano</strong> 组件运行状态:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get all -n volcano-system</span><br><span class="line">NAME                                     READY   STATUS      RESTARTS   AGE</span><br><span class="line">pod/volcano-admission-7cfdf5b8d-cd2mk    1/1     Running     0          6m27s</span><br><span class="line">pod/volcano-admission-init-rmd7w         0/1     Completed   0          6m27s</span><br><span class="line">pod/volcano-controllers-c4c5f48b-dtx4w   1/1     Running     0          6m27s</span><br><span class="line">pod/volcano-scheduler-54f77d6788-d6t9j   1/1     Running     0          6m27s</span><br><span class="line"></span><br><span class="line">NAME                                TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE</span><br><span class="line">service/volcano-admission-service   ClusterIP   10.5.51.59    &lt;none&gt;        443/TCP    6m27s</span><br><span class="line">service/volcano-scheduler-service   ClusterIP   10.5.128.19   &lt;none&gt;        8080/TCP   6m27s</span><br><span class="line"></span><br><span class="line">NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">deployment.apps/volcano-admission     1/1     1            1           6m27s</span><br><span class="line">deployment.apps/volcano-controllers   1/1     1            1           6m27s</span><br><span class="line">deployment.apps/volcano-scheduler     1/1     1            1           6m27s</span><br><span class="line"></span><br><span class="line">NAME                                           DESIRED   CURRENT   READY   AGE</span><br><span class="line">replicaset.apps/volcano-admission-7cfdf5b8d    1         1         1       6m27s</span><br><span class="line">replicaset.apps/volcano-controllers-c4c5f48b   1         1         1       6m27s</span><br><span class="line">replicaset.apps/volcano-scheduler-54f77d6788   1         1         1       6m27s</span><br><span class="line"></span><br><span class="line">NAME                               COMPLETIONS   DURATION   AGE</span><br><span class="line">job.batch/volcano-admission-init   1/1           4m24s      6m27s</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建任务"><a href="#创建任务" class="headerlink" title="创建任务"></a>创建任务</h2><h3 id="CPU-任务"><a href="#CPU-任务" class="headerlink" title="CPU 任务"></a>CPU 任务</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openmpi-helloworld-job</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">schedulerName:</span> <span class="string">volcano</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">openmpi-helloworld-job</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">/helloworld/mpi_hello_world</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">request:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">openmpi-helloworld-job</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="GPU-任务"><a href="#GPU-任务" class="headerlink" title="GPU 任务"></a>GPU 任务</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tensorflow-benchmarks</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">schedulerName:</span> <span class="string">volcano</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">mpioperator/tensorflow-benchmarks:latest</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">tensorflow-benchmarks</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-bind-to</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">none</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-map-by</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">slot</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-x</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">NCCL_DEBUG=INFO</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-x</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">LD_LIBRARY_PATH</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-x</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">PATH</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-mca</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">pml</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">ob1</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-mca</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">btl</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">^openib</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">python</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--model=resnet101</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--batch_size=64</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--variable_update=horovod</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">nvidia.com/gpu:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">mpioperator/tensorflow-benchmarks:latest</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">tensorflow-benchmarks</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">nvidia.com/gpu:</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p><strong>volcano-scheduler</strong> 在调度任务时，当任务使用的资源太少时会被跳过，具体逻辑为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> (</span><br><span class="line">    minMilliCPU <span class="keyword">float64</span> = <span class="number">10</span></span><br><span class="line">    minMilliScalarResources <span class="keyword">float64</span> = <span class="number">10</span></span><br><span class="line">    minMemory <span class="keyword">float64</span> = <span class="number">1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(alloc *Action)</span> <span class="title">Execute</span><span class="params">(ssn *framework.Session)</span></span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">if</span> _, found = pendingTasks[job.UID]; !found &#123;</span><br><span class="line">        tasks := util.NewPriorityQueue(ssn.TaskOrderFn)</span><br><span class="line">        <span class="keyword">for</span> _, task := <span class="keyword">range</span> job.TaskStatusIndex[api.Pending] &#123;</span><br><span class="line">            <span class="comment">// Skip BestEffort task in 'allocate' action.</span></span><br><span class="line">            <span class="keyword">if</span> task.Resreq.IsEmpty() &#123;</span><br><span class="line">                klog.V(<span class="number">4</span>).Infof(<span class="string">"Task &lt;%v/%v&gt; is BestEffort task, skip it."</span>,</span><br><span class="line">                task.Namespace, task.Name)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            tasks.Push(task)</span><br><span class="line">        &#125;</span><br><span class="line">        pendingTasks[job.UID] = tasks</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// IsEmpty returns bool after checking any of resource is less than min possible value</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *Resource)</span> <span class="title">IsEmpty</span><span class="params">()</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> r.MilliCPU &gt;= minMilliCPU || r.Memory &gt;= minMemory &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> _, rQuant := <span class="keyword">range</span> r.ScalarResources &#123;</span><br><span class="line">        <span class="keyword">if</span> rQuant &gt;= minMilliScalarResources &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以，在使用 <strong>volcano</strong> 作为调度器时，必须要对 <strong>Pod</strong> 使用的资源做出限制。对于使用 <strong>volcano</strong> 调度 <strong>MPIJob</strong> 时，无论是 <strong>Launcher</strong> 还是 <strong>Worker</strong> 都需要显示声明需要的资源。</p>
+<p>更具体地，<strong>volcano</strong> 会将资源分为两个大类:</p>
+<ul>
+<li><strong>CPU</strong> 与 <strong>Memory</strong></li>
+<li>其他资源</li>
+</ul>
+<p>要求上述两类资源，至少有一类使用的资源满足最低要求即可。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">scheduler</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/11/16/volcano/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-scheduling-and-eviction-assigning-pods-to-nodes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1389,92 +1499,6 @@
 
 
   
-    <article id="post-openmpi-in-docker" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/24/openmpi-in-docker/" target="_blank">在 Docker 中使用 OpenMPI</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/24/openmpi-in-docker/" class="archive-article-date">
-        <time datetime="2020-10-24T08:57:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="构建-Base-镜像"><a href="#构建-Base-镜像" class="headerlink" title="构建 Base 镜像"></a>构建 Base 镜像</h2><p>基于 <strong>Ubuntu 20.04 + OpenMPI 4.0.5</strong> 构建 <strong>Base</strong> 镜像:</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">20.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt install -y wget gcc g++ make</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install OpenSSH for MPI to communicate between containers</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get install -y --no-install-recommends openssh-client openssh-server &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mkdir -p /var/run/sshd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Allow OpenSSH to talk to containers without asking for confirmation</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> cat /etc/ssh/ssh_config | grep -v StrictHostKeyChecking &gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">echo</span> <span class="string">"    StrictHostKeyChecking no"</span> &gt;&gt; /etc/ssh/ssh_config.new &amp;&amp; \</span></span><br><span class="line"><span class="bash">    mv /etc/ssh/ssh_config.new /etc/ssh/ssh_config</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Install Open MPI</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> mkdir /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> /tmp/openmpi &amp;&amp; \</span></span><br><span class="line"><span class="bash">    wget https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    tar zxf openmpi-4.0.5.tar.gz &amp;&amp; \</span></span><br><span class="line"><span class="bash">    <span class="built_in">cd</span> openmpi-4.0.5 &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ./configure --<span class="built_in">enable</span>-orterun-prefix-by-default &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make -j $(nproc) all &amp;&amp; \</span></span><br><span class="line"><span class="bash">    make install &amp;&amp; \</span></span><br><span class="line"><span class="bash">    ldconfig</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="发布镜像"><a href="#发布镜像" class="headerlink" title="发布镜像"></a>发布镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker build -t divinerapier/openmpi:4.0.5 -f=./dockerfile .</span><br><span class="line">docker push divinerapier/openmpi:4.0.5</span><br></pre></td></tr></table></figure>
-
-<h2 id="应用程序"><a href="#应用程序" class="headerlink" title="应用程序"></a>应用程序</h2><h3 id="程序代码"><a href="#程序代码" class="headerlink" title="程序代码"></a>程序代码</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 初始化 MPI 环境</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过调用以下方法来得到所有可以工作的进程数量</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 得到当前进程的秩</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 得到当前进程的名字</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印一条带有当前进程名字，秩以及</span></span><br><span class="line">    <span class="comment">// 整个 communicator 的大小的 hello world 消息。</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放 MPI 的一些资源</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">MPICC ?= mpicc</span><br><span class="line"></span><br><span class="line"><span class="section">all: build</span></span><br><span class="line"></span><br><span class="line"><span class="section">build: main.c</span></span><br><span class="line">    <span class="variable">$(MPICC)</span> -o mpi_hello_world main.c</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm -rf mpi_hello_world</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> divinerapier/openmpi:<span class="number">4.0</span>.<span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./ /helloworld</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">cd</span> /helloworld \</span></span><br><span class="line"><span class="bash">  &amp;&amp; make</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="运行应用程序"><a href="#运行应用程序" class="headerlink" title="运行应用程序"></a>运行应用程序</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker build -t divinerapier/openmpi-helloworld:0.0.1 -f=./dockerfile .</span><br><span class="line">docker run --rm -it divinerapier/openmpi-helloworld:0.0.1 mpirun -allow-run-as-root -np 4 /helloworld/mpi_hello_world</span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 0 out of 4 processors</span></span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 1 out of 4 processors</span></span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 2 out of 4 processors</span></span><br><span class="line"><span class="comment"># Hello world from processor fa74677bda6b, rank 3 out of 4 processors</span></span><br></pre></td></tr></table></figure>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/24/openmpi-in-docker/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
@@ -1612,43 +1636,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">windows</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">networks</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1668,23 +1664,31 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color3">windows</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+                <a href="javascript:void(0)" class="js-tag color5">wsl2</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">networks</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1712,19 +1716,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1744,7 +1748,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
+                <a href="javascript:void(0)" class="js-tag color2">controllers</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1752,7 +1772,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1761,6 +1781,18 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">sstable</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1784,15 +1816,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">faq</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1804,10 +1832,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
@@ -1816,7 +1840,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">programming</a>
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1824,11 +1848,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1837,10 +1865,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
